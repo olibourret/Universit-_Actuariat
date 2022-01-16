@@ -1,0 +1,106 @@
+===
+=== Rapports dynamiques avec Shiny
+===
+
+# 2020.03 (2020-03-20)
+
+## Nouveautés
+
+Dans le cadre de la quarantaine de la COVID-19, j'ai préparé une série
+de 5 vidéos de présentation de la formation. Cette version intègre les
+liens vers les vidéos dans YouTube.
+
+
+# 2020.02 (2020-02-05)
+
+## Nouveautés
+
+- Table des matières pour les diapositives.
+- Page web pour le projet.
+- Utilisation de l'infrastructure de *release* de GitLab pour la distribution des versions.
+
+## Changements
+
+- Utilisation d'une icône dans l'entête pour identifier les
+  diapositives d'exercices.
+- Suppression des intertitres qui servaient à identifier les
+  exercices.
+
+
+# 2019.04 (2019-04-07)
+
+## Nouveautés
+
+- Précisions additionnelles dans la diapositive sur la publication de
+  ses applications Shiny.
+
+## Autres modifications
+
+- Code informatique présenté dans une couleur contrastante.
+
+
+# 2019.03-1 (2019-03-29)
+
+## Nouveautés
+
+- Accent plus fort sur le fait que les expressions réactives sont
+  aussi utiles lorsque l'on doit utiliser des résultats plus d'une
+  fois dans `server`. Ajout d'une puce à cet effet à la diapositive 24
+  et de deux astuces à la diapositive 27.
+
+## Autres modifications
+
+- Correction à la notice de copyright de la photo de la couverture.
+- Modification de la présentation sur le chargement de MathJaX.
+- Mention explicite que les mathématiques utilisent la syntaxe LaTeX.
+
+
+# 2019.03 (2019-03-29)
+
+## Nouveautés
+
+- Les diapositives se présentent maintenant sous forme de document
+  PDF. Il n'y a plus de version en ligne des diapositives dans GitLab.
+
+## Autres modifications
+
+- Suppression de l'exercice sur le texte et les mathématiques et, par
+  conséquent, de l'application `exercice-texte-math`.
+
+
+# 2019.02 (2019-02-06)
+
+## Nouveautés
+
+- Ajout d'un avertissement sur l'utilisation des sources et
+  expressions réactives.
+
+## Autres modifications
+
+- Suite au déplacement du projet vers GitLab: modification de divers
+  liens dans les diapositives et réorganisation des fichiers du code
+  source.
+
+
+# 2018.02a (2018-02-23)
+
+Correction de coquilles et d'omissions dans les diapos, amélioration
+du code des applications.
+
+- Équations de l'Expected Shortfall manquantes sur la diapo de
+  présentation du projet.
+- Meilleurs exemples de syntaxe dans la section «Entrée et sortie».
+- Fonction `parse` remplacée par `paste` dans l'exemple de syntaxe des
+  fonctions `render*`.
+- Nouvelle diapositive sur la publication de ses applications Shiny.
+- Application `exercice-widgets` (solution): utilisation de noms
+  différents pour les éléments de `input` et de `output` pour éviter
+  la possible confusion (chez le lecteur, pas pour R).
+- Applications `shortfall`, `exercice-reactive` et
+  `exercice-texte-math`: françisation de l'affichage des paramètres
+  (espace dans les nombres en milliers, virgule comme séparateur
+  décimal).
+
+# 2018.02 (2018-02-23)
+
+Version initiale.

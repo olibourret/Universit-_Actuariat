@@ -1,0 +1,390 @@
+### Codes TP ACT-2011
+## Olivier Bourret
+## Marianne Chouinard
+## Ellie Lapoint
+
+
+
+## NOTE: S'assurer de "set working directory"
+
+
+### Question 1
+
+# Importation des indices boursiers
+
+library(readxl)
+DATAACT2011 <- read_excel("DATAACT2011.xlsm")
+ind_boursier <- DATAACT2011$`6`
+
+# Importation des données du bon du trésors
+
+library(readxl)
+tauxbonstresor <- read_excel("tauxbonstresor.xlsx")
+taux_r <- tauxbonstresor$Rendement
+
+
+# Calcul des rendements boursiers
+rend_S <- 0
+
+for (i in 1:517) {
+    rend_i <- (ind_boursier[i+1]/ind_boursier[i])
+    rend_S <- cbind(rend_S, rend_i) 
+}
+
+Rendement_S <- rend_S[2:518]
+
+# Calcul de l'écart-type des rendements
+sigma <- sd(log(Rendement_S))/sqrt(1/12)
+
+# Calcul des taux moyens
+moyenne_r <- mean(taux_r)
+
+# Conversion du taux effectif en force d'intérêt
+force_r <- log(1 + (moyenne_r)/100)
+
+# Calcul des valeurs u, d, et p pour l'arbre binomial
+u_1_4 <- exp(force_r*0.25 + sigma*sqrt(1/4))
+u_1_52 <- exp(force_r*(1/52) + sigma*sqrt(1/52))
+d_1_4 <- exp(force_r*(0.25) - sigma*sqrt(1/4))
+d_1_52 <- exp(force_r*(1/52) - sigma*sqrt(1/52))
+p <- c((exp(force_r/4) - d_1_4)/(u_1_4 - d_1_4),(exp(force_r/52) - d_1_52)/(u_1_52-d_1_52))
+
+
+
+
+
+
+
+
+
+
+### Question 2
+
+## Options européennes
+
+
+## Arbre binomial
+
+Arbre <- function(S_0, n, K, r, sigma,Option){
+    
+    u <- exp(r/n + sigma*(1/n)^{0.5})
+    d <- exp(r/n - sigma*sqrt(1/n))
+    p <- (exp(r/n) - d)/(u - d)
+    ## Calcul de la valeur à chaque noeud
+    
+    i <- 1
+    noeuds <- S_0
+    for(i in 1:n){
+        j <- 0
+        for(j in 0:i){
+            noeuds <- cbind(noeuds, S_0*u^(i-j)*d^(j))    ##Calcul de toutes les combinaisons Sud
+            j <- j+1
+        }
+        i+1
+    }
+    
+    ## Cas de l'option d'achat
+    
+    # Calcul de la valeur de l'option d'achat. Par de la fin pour trouver les valeurs du max(0, S_n - K)
+    # pour chaque valeur de fin de l'arbre
+    if(Option == "C"){
+        i <- length(noeuds)
+        Call <- rep(0, length(noeuds))
+        for(i in ((n*(n+1)/2)+1):((n+1)*(n+2)/2)){
+            Call[i] <- max(noeuds[i]-K,0)
+            i <- i-1
+        }
+        
+        #Permet de trouver la valeur de C_i en fonction des autres C_j
+        
+        i <- (n*(n+1)/2)
+        j <- rep(1:n, 1:n)
+        for(i in (n*(n+1)/2):1){
+            Call[i] <- (p*Call[i+j[i]] + (1-p)*Call[1+i+j[i]])*exp(-r/n)
+            i <- i-1
+        } 
+        resultat <- rbind(noeuds, Call)
+        
+        # Calcul des delta et des B pour répliquer le portefeuille
+        i <- 1
+        delta <- rep(NA, length(noeuds))
+        B <- rep(NA, length(noeuds)) 
+        for(i in 1:(n*(n+1)/2)){
+            delta[i] <- (Call[i+j[i]] - Call[1+i+j[i]])/(noeuds[i+j[i]] - noeuds[1+i+j[i]])
+            B[i] <- exp(-r/n)*(noeuds[i+j[i]] * Call[1+i+j[i]] - noeuds[1+i+j[i]] * Call[i+j[i]])/(noeuds[i+j[i]] - noeuds[1+i+j[i]])
+            i <- i+1
+        }
+        resultat <- rbind(resultat, delta)
+        resultat <- rbind(resultat, B)
+    }
+    
+    ## Cas de l'option de vente
+    
+    # Les étapes sont semblables à celle de l'option d'achat
+    
+    if(Option == "P"){
+        i <- length(noeuds)
+        Put <- rep(0, length(noeuds))
+        for(i in ((n*(n+1)/2)+1):((n+1)*(n+2)/2)){
+            Put[i] <- max(K - noeuds[i],0)
+            i <- i-1
+        }
+        
+        i <- (n*(n+1)/2)
+        j <- rep(1:n, 1:n)
+        for(i in (n*(n+1)/2):1){
+            Put[i] <- (p*Put[i+j[i]] + (1-p)*Put[1+i+j[i]])*exp(-r/n)
+            i <- i-1
+        } 
+        resultat <- rbind(noeuds, Put)
+        
+        i <- 1
+        delta <- rep(NA, length(noeuds))
+        B <- rep(NA, length(noeuds))  
+        for(i in 1:(n*(n+1)/2)){
+            delta[i] <- (Put[i+j[i]] - Put[1+i+j[i]])/(noeuds[i+j[i]] - noeuds[1+i+j[i]])
+            B[i] <- exp(-r/n)*(noeuds[i+j[i]] * Put[1+i+j[i]] - noeuds[1+i+j[i]] * Put[i+j[i]])/(noeuds[i+j[i]] - noeuds[1+i+j[i]])
+            i <- i+1
+        }
+        resultat <- rbind(resultat, delta)
+        resultat <- rbind(resultat, B)
+    }
+    resultat
+}
+
+Option_Achat <- round(Arbre(100, 4,K = 110, force_r, sigma, Option = "C"),3)
+Option_Vente <- round(Arbre(100, 4,K = 95, force_r, sigma, Option = "P"),3)
+
+
+
+## Options asiatiques
+
+# Moyenne arithmétique
+simul_val <- function() {
+    S <- 100
+    res <- c()
+    
+    for (i in 1:52) {
+        
+        ## Simulation d'une montée ou descente de valeur
+        I <- rbinom(1, 1, prob = p[2])
+        
+        ## Valeur du sous-jacent à la période suivante
+        S <- S*I*u_1_52 + S*(1-I)*d_1_52
+        res <- c(res, S)
+    }
+    
+    mean(res)
+}
+
+a <- replicate(10000, simul_val())
+
+ex_a <- pmax(0, a- 110)
+
+moy_a <- mean(ex_a)
+call_a <- (moy_a)*exp(-force_r)
+
+
+
+## Barrière désactivante
+simul_val_put <- function() {
+    
+    S <- 100
+    res <- c()
+    res_put <- c()
+    valeur_limite <- 105
+    
+    for (i in 1:52) {
+        
+        ## Simulation d'une montée ou descente de valeur
+        I <- rbinom(1, 1, prob = p[2])
+        
+        ## Valeur du sous-jacent à la période suivante
+        S <- (S*I*u_1_52 + S*(1-I)*d_1_52)
+        res <- c(res, S)
+    }
+    put <- ifelse(any(res > 105), 0, pmax(0, 95- S))
+    res_put <- c(res_put, put)
+}
+
+b <- replicate(10000, simul_val_put())
+
+moy_b <- mean(b)
+put_b <- (moy_b)*exp(-force_r)
+
+
+
+
+
+
+
+###Question 3
+
+
+
+# Fonction pour trouver la valeur du prix de l'option d'achat selon le prix d'exercice
+Valeur_Call <- function(K){
+    Resultat <- Arbre(S_0=100, n=52,K,force_r, sigma, Option = "C")[2,1]  
+    Resultat
+} 
+
+# Fonction pour trouver la valeur du prix de l'option de vente selon le prix d'exercice
+Valeur_Put <- function(K){
+    Resultat <- Arbre(S_0=100, n=52,K,force_r, sigma, Option = "P")[2,1]  
+    Resultat
+} 
+
+# Générer des valeurs des options en fonction de différents K (Pour faire le graphique)
+Prix_exercice <- c(5*(15:25))
+Prix_Call <- sapply(Prix_exercice, FUN = Valeur_Call)
+Prix_Put <- sapply(Prix_exercice, FUN = Valeur_Put)
+
+
+
+
+
+
+
+
+### Question 4
+
+
+## Arbre binomial Américain
+
+Arbre_Ame <- function(S_0, n, K, r, sigma){
+    
+    u <- exp(r/n + sigma*(1/n)^{0.5})
+    d <- exp(r/n - sigma*sqrt(1/n))
+    p <- (exp(r/n) - d)/(u - d)
+    ## Calcul de la valeur à chaque noeud
+    
+    i <- 1
+    noeuds <- S_0
+    for(i in 1:n){
+        j <- 0
+        for(j in 0:i){
+            noeuds <- cbind(noeuds, S_0*u^(i-j)*d^(j))
+            j <- j+1
+        }
+        i+1
+    }
+    
+    i <- length(noeuds)
+    Put <- rep(0, length(noeuds))
+    for(i in ((n*(n+1)/2)+1):((n+1)*(n+2)/2)){
+        Put[i] <- max(K - noeuds[i],0)
+        i <- i-1
+    }
+    
+    i <- (n*(n+1)/2)
+    j <- rep(1:n, 1:n)
+    for(i in (n*(n+1)/2):1){
+        Put[i] <- max((p*Put[i+j[i]] + (1-p)*Put[1+i+j[i]])*exp(-r/n), K-noeuds[i])
+        i <- i-1
+    } 
+    resultat <- rbind(noeuds, Put)
+    
+    i <- 1
+    delta <- rep(NA, length(noeuds))
+    B <- rep(NA, length(noeuds))
+    for(i in 1:(n*(n+1)/2)){
+        delta[i] <- (Put[i+j[i]] - Put[1+i+j[i]])/(noeuds[i+j[i]] - noeuds[1+i+j[i]])
+        B[i] <- exp(-r/n)*(noeuds[i+j[i]] * Put[1+i+j[i]] - noeuds[1+i+j[i]] * Put[i+j[i]])/(noeuds[i+j[i]] - noeuds[1+i+j[i]])
+        i <- i+1
+    }
+    resultat <- rbind(resultat, delta)
+    resultat <- rbind(resultat, B)
+    resultat
+}
+
+Put_Ame <- round(Arbre_Ame(100, 4, 95, force_r, sigma),3)
+
+
+
+
+### Question 5
+
+
+## Black-Scholes
+
+#Fonction pour trouver les valeurs de l'option d'achat
+call<-function(S,K,sigma,r,t,delta){
+    d1<-(log(S/K)+(r+((sigma^2)/2))*t)/(sigma*sqrt(t))
+    d2<-d1-(sigma*sqrt(t))
+    C<-(S*exp(-delta*t)*pnorm(d1))-(K*exp(-r*t)*pnorm(d2))
+    C
+}
+
+
+#fonction pour trouver les valeurs de l'option de vente
+Put<-function(S,K,sigma,r,t, delta){
+    d1<-(log(S/K)+(r+((sigma^2)/2))*t)/(sigma*sqrt(t))
+    d2<-d1-(sigma*sqrt(t))
+    P<-(K*exp(-r*t)*pnorm(-d2))-(S*exp(-delta*t)*pnorm(-d1))
+    P
+}
+
+call_BS <- call(100, 110, sigma, force_r, 1,0)
+put_BS <- Put(100, 95, sigma, force_r, 1,0)
+
+
+
+#Calcul des greeks
+
+#Calcul de Delta
+Delta <- function(K, Option){
+    if(Option == "C"){
+        delta <- pnorm((log(100/K)+(force_r+sigma^2/2))/sigma)
+    }
+    if(Option == "P"){
+        delta <- -pnorm(-(log(100/K)+(force_r+sigma^2/2))/sigma)
+    } 
+    delta
+}
+
+Delta_c <- Delta(110, "C")
+Delta_p <- Delta(95, "P")
+
+# Calcul du Gamma
+Gamma_opt <- function(K){
+    dnorm((log(100/K)+(force_r+sigma^2/2))/sigma)/(100*sigma)
+}
+
+Gamma_c <- Gamma_opt(110)
+Gamma_p <- Gamma_opt(95)
+
+#Calcul de Vega
+vega <- function(K){
+    100*dnorm((log(100/K)+(force_r+sigma^2/2))/sigma)/100
+}
+Vega_c <- vega(110)
+Vega_p <- vega(95)
+
+#Calcul de Theta
+Theta <- function(K,Option){
+    if(Option == "C"){
+        theta <- (-force_r*K*exp(-force_r)*pnorm((log(100/K)+(force_r+sigma^2/2))/sigma-sigma) - (K*exp(-force_r)*dnorm((log(100/K)+(force_r+sigma^2/2))/sigma-sigma))* sigma/2)/365
+    }
+    if(Option == "P"){
+        theta <- (force_r*K*exp(-force_r)*pnorm(-((log(100/K)+(force_r+sigma^2/2))/sigma-sigma)) - (K*exp(-force_r)*dnorm((log(100/K)+(force_r+sigma^2/2))/sigma-sigma))* sigma/2)/365
+    } 
+    theta
+}
+
+Theta_c <- Theta(110,"C")
+Theta_p <- Theta(95, "P")
+
+
+#Calcul du Rho 
+rho <- function(K,Option){
+    if(Option == "C"){
+        rho <- K*exp(-force_r)*pnorm((log(100/K)+(force_r+sigma^2/2))/sigma-sigma)/100
+    }
+    if(Option == "P"){
+        rho <- -K*exp(-force_r)*pnorm(-((log(100/K)+(force_r+sigma^2/2))/sigma-sigma))/100
+    } 
+    rho
+}
+rho_c <- rho(110, "C")
+rho_p <- rho(95, "P")
+

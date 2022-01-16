@@ -1,0 +1,31 @@
+===
+=== Ligne de commande et gestion de versions avec Git
+===
+
+# 2019.10-2 (2019-10-03)
+
+## Changements
+
+- La vidéo sur le travail collaboratif avec Git ayant changé, l'url a
+  été modifiée pour mener vers la nouvelle version.
+
+
+# 2019.10-1 (2019-10-01)
+
+## Nouveautés
+
+- Strip XKCD pour la partie sur la ligne de commande. Parce
+  qu'autrement, ce n'était pas juste.
+- Diapositive «Git vous parle, écoutez».
+
+## Changements
+
+- La configuration de `core.editor` sous macOS est `open -W -n` plutôt
+  que simplement `open`.
+- Uniformisation du vocabulaire: deux instances de «référentiel»
+  remplacées par «dépôt».
+
+
+# 2019.10 (2019-09-29)
+
+Version initiale.

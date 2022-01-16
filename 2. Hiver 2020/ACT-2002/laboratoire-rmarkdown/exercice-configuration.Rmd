@@ -1,0 +1,49 @@
+---
+title: "Modifier l'apparence de ses diapositives"
+author: ""
+output: 
+  ioslides_presentation: 
+    transition: slower
+    widescreen: no
+---
+
+# Programmation lettrée
+
+## Commandes R
+
+L'utilisateur de R interagit avec l'interprète en entrant
+des commandes à l'invite de commande:
+```{r}
+2 + 3
+```
+La commande `exp(1)` donne `r exp(1)`, la valeur du nombre $e$.
+
+
+# B.a.-ba des mathématiques
+
+## Principes de base
+
+- Décrire des équations mathématiques requiert un «langage» spécial
+
+- Important d'utiliser un mode mathématique
+
+    * règles de typographie spéciales (constantes vs variables,
+      disposition des équations, numérotation, etc.)
+    * espaces entre les symboles et autour des opérateurs gérées
+      automatiquement
+
+## Avant-goût {.build}
+
+Pouvez-vous interpréter ce code?
+
+```{r eval=FALSE}
+\Gamma(\alpha) =
+\sum_{j = 0}^\infty \int_j^{j + 1}
+  x^{\alpha - 1} e^{-x}\, dx
+```
+
+Fort probablement!
+$$
+\Gamma(\alpha) =
+  \sum_{j = 0}^\infty \int_j^{j + 1} x^{\alpha - 1} e^{-x}\, dx
+$$

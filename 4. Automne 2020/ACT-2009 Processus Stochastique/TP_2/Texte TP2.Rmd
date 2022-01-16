@@ -1,0 +1,21 @@
+---
+title: "Travail pratique 1 ACT-2007"
+author: "Olivier Bourret"
+output: pdf_document
+header-includes:  \usepackage{xcolor} \usepackage[makeroom]{cancel}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Numéro 1
+
+Dans ce numéro, on demande d'estimer la réserve au temps 15 et 20 à l'aide de la méthode d'Euler. Tout d'abord, j'ai créé une fonction qui permet de calculer la force de mortalité peu importe l'âge de l'assuré. Pour ce faire, j'ai utilisé l'équation de Thiele.
+
+\begin{align*}
+  _{t+h}V - _tV = h[ \delta_t _tV + G_t -e_t - (b_t + E_t - _tV) \mu_{[x]+t}] 
+\end{align*}
+
+

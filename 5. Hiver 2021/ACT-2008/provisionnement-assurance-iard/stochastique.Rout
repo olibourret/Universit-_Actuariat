@@ -1,0 +1,228 @@
+
+R version 3.5.3 (2019-03-11) -- "Great Truth"
+Copyright (C) 2019 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin15.6.0 (64-bit)
+
+R est un logiciel libre livré sans AUCUNE GARANTIE.
+Vous pouvez le redistribuer sous certaines conditions.
+Tapez 'license()' ou 'licence()' pour plus de détails.
+
+R est un projet collaboratif avec de nombreux contributeurs.
+Tapez 'contributors()' pour plus d'information et
+'citation()' pour la façon de le citer dans les publications.
+
+Tapez 'demo()' pour des démonstrations, 'help()' pour l'aide
+en ligne ou 'help.start()' pour obtenir l'aide au format HTML.
+Tapez 'q()' pour quitter R.
+
+[Sauvegarde de la session précédente restaurée]
+
+> options(error=expression(NULL))
+> ### Emacs: -*- coding: utf-8; fill-column: 62; comment-column: 27; -*-
+> ##
+> ## Copyright (C) 2019 Vincent Goulet, Frédérick Guillot, Mathieu Pigeon
+> ##
+> ## Ce fichier fait partie du projet
+> ## «Provisionnement en assurance IARD»
+> ## https://gitlab.com/vigou3/provisionnement-assurance-iard
+> ##
+> ## Cette création est mise à disposition sous licence
+> ## Attribution-Partage dans les mêmes conditions 4.0
+> ## International de Creative Commons.
+> ## https://creativecommons.org/licenses/by-sa/4.0/
+> 
+> ## Charger le package ChainLadder dans la session de travail.
+> library(ChainLadder)
+
+Welcome to ChainLadder version 0.2.9
+
+Type vignette('ChainLadder', package='ChainLadder') to access
+the overall package documentation.
+
+See demo(package='ChainLadder') for a list of demos.
+
+More information is available on the ChainLadder project web-site:
+https://github.com/mages/ChainLadder
+
+To suppress this message use:
+suppressPackageStartupMessages(library(ChainLadder))
+
+> 
+> ###
+> ### MODÈLE DE MACK  
+> ###
+> 
+> ## Triangle cumulatif des données
+> tri <- matrix(c(200, 210, 250, 230, 220, NA, 260, NA, NA), ncol = 3)
+> 
+> ## Ajustement du modèle de Mack aux données
+> model1 <- MackChainLadder(tri)
+Error in if (is.nan(ratio) | is.infinite(ratio)) { : 
+  l'argument est de longueur nulle
+Calls: MackChainLadder -> Mack.S.E
+De plus : Warning message:
+In Mack.S.E(CL[["Models"]], FullTriangle, est.sigma = est.sigma,  :
+  Too few (1) link ratios for fitting 'loglinear' model to estimate sigma_n. est.sigma will be overwritten to 'Mack'.
+ Mack's estimation method will be used instead.
+> 
+> ## Sommaire des résultats
+> summary(model1)
+$ByOrigin
+  Latest Dev.To.Date Ultimate      IBNR Mack.S.E   CV(IBNR)
+1     45    2.437500 18.46154 -26.53846  0.00000  0.0000000
+2     33    1.734375 19.02703 -13.97297  0.00000  0.0000000
+3     40    1.000000 40.00000   0.00000  0.00000        NaN
+4     16    1.000000 16.00000   0.00000  0.00000        NaN
+5     76    2.437500 31.17949 -44.82051 35.11234 -0.7833989
+6     44    2.437500 18.05128 -25.94872 34.09554 -1.3139587
+7     56    2.437500 22.97436 -33.02564 37.40742 -1.1326780
+8     49    1.734375 28.25225 -20.74775 51.63346 -2.4886299
+
+$Totals
+                 Totals
+Latest:     359.0000000
+Dev:          1.8510312
+Ultimate:   193.9459459
+IBNR:      -165.0540541
+Mack S.E.:  114.6381155
+CV(IBNR):    -0.6945489
+
+> 
+> ## On peut aussi extraire les facteurs de développement...
+> model1$f
+[1] 1.0544959 0.7628571 1.4054054 0.4102564 1.0000000
+> 
+> ### ... les sigmas au carré
+> model1$sigma^2
+[1] 69.988995  6.032997 71.472462  6.032997
+> 
+> ### ... et le triangle complété
+> model1$FullTriangle
+      dev
+origin  1  2        3        4        5
+     1 35 55 53.00000 45.00000 18.46154
+     2  4 47 33.00000 46.37838 19.02703
+     3 38 37 28.22571 39.66857 40.00000
+     4 61 69 39.00000 39.00000 16.00000
+     5 43 41 13.00000 76.00000 31.17949
+     6 85 61 43.00000 44.00000 18.05128
+     7 49 47 37.00000 56.00000 22.97436
+     8 52 30 49.00000 68.86486 28.25225
+> 
+> ### Triangle des paiements cumulés
+> tri <- matrix(c(35,4,38,61,43,85,49,52,55,47,37,69,41,61,47,30,53,33,
++                 NA,39,13,43,37,49,45,NA,NA,39,76,44,56,NA,NA,NA,40,16,
++                 NA,NA,NA,NA),ncol = 5)
+> 
+> ## Estimation des paramètres
+> model1 <-  MackChainLadder(tri)
+Warning message:
+In Mack.S.E(CL[["Models"]], FullTriangle, est.sigma = est.sigma,  :
+  'loglinear' model to estimate sigma_n doesn't appear appropriate. 
+p-value > 5.
+ est.sigma will be overwritten to 'Mack'.
+ Mack's estimation method will be used instead.
+> summary(model1)
+$ByOrigin
+  Latest Dev.To.Date Ultimate      IBNR Mack.S.E   CV(IBNR)
+1     45    2.437500 18.46154 -26.53846  0.00000  0.0000000
+2     33    1.734375 19.02703 -13.97297  0.00000  0.0000000
+3     40    1.000000 40.00000   0.00000  0.00000        NaN
+4     16    1.000000 16.00000   0.00000  0.00000        NaN
+5     76    2.437500 31.17949 -44.82051 35.11234 -0.7833989
+6     44    2.437500 18.05128 -25.94872 34.09554 -1.3139587
+7     56    2.437500 22.97436 -33.02564 37.40742 -1.1326780
+8     49    1.734375 28.25225 -20.74775 51.63346 -2.4886299
+
+$Totals
+                 Totals
+Latest:     359.0000000
+Dev:          1.8510312
+Ultimate:   193.9459459
+IBNR:      -165.0540541
+Mack S.E.:  114.6381155
+CV(IBNR):    -0.6945489
+
+> 
+> ## Les facteurs de développement
+> model1$f
+[1] 1.0544959 0.7628571 1.4054054 0.4102564 1.0000000
+> 
+> ### les sigmas au carré
+> model1$sigma^2
+[1] 69.988995  6.032997 71.472462  6.032997
+> 
+> ## Écart-type de la réserve totale
+> model1$Total.Mack.S.E
+       5 
+114.6381 
+> 
+> ###
+> ### MODÈLE DE POISSON  
+> ###
+> 
+> ## Création de la base de données
+> pmt <- c(100,200,325,350,125,225,335,75,175,50)
+> Year <- c(1,2,3,4,1,2,3,1,2,1)
+> Delay <- c(1,1,1,1,2,2,2,3,3,4)
+> dda <- data.frame(ptm = pmt, Year = Year, Delay = Delay)
+> 
+> ### Ajustement du modèle quasi-Poisson
+> model2 <- glm(pmt ~ as.factor(Year) + as.factor(Delay),
++               family = quasipoisson, data = dda)
+> summary(model2)
+
+Call:
+glm(formula = pmt ~ as.factor(Year) + as.factor(Delay), family = quasipoisson, 
+    data = dda)
+
+Deviance Residuals: 
+      1        2        3        4        5        6        7        8  
+-0.3334  -0.4716   0.5670   0.0000   1.0815  -0.1058  -0.5472  -0.9288  
+      9       10  
+ 0.6402   0.0000  
+
+Coefficients:
+                  Estimate Std. Error t value Pr(>|t|)    
+(Intercept)        4.63833    0.07241  64.055 8.38e-06 ***
+as.factor(Year)2   0.69315    0.07552   9.179 0.002734 ** 
+as.factor(Year)3   1.11388    0.07757  14.359 0.000732 ***
+as.factor(Year)4   1.21960    0.09221  13.227 0.000934 ***
+as.factor(Delay)2  0.09167    0.05908   1.552 0.218535    
+as.factor(Delay)3 -0.21548    0.08527  -2.527 0.085648 .  
+as.factor(Delay)4 -0.72631    0.16749  -4.336 0.022628 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for quasipoisson family taken to be 1.140549)
+
+    Null deviance: 596.4828  on 9  degrees of freedom
+Residual deviance:   3.4077  on 3  degrees of freedom
+AIC: NA
+
+Number of Fisher Scoring iterations: 3
+
+> 
+> ## Pour réaliser les prédictions de chacune des cellules
+> ddaNEW <- c(Year = c(1,2,3,4,1,2,3,4,1,2,3,4,1,2,3,4),
++             Delay = c(1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4))
+> 
+> ddaNEW$pred <- predict(model2, newdata = ddaNEW, type =  "response")
+Error in eval(predvars, data, env) : 
+  argument numérique 'envir' n'ayant une longueur unitaire
+Calls: predict ... predict.lm -> model.frame -> model.frame.default -> eval
+> ddaNEW
+  Year1   Year2   Year3   Year4   Year5   Year6   Year7   Year8   Year9  Year10 
+      1       2       3       4       1       2       3       4       1       2 
+ Year11  Year12  Year13  Year14  Year15  Year16  Delay1  Delay2  Delay3  Delay4 
+      3       4       1       2       3       4       1       1       1       1 
+ Delay5  Delay6  Delay7  Delay8  Delay9 Delay10 Delay11 Delay12 Delay13 Delay14 
+      2       2       2       2       3       3       3       3       4       4 
+Delay15 Delay16 
+      4       4 
+> 
+> ## Triangle incrémental complété
+> matrix(ddaNEW$pred, ncol = 4)
+Error in ddaNEW$pred : $ operator is invalid for atomic vectors
+Calls: matrix
+> 

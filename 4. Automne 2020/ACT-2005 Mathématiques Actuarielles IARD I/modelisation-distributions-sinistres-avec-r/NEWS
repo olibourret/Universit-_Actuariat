@@ -1,0 +1,69 @@
+===
+=== Modélisation des distributions de sinistres avec R
+===
+
+# 2019.04 (2019-04-25)
+
+Améliorations diverses. Aucun nouveau contenu.
+
+- Introduction bonifiée pour mieux présenter les fonctionnalités
+  interactives du document, expliquer l'utilisation des couleurs et
+  présenter la signification de chacun des blocs signalétiques.
+- Explication dans l'introduction que les fichiers `.Rout` livrés avec
+  le document contiennent les résultats de l'évaluation non
+  interactive du fichier `.R` correspondant.
+- La table des matières, la liste des tableaux et la liste des figures
+  apparaissent désormais dans la table des matières. Ceci est surtout
+  utile pour la table des matières logique des documents PDF.
+- Les remarques dans le texte sont maintenant présentées sous forme de
+  blocs signalétiques.
+- Dans l'annexe B, l'adresse vers le site miroir de CRAN a été changée
+  de `http://cran.ca.r-project.org` pour `https://cloud.r-project.org`
+- Utilisation de Fira Sans comme police sans empattements. Il est plus
+  simple de se procurer cette police libre que Myriad Pro. En plus,
+  elle convient mieux à la police Lucida du texte principal.
+- L'historique des versions se trouve maintenant dans le fichier
+  `NEWS`.
+- Les instructions de collaboration se trouvent maintenant dans le
+  fichier `CONTRIBUTING.md`.
+
+# Édition 2018.07 (2018-07-24)
+
+Nouvelle version faisant suite à la migration du projet de GitHub vers
+GitLab. Aucun nouveau contenu. Seule différence notable outre les
+nouveaux liens vers le code source: le document est maintenant
+distribué sous forme d'une archive `.zip` contenant le fichier PDF,
+les fichiers de script R (fichiers `.R`) et la sortie de l'exécution
+de ces scripts (fichiers `.Rout`).
+
+# Édition 2017.5
+
+- Document maintenant distribué via GitHub.
+- Mise à jour du contenu pour actuar version 2.0-x.
+- Section 3.2 sur l'estimation de la fonction de survie entièrement
+  réécrite.
+- Diverses améliorations et correction de nombreuses coquilles;
+  remerciements à Simon Youde, Étienne Vanasse et Philippe
+  Cleary.
+
+# Édition 2013
+
+- Ajout des objectifs aux chapitres.
+- Gestion des hyperliens dans l'ensemble du document.
+- Mise à jour des références à Loss Models 4e éd.
+- Déplacement du code de présentation des données groupées du chapitre
+  3 au chapitre 2.
+- Ajout de tout un segment sur l'importation de données.
+- Ajout de graphiques sur les relations entre les membres de familles
+  gamma et bêta au chapitre 4.
+- Révision du chapitre 5.
+- Révision du chapitre 7. Section 7.2 superflue intégrée à l'intro de
+  7.3.
+- Ajout d'une section sur les fonctions R de lois de probabilité.
+- Quelques notices bibliographiques refaites.
+
+# Édition 2012
+
+- Première édition regroupant notes du cours ACT-2005, exercices
+  du recueil d'exercices de Cossette et collab. (2009) et code
+  informatique.

@@ -1,0 +1,178 @@
+===
+=== Théorie de la crédibilité avec R
+===
+
+# 2020.05 (2020-05-08)
+
+## Nouveautés
+
+- Détails additionnels dans le développement des preuves que les
+  estimateurs de composants de variance sont sans biais, tant au
+  chapitre 4 qu'au chapitre 5. Proposé par Jean-Pascal Dagneau.
+- Chapitre 5: ajout d'une astuce à la fin de la section 5.1 indiquant
+  que les poids dans le modèle de Bühlmann-Straub n'ont pas à varier à
+  la fois d'une période à l'autre et d'un contrat à l'autre. Il faut
+  juste qu'ils ne soient pas tous identiques.
+
+## Changements
+
+- Correction de coquilles proposées par les étudiantes et étudiants.
+- Couleur des commentaires dans le code informatique changée pour un
+  ton de gris moins agressif que le rouge qui était utilisé
+  auparavant.
+- Question de tirer encore davantage profit de la programmation
+  lettrée, le contenu des fichiers de script est maintenant intégré au
+  texte des chapitres. Le fichier `README.md` contient un lien vers
+  une présentation qui explique ma stratégie. La nouvelle règle `make
+  scripts` permet de créer les fichiers de script.
+- L'ouvrage est maintenant publié sous forme de *release* dans GitLab.
+  Principal changement pour les utilisateurs: le lien vers l'archive
+  `programmer-avec-r.zip` dans les notes de versions se trouve
+  maintenant tout en haut, sous *Assets*.
+
+
+# 2019.02 (2019-02-27)
+
+- Ajout de liens au chapitre 4 vers des vidéos dans la (nouvelle)
+  chaine YouTube liée au document:
+  - «Covariance totale: démonstration et rôle dans le modèle de Bühlmann»;
+  - «Prime de Bühlmann vs prime bayésienne»;
+  - «Interprétation des résultats du modèle de Bühlmann».
+
+  Les liens vers des vidéos sont présentés dans de nouveaux blocs
+  signalétiques.
+- Ajout d'une liste des vidéos dans les pages frontispices.
+- Le théorème 4.1 est maintenant baptisé «Théorème de la covariance
+  totale».
+- Correction de coquilles proposées par les étudiantes et étudiants.
+
+# 2019.01 (2019-01-17)
+
+Améliorations diverses. Aucun nouveau contenu.
+
+- Introduction bonifiée pour mieux présenter les fonctionnalités
+  interactives du document, expliquer l'utilisation des couleurs et
+  présenter la signification de chacun des blocs signalétiques.
+- Explication dans l'introduction que les fichiers `.Rout` livrés avec
+  le document contiennent les résultats de l'évaluation non
+  interactive du fichier `.R` correspondant.
+- La table des matières, la liste des tableaux et la liste des figures
+  apparaissent désormais dans la table des matières. Ceci est surtout
+  utile pour la table des matières logique des documents PDF.
+- Les lignes des fichiers de script en fin de chapitre sont maintenant
+  numérotées. Les renvois vers le code informatique identifient
+  désormais clairement les lignes à étudier. Le renvoi est un
+  intralien vers le numéro de ligne dans le code informatique, et
+  vice-versa.
+- Utilisation de Fira Sans comme police sans empattements. Il est plus
+  simple de se procurer cette police libre que Myriad Pro. En plus,
+  elle convient mieux à la police Lucida du texte principal.
+- L'historique des versions se trouve maintenant dans le fichier
+  `NEWS`.
+- Les instructions de collaboration se trouvent maintenant dans le
+  fichier `CONTRIBUTING.md`.
+
+
+# 2018.02-4 (2018-02-26)
+
+## Nouveautés
+
+- Ajout des listes d'objectifs spécifiques pour chacun des chapitres.
+
+## Autres modifications
+
+- Exemple 2.3 transformé en texte normal. Son équation principale est
+  maintenant numérotée.
+- Améliorations à la typographie des nombres en divers endroits,
+  notamment dans les pourcentages.
+- Correction d'une référence incomplète au début de l'annexe C.
+
+
+# 2018.02-3 (2018-02-19)
+
+## Nouveautés
+
+- Chapitre 5 entièrement révisé.
+- Fichier de code informatique `buhlmann-straub.R` reprenant les
+  calculs de l'exemple numérique de la section 5.4.
+- Références pour le modèle de Hachemeister à la section 5.4.3.
+- Calculs avec `cm` ajoutés à la solution de l'exercice 5.8.
+- Ajout d'une introduction à l'ouvrage.
+
+## Autres modifications
+
+- Texte de l'introduction du chapitre 4 légèrement retravaillé.
+
+
+# 2018.02-2 (2018-02-13)
+
+## Nouveautés
+
+- Chapitre 4 entièrement révisé.
+- Fichier de code informatique `buhlmann.R` bonifié.
+- Un fichier COLLABORATEURS est maintenant livré avec le document. Il
+  contient la liste des personnes ayant contribué à l'amélioration du
+  document via le dépôt Git.
+
+## Autres modifications
+
+- Utilisation plus constante de l'indice *i* dans la notation à la
+  section 3.3 jusqu'à l'exemple 3.2.
+
+
+# 2018.02-1 (2018-02-08)
+
+## Nouveautés
+
+- Section 3.6 d'introduction à l'évaluation numériques de modèles de
+  crédibilité avec R. (L'ancienne section 3.6 sur le modèle de Jewell
+  est maintenant la section 3.7.)
+- Section 3.8 contenant du code informatique démontrant l'utilisation
+  de la fonction `cm` du paquetage **actuar** pour le calcul de primes
+  bayésiennes linéaires. Le fichier de script correspondant,
+  `bayesienne.R`, est livré dans l'archive.
+- Calculs de primes avec `cm` dans la solution de l'exercice 3.25.
+
+## Autres modifications
+
+- Le fichier de script `buhlmann.R` a été ajouté dans l'archive.
+
+
+# 2018.01-3a (2018-02-02)
+
+Correctifs de la version précédente, notamment aux exercices du chapitre 3.
+
+- Il manquait un détail important dans le résultat de Jewell (1974)
+  cité à la section 3.6: la fonction de vraisemblance doit provenir de
+  la famille exponentielle.
+- Exemple 3.3 identifié en entête comme le cas Bernoulli/bêta.
+- Les exercices qui étaient numérotés 3.32, 3.33 et 3.34 dans la
+  version précédente ont été supprimés du document.
+- Nouvel exercice 3.32 dérivé de Bühlmann et Gisler (2005, section 2.6). 
+
+
+# 2018.01-3 (2018-01-30)
+
+## Nouveautés
+
+- Introduction du chapitre 1 entièrement révisée. Contenu inchangé,
+  mais dorénavant en prose.
+- Chapitre 3 entièrement révisé.
+- Section 3.1 sur l'estimation bayésienne déplacée en annexe. Toutes
+  les autres annexes sont décalées.
+
+## Autres modifications
+
+- Notation modifiée à l'exemple 2.3.
+
+
+# 2018.01-2 (2018-01-22)
+
+Révision complète du texte et des exercices du chapitre 2.
+
+
+# 2018.01-1 (2018-01-18)
+
+Première version avec notes de cours de Vincent Goulet et exercices de
+Cossette et Goulet (2008). Cette version ne justifie pas tellement le
+«avec R» du titre, mais ça viendra.

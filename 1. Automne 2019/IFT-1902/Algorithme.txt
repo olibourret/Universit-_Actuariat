@@ -1,0 +1,18 @@
+
+Kokis, William
+Labbé, Louis-David
+Bourret, Olivier
+Macias-Valadez Cigarroa, Sebastián Daniel
+
+
+				Sprint de codage 1 (Question 1)
+
+1-si le polynôme est de degré 1 ou 0
+    fin de l'algorithme
+    
+    autrement 
+      prendre le premier terme et mettre en évidence un X sur les termes suivants afin de former un polynôme avec des exposants (n-1).
+      
+2-le polynôme (n-1) devient le nouveau polynôme et on retourne à l'étape 1.
+
+    

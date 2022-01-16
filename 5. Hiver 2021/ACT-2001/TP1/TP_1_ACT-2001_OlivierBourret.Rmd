@@ -1,0 +1,478 @@
+---
+title: "Travail pratique 1 ACT-2001"
+author: "Olivier Bourret"
+output: pdf_document
+header-includes:  \usepackage[dvipsnames]{xcolor} \usepackage[makeroom]{cancel} \usepackage{bm}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Numéro 1
+
+## a) Calculer la $VaR_{0.94}(X)$, la $TVaR_{0.94}(X)$ et la $CTE_{0.94}$
+
+\vspace{5mm}
+
+* **\underline{$VaR_{0.94}(X)$}**
+
+Pour la *value at risk*, on doit trouver la plus petite valeur de x tel que la fonction de répartition est au moins $0.94$. Alors,
+
+\begin{align*}
+VaR_{0.94}(X) &= inf\left\{x \in I\!R \vert F_X(x) \ge 0.94 \right\} = \bm{\textcolor{BrickRed}{1\,000}}
+\end{align*}
+
+* **\underline{$TVaR_{0.94}(X)$}**
+
+En utilisant le résultat précédent de la $VaR_{0.94}(X) = 1\,000$ et l'une des définitions de la $TVaR_p(X)$, le tout devient relativement simple à calculer.
+
+\begin{align*}
+TVaR_{0.94}(X) &= \frac{E\left[X \cdot 1_{\{x > VaR_{0.94}(X)\}}\right] + VaR_{0.94}(X)\big(F_X(VaR_{0.94}(X))-0.94\big)}{1-0.94}\\[5pt]
+&= \frac{5\,000(0.05) + 100\,000(0.01) + 1\,000(0.94 - 0.94)}{0.06}\\[5pt]
+&= \bm{\textcolor{BrickRed}{20\,833.\overline{3}}}
+\end{align*}
+
+* **\underline{$CTE_{0.94}$}**
+
+Pour la $CTE_{0.94}$, le calcul est le même que celui de la $TVaR_{0.94}(X)$, car pour $p=0.94$, on tombe directement sur une valeur possible, donc le résultat devrait être le même. 
+
+\begin{align*}
+TVaR_{0.94}(X) &= \frac{E\left[X \cdot 1_{\{x > VaR_{0.94}(X)\}}\right]}{Pr(X > VaR_{0.94}(X))}\\[5pt]
+&= \frac{5\,000(0.05) + 100\,000(0.01)}{Pr(X > 1000)}\\[5pt]
+&=  \frac{1250}{0.06} = \bm{\textcolor{BrickRed}{20\,833.\overline{3}}}
+\end{align*}
+
+\newpage
+
+## b)  Calculer la $VaR_{0.95}(X)$, la $TVaR_{0.95}(X)$ et la $CTE_{0.95}$
+
+Ce numéro revient essentiellement à la même démarche, cependant la $TVaR_{0.95}(X)$ et la $CTE_{0.95}$ devraient être différentes dans ce cas-ci.
+
+\vspace{5mm}
+
+* **\underline{$VaR_{0.94}(X)$}**
+
+\begin{align*}
+VaR_{0.95}(X) &= inf\left\{x \in I\!R \vert F_X(x) \ge 0.95 \right\} = \bm{\textcolor{BrickRed}{5\,000}}
+\end{align*}
+
+* **\underline{$TVaR_{0.95}(X)$}**
+
+\begin{align*}
+TVaR_{0.95}(X) &= \frac{E\left[X \cdot 1_{\{x > VaR_{0.95}(X)\}}\right] + VaR_{0.95}(X)\big(F_X(VaR_{0.95}(X))-0.95\big)}{1-0.95}\\[5pt]
+&= \frac{100\,000(0.01) + 5\,000(0.99 - 0.95)}{0.05}\\[5pt]
+&= \bm{\textcolor{BrickRed}{24\,000}}
+\end{align*}
+
+* **\underline{$CTE_{0.95}$}**
+
+\begin{align*}
+TVaR_{0.95}(X) &= \frac{E\left[X \cdot 1_{\{x > VaR_{0.95}(X)\}}\right]}{Pr(X > VaR_{0.95}(X))}\\[5pt]
+&= \frac{100\,000(0.01)}{Pr(X > 5000)}\\[5pt]
+&=  \frac{100\,000(0.01)}{0.01} = \bm{\textcolor{BrickRed}{100\,000}}
+\end{align*}
+
+\newpage
+
+# Numéro 2
+
+Pour cette question, nous avons que,
+
+* $X_1 \sim LN(\mu = 30, \sigma^2 = 16)$
+* $X_2 \sim Weibull(\tau = 2, \beta = 10)$
+* $X_3 \sim Burr(\alpha = 1, \lambda = 3, \tau = 0.5)$
+
+On cherche à calculer la $VaR_{0.9}(X_1)$, la $VaR_{0.9}(2X_2)$ et la $VaR_{0.9}(2X_3 +3)$
+
+\vspace{5mm}
+
+**\underline{1. $VaR_{0.9}(X_1)$}**
+
+On sait que $F_{X_1}(x) = \Phi\left(\frac{ln(x) - \mu}{\sigma}\right)$ et on veut trouver $F_{X_1}^{-1}(p)$.
+
+\begin{align*}
+\Rightarrow &p = \Phi\left(\frac{ln(u) - \mu}{\sigma}\right)\\
+&\frac{ln(x) - \mu}{\sigma} = \Phi^{-1}(p)\\
+&u = e^{\sigma \Phi^{-1}(p)+\mu}\\
+\end{align*}
+
+Il est maintenant possible de calculer la $VaR_{0.9}(X_1)$.
+
+\begin{align*}
+\Rightarrow VaR_{0.9}(X_1) &= e^{4 \cdot \Phi^{-1}(0.9) + 30}\\
+&= e^{4(1.281\,552) + 30} \quad \bm{\textcolor{ForestGreen}{\longrightarrow \Phi^{-1}(0.9)\: \text{calculé avec la fonction R qnorm(0.9, 0, 1)}}}\\
+&= \bm{\textcolor{BrickRed}{1.799\,358 \times 10^{15}}}
+\end{align*}
+
+
+**\underline{2. $VaR_{0.9}(2X_2)$}**
+
+Puisque la $VaR_p(X)$ est positivement homogène, on peut dire que $VaR_{0.9}(2X_2) = 2VaR_{0.9}(X_2)$, alors on a qu'à chercher la $VaR_{0.9}(X_2)$.
+
+Tout d'abord, on sait que $F{X_2}(x) = 1- e^{-(\beta x)^{\tau}}$, alors,
+
+\begin{align*}
+\Rightarrow p &= 1- e^{-(\beta u)^{\tau}}\\
+1-p &= e^{-(\beta u)^{\tau}}\\
+u &=\frac{-ln(1-p)^{1/\tau}}{\beta}
+\end{align*}
+
+Donc,
+
+\begin{align*}
+VaR_p(X) &= \frac{-ln(1-p)^{1/\tau}}{\beta}\\
+\Rightarrow VaR{0.9}(X_2) &= \frac{-ln(1 - 0.9)^{1/2}}{10}\\
+&= 0.151\,742\,713\\
+\\
+\Rightarrow VaR_{0.9}(2X_2) &= 2(0.151\,742\,713) = \bm{\textcolor{BrickRed}{0.303\,485\,426}}
+\end{align*}
+
+
+
+**\underline{3. $VaR_{0.9}(2X_3+3)$}**
+
+Puisque la $VaR_p(X)$ est invarante par translation et positivement homogène, on a $VaR_{0.9}(2X_3 + 3)) = 2VaR_{0.9}(X_3) + 3$. Il suffit de commencer par trouver la $VaR_{0.9}(X_3)$.
+
+Puisqu'on connait la fonction de répartition d'un loi Burr qui est $F_X(x) = 1 - \left(\frac{\lambda}{\lambda+x^{\tau}}\right)^{\alpha}$. Ainsi,
+
+\begin{align*}
+\Rightarrow &p = 1 - \left(\frac{\lambda}{\lambda+u^{\tau}}\right)^{\alpha}\\
+&(1-p)^{1/\alpha} = \frac{\lambda}{\lambda+u^{\tau}}\\
+&\lambda - u^{\tau} = \frac{\lambda}{(1-p)^{1/\alpha}}\\
+&u = \left(\frac{\lambda}{(1-p)^{1/\alpha}} - \lambda \right)^{1/\tau}
+\end{align*}
+
+En remplaçant $p$ par $0.90$, on obtient le résultat désiré.
+
+\begin{align*}
+\Rightarrow VaR_{0.9}(2X_3+3) &= 2VaR_{0.9}(X_3) + 3\\
+&= 2\left[\left(\frac{\lambda}{(1-p)^{1/\alpha}} - \lambda \right)^{1/\tau}\right] +3\\
+&= 2\left[\left(\frac{(3)}{(1-(0.9))^{1/(1)}} - (3) \right)^{1/(0.5)}\right] + 3\\
+&= \bm{\textcolor{BrickRed}{1461}}
+\end{align*}
+
+
+
+
+
+
+
+
+\newpage
+
+
+
+# Numéro 3
+
+a) Trouver la $VaR_p(X)$ et la $VaR_p(Y)$ en fonction de p.
+
+\vspace{5mm}
+
+**\underline{1. $VaR_p(X)$}**
+
+\begin{align*}
+F_X(x) &= 1 - e^{-\lambda x}\\
+\Rightarrow p &= 1 - e^{-\lambda u}\\
+1-p &= e^{-\lambda u}\\
+u &= \frac{-ln(1-p)}{\lambda} = -ln(1-p) \quad \bm{\textcolor{ForestGreen}{\longrightarrow \lambda = 1}}\\[10pt]
+\Rightarrow VaR_p(X) &= \bm{\textcolor{BrickRed}{-ln(1-p)}}
+\end{align*}
+
+**\underline{2. $VaR_p(Y)$}**
+
+Pour la $VaR_p(Y)$ cela est plus complexe, étant donné que $Y = max(0,X-3)$. Commençons par trouver la $VaR_p(X-3)$.
+
+\begin{align*}
+VaR_p(X-3) &= VaR_p(X) - 3 \quad \bm{\textcolor{ForestGreen}{\longrightarrow \text{Invariante par translation}}}\\
+&= -ln(1-p)-3
+\end{align*}
+
+En trouvant la valeur de p pour laquelle $x=3$, on pourra définir la $VaR_p(Y)$. On peut trouver que $F_X(3) = 1 -e^{-3}$, qui est la plus petite valeur de $X$ pour appliquer la $VaR_p(X-3)$. On a alors,
+
+\begin{gather*}
+VaR_p(Y) = 
+\begin{cases}
+  \: \:  \quad 0 &, \quad \text{si}\: p \le 1-e^{-3} \\[5pt]
+  -ln(1-p) - 3 &, \quad \text{si}\: p > 1-e^{-3} \\[5pt]
+\end{cases}
+\end{gather*}
+
+\vspace{5mm}
+
+## b) Calculer la $VaR_{0.9}(X)$ et la $VaR_{0.99}(X)$
+
+Par la réponse en a), il suffit de remplacer p par 0.9 et 0.99 dans l'équation.
+
+\begin{align*}
+&\blacktriangleright VaR_{0.9}(X) = -ln(1-0.9) = \bm{\textcolor{BrickRed}{2.302\,585\,093}}\\[5pt]
+&\blacktriangleright VaR_{0.99}(X) = -ln(1-0.99) = \bm{\textcolor{BrickRed}{4.605\,170\,186}}\\
+\end{align*}
+
+\vspace{5mm}
+
+## c) Calculer la $TVaR_{0.9}(X)$ et la $TVaR_{0.9}(Y)$
+
+\vspace{5mm}
+
+
+**\underline{1. $TVaR_{0.9}(X)$}**
+
+On peut commencer par trouver la $TVaR_p(X)$, en utilisant sa définition (va être utile pour la question en d).
+
+\begin{align*}
+TVaR_p(X) &= \frac{1}{1-p}\int_p^1 VaR_s(X) ds\\
+&= \frac{1}{1-p}\int_p^1 -ln(1-s) ds \quad \bm{\textcolor{ForestGreen}{\longrightarrow \text{Posons} \: t = 1-s}}\\
+&= \frac{1}{1-p}\int_0^{1-p} ln(t) dt \quad \bm{\textcolor{ForestGreen}{\longrightarrow \text{Intégration par partie}}}\\
+&= \frac{-1}{1-p}\left[\left.tln(t)\right\vert_{0}^{1-p} - \int_0^{1-p} 1 dt\right]\\
+&= \frac{-1}{1-p}\left[(1-p) ln(1-p) - (1-p)\right]\\
+&= -ln(1-p) + 1\\[15pt]
+\Rightarrow TVaR_{0.9}(X) &= -ln(1-0.9) + 1 = \bm{\textcolor{BrickRed}{3.302\,585\,093}}
+\end{align*}
+
+
+**\underline{2. $TVaR_{0.9}(Y)$}**
+
+En utilisant encore une fois la définition, on peut trouver la $TVaR_p(Y)$, cependant on doit rester prudent, car la $VaR_p(Y)$ est définie par parties.
+
++ **Si $p > 1-e^{-3}$**
+
+
+\begin{align*}
+TVaR_p(Y) &= \frac{1}{1-p}\int_p^1 -ln(1-s) - 3 ds\\
+&= \frac{-1}{1-p}\left[\int_p^1 ln(1-s) ds + \int_p^1 3 ds\right] \quad \bm{\textcolor{ForestGreen}{\longrightarrow \text{Posons} \: t = 1-s}}\\
+&= \frac{-1}{1-p}\left[\int_0^{1-p} ln(t) dt + 3 - 3p \right]\quad \bm{\textcolor{ForestGreen}{\longrightarrow \text{Intégration par partie}}}\\
+&= \frac{-1}{1-p}\left[\left.tln(t)\right\vert_{0}^{1-p} - \int_0^{1-p} 1 dt\right] - \frac{3(1-p)}{1-p}\\
+&= \frac{-1}{1-p}\left[(1-p) ln(1-p) - (1-p)\right] - 3 \\
+&= 1 - ln(1-p) -3 = -ln(1-p) - 2
+\end{align*}
+
+
++ **Si $p \le 1-e^{-3}$**
+
+\begin{align*}
+TVaR_p(Y) &= \frac{1}{1-p}\left[\int_p^{1-e^{-3}} 0 ds + \int_{1-e^{-3}}^1 -ln(1-s) - 3 ds\right]\\
+&= \frac{-1}{1-p}\left[\int_{1-e^{-3}}^1 ln(1-s) ds + \int_{1-e^{-3}}^1 3 ds\right] \\
+&= \frac{-1}{1-p}\left[(1-(1-e^{-3})) ln(1-(1-e^{-3})) - (1-(1-e^{-3})) + 3(1-(1-e^{-3})) \right]\\
+&= \frac{-1}{1-p}\left[e^{-3}ln(e^{-3}) - e^{-3} + 3e^{-3} \right] \\
+&= \frac{-1}{1-p}\left[-e^{-3}\right] = \frac{e^{-3}}{1-p} \\
+\end{align*}
+
+
+
+\begin{gather*}
+\text{Alors,} \quad VaR_p(Y) = 
+\begin{cases}
+  \: \:  \quad \frac{e-{-3}}{1-p} &, \quad \text{si}\: p \le 1-e^{-3} \\[5pt]
+  -ln(1-p) - 2 &, \quad \text{si}\: p > 1-e^{-3} \\[5pt]
+\end{cases}
+\end{gather*}
+
+\begin{align*}
+\text{Donc}, \quad TVaR_{0.9}(Y) = \frac{e^{-3}}{1-0.9} = \bm{\textcolor{BrickRed}{0.497\,870\,684}}
+\end{align*}
+
+\vspace{5mm}
+
+## d) Calculer la $TVaR_{0.99}(X)$ et la $TVaR_{0.99}(Y)$
+
+Par les résultats trouvés en c), il devient simple de remplacer par la valeur de p.
+
+\begin{align*}
+&\blacktriangleright TVaR_{0.99}(X) = -ln(1-0.99) +1 = \bm{\textcolor{BrickRed}{5.605\,170\,186}}\\[5pt]
+&\blacktriangleright TVaR_{0.99}(Y) = -ln(1-0.99) -2 = \bm{\textcolor{BrickRed}{2.605\,170\,186}}\\
+\end{align*}
+
+\vspace{5mm}
+
+## e) 
+
+Il n'y a rien à faire dans cette section.
+
+
+\vspace{5mm}
+
+## f) Calculer la $VaR_{0.9}(Z)$ et la $VaR_{0.99}(Z)$
+
+Pour que $Y > 10 \Rightarrow X-3 >10 \Rightarrow X>13$.
+
+Alors, $F_X(13) = 1-e^{-13} \approx 0.999\,997\,74$
+
+Donc, on aura que
+
+\begin{gather*}
+VaR_p(Z) = 
+\begin{cases}
+  VaR_p(Y) &, \quad \text{si}\: p < 1-e^{-13} \\[5pt]
+  \quad 10 &, \quad \text{si}\: p \ge 1-e^{-13} \\[5pt]
+\end{cases}
+\end{gather*}
+
+\begin{align*}
+&\blacktriangleright VaR_{0.9}(Z) = VaR_{0.9}(Y) = \bm{\textcolor{BrickRed}{0}}\\[5pt]
+&\blacktriangleright VaR_{0.99}(Z) = VaR_{0.99}(Y) = -ln(1-0.99)-3 = \bm{\textcolor{BrickRed}{1.605\,170\,186}}\\
+\end{align*}
+
+
+\vspace{5mm}
+
+## g) Calculer la $VaR_{0.9}(Y_{max})$ et la $VaR_{0.9}(Y)$
+
+Puisque $Y_{max} = max\{Y_1, Y_2, Y_3\}$ et que $Y_1, Y_2, Y_3$ sont i.i.d., on va trouver $F_{Y_{max}}(y)$.
+
+\begin{align*}
+F_{Y_{max}}(y) &= Pr(Y_{max} \le y)\\
+&= Pr(max\{Y_1,Y_2,Y_3\} \le y)\\
+&= Pr(Y_1 \le y \cap Y_2 \le y \cap Y_3 \cap y)\\
+&= Pr(Y \le y)^3 \quad \bm{\textcolor{ForestGreen}{\longrightarrow \text{car les} \: Y_i \: \text{sont i.i.d.}}}\\
+\end{align*}
+
+En trouvant l'inverse de la fonction de répartition en fonction de $p$, on pourra trouver facilement la $VaR_p(Y_{max})$. Trouvons d'abord pour $Y > 0$.
+
+\begin{align*}
+Pr(Y \le y)^3 &= Pr(X-3 \le y)^3\\
+&= Pr(X \le y+3)^3\\
+&= (1-e^{-(y+3)})^3\\
+\Rightarrow p &= (1-e^{-(u+3)})^3\\
+1-p^{1/3} &= e-{-(u+3)}\\
+\Rightarrow u &= -ln(1-p^{1/3})-3
+\end{align*}
+
+En remplaçant $p$ par $0.9$, on obtient $VaR_{0.9}(Y_{max}) = -ln(1-0.9^{1/3})-3 = 0.366\,488\,31$. Étant donné que la valeur est plus grande que $0$, on n'a pas besoin de vérifier pour $Y \le 0$. De plus, on avait déjà calculé la $VaR_p(Y)$ un peu plus haut et lorsque $p \le 1-e^{-3} \approx 0.95 \Rightarrow  VaR_p(Y) =0$. Alors, puisque $p=0.9 < 1-e^{-3} \Rightarrow  VaR_{0.9}(Y) =0$, on peut obtenir les résultats souhaités.
+
+
+\begin{align*}
+&\blacktriangleright VaR_{0.9}(Y_{max}) =  \bm{\textcolor{BrickRed}{0.366\,488\,31}}\\[5pt]
+&\blacktriangleright VaR_{0.9}(Y) = \bm{\textcolor{BrickRed}{0}}\\
+\end{align*}
+
+
+
+
+
+\newpage
+
+
+
+
+# Numéro 4
+
+On demande dans ce numéro de calculer la $VaR_p(M)$ et la $TVaR_p(M)$ provenant d'une simulation de $10\,000$ réalisations de $M$, où $M \sim Geom(q=0.1)$. Générer les $10\,000$ valeurs est la tâche la plus simple dans ce numéro, puisque la fonction R rgeom permet la simulation du nombre de réalisations désirées avec le paramètre de probabilité que l'on connait. Pour simplifier, j'ai trié les valeurs en ordre croissant immédiatement.
+
+Pour la $VaR_p(M)$, j'ai pris la valeur à la position de $p^e$ percentile. Puisqu'on a $10\,000$ réalisations, on tombe directement sur la valeur empirique de la $VaR_p(M)$
+
+Pour la $TVaR_p(M)$, j'ai tout simplement calculer la moyenne des valeurs dont la position était plus grande à celle de la $VaR_p(M)$. En d'autres mots, j'ai fait la moyenne des valeurs des positions $[p * 10\,000 + 1; 10\,000]$.
+
+Le code est très simple et voici ce que j'ai programmé pour obtenir les résultats que l'on demandait.
+
+```{r echo = TRUE}
+# Simulation et tri des 10 000 réalisations de M
+
+simul <- sort(rgeom(10000, prob = 0.1))
+
+# Calcul de la VaR_p(M) pour p = {0.9, 0.99}            
+
+VaR90 <- simul[9000]
+VaR99 <- simul[9900]
+
+# Calcul de la TVaR_p(M) pour p = {0.9, 0.99}
+
+TVaR90 <- mean(simul[9001:10000])   
+TVaR99 <- mean(simul[9901:10000])
+```
+
+Voici les résultats obtenus.
+
+```{r echo=FALSE, results='asis'}
+
+### Table VaR et TVaR
+
+VaRTVaR <- data.frame("p" = c(0.9, 0.99),
+                       "VaR_p(M)"= c(VaR90,VaR99),
+                       "TVaR_p(M)"= c(TVaR90,TVaR99))
+
+library(knitr)
+library(xtable)
+
+kable(VaRTVaR, caption = "Résultats de la VaR et la TVaR", escape = FALSE, align = "c",
+      col.names = c("$p$", "$VaR_p(M)$", "$TVaR_p(M)$"))
+
+```
+
+\newpage
+
+
+# Numéro 5
+
+Dans ce numéro on doit calculer différentes espérances à l'aide de données empiriques. Puisque $Z = X + Y$, et que $X$ et $Y$ sont variables aléatoires indépendantes, pour chaque variable aléatoire de $Z$, on pouvait simuler une valeur de $X$ que l'on additionnait à une valeur de $Y$. Pour la variable aléatoire $X \sim Erl(n = 3, \beta = 0.05)$ cela revient à une loi gamma avec $alpha =3$. On prend donc la fonction R rgamma, mais en prenant dans le paramètre "rate" au lieu de "scale" pour la valeur de $\beta$. Pour $Y$, on prend la fonction R rweibull. 
+
+Voici le code pour la simulation et les calculs demandés. Les calculs d'espérances seront expliqués plus loin, soit avant de donner le résultat.
+
+
+```{R echo = TRUE}
+
+# Simulation des 10 000 valeurs de Z
+X <- rgamma(10000, shape = 3, rate = 0.05)
+Y <- rweibull(10000,shape = 3,scale = 1/0.1)
+Z <- X+Y
+
+# Espérance de Z
+
+Es_Z <- mean(Z)          
+
+# Espérance de la fonction stop loss pour d = 20
+
+EsSL_Z <- mean(pmax(Z-20,0))     
+
+# Espérance de l'excès moyen pour d = 20
+
+EsEM_Z <- sum(pmax(Z-20,0))/sum((Z-20)>0)      
+
+# Espérance limitée à u = 100
+
+EsLim_Z <- mean(pmin(Z,100))     
+```
+
+## a) Caluler $E[Z]$
+
+Pour $E[Z]$, on fait seulement la moyenne des valeurs de Z.
+
+\begin{align*}
+E[Z] = \bm{\textcolor{BrickRed}{`r Es_Z`}}
+\end{align*}
+
+## b) Calculer $\pi_Z(20)$
+
+Ici, on cherche l'espérance de la fonction stop-loss avec un déductible de 20. Cela revient à calculer $E[max(0, Z-20)]$. pour ce faire, j'ai pris la valeur la plus grande entre $0$ et $Z-20$ pour chacun des $Z$ et j'ai fait la moyenne de ces nouvelles valeurs. 
+
+\begin{align*}
+\pi_Z(20) = \bm{\textcolor{BrickRed}{`r EsSL_Z`}}
+\end{align*}
+
+
+## c) Calculer $e_Z(20)$
+
+$e_Z(20)$ est l'espérance de l'excès moyen avec un déductible de 20. L'espérance de l'excès moyen est un moyenne des valeurs plus grandes que le déductible, donc la prestation moyenne que verse l'assureur en cas de réclamation. Pour le calculer, on fait la moyenne des valeurs de $Z-20 > 0$.
+
+\begin{align*}
+e_Z(20) = \bm{\textcolor{BrickRed}{`r EsEM_Z`}}
+\end{align*}
+
+
+## d) Calculer $E[Z \wedge 100]$
+
+Il est demandé de calculer $E[Z \wedge 100]$, qui est l'espérance limitée à $100$. Cela représente que toute réclamation au delà de $100\$$ sera remboursée à concurrence maximale de $100\$$. On veut donc calculer $E[min(Z,100)]$. 
+
+
+\begin{align*}
+E[Z \wedge 100] = \bm{\textcolor{BrickRed}{`r EsLim_Z`}}
+\end{align*}
+
+
+
+
+
+
+
+

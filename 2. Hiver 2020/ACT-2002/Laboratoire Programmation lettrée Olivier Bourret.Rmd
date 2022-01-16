@@ -1,0 +1,37 @@
+---
+title: "Programmation lettrée et R Markdown"
+author: '*Olivier Bourret*'
+date: '*07/02/2020*'
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Espérance de la distribution gamma
+
+Soit $X$ une variable aléatoire avec la distribution gamma de paramètres $\alpha = 3$ et $\lambda = 0,1$. Par définition, l'espérance de cette variable aléatoire est
+$$
+E[X] = \int_0^\infty x\frac{\lambda^\alpha}{\Gamma(\alpha)}x^{\alpha - 1} e^{-\lambda x}dx
+$$
+Nous pouvons calculer la valeur théorique de l'espérance avec la fonction R `integrate`
+```{r echo = TRUE, eval = TRUE}
+alpha <- 3
+lambda <- 0.1
+ExT <- integrate(function(x) x * dgamma(x, shape = alpha, rate = lambda),
+                 lower = 0, upper = Inf)$value
+```
+
+La valeur est : `r ExT`
+
+Nous pouvons valider ce résultat par simulation.
+```{r echo = TRUE, eval = TRUE}
+nb.sim <- 1e6
+x <- rgamma(nb.sim, alpha, rate = lambda)
+ExE <- round(mean(x), 4)
+```
+
+La valeur de la moyenne empirique est: `r ExE`

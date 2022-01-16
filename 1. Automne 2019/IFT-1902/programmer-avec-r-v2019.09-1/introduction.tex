@@ -1,0 +1,168 @@
+%%% Copyright (C) 2019 Vincent Goulet
+%%%
+%%% Ce fichier fait partie du projet
+%%% «Programmer avec R»
+%%% https://gitlab.com/vigou3/programmer-avec-r
+%%%
+%%% Cette création est mise à disposition sous licence
+%%% Attribution-Partage dans les mêmes conditions 4.0
+%%% International de Creative Commons.
+%%% https://creativecommons.org/licenses/by-sa/4.0/
+
+\chapter{Introduction}
+\markboth{Introduction}{Introduction}
+
+Cet ouvrage traite de programmation informatique --- ou de codage,
+pour utiliser le terme de plus en plus courant. À l'aube d'une
+révolution numérique et de l'industrie 4.0, la programmation devient
+une compétence essentielle chez les étudiants comme chez les
+travailleurs du vingt-et-unième siècle. De même, la place sans cesse
+grandissante accordée à la science des données --- analyse prédictive,
+apprentissage profond, intelligence artificielle --- dans la plupart
+des disciplines scientifiques ne fait qu'accentuer l'importance de
+disposer d'une solide formation en programmation.
+
+Les principaux buts du présent ouvrage sont donc: d'abord de
+développer une culture de l'informatique; ensuite d'acquérir la
+capacité à résoudre des problèmes concrets à l'aide de l'algorithmique
+et de la programmation; enfin de se familiariser avec les bonnes
+pratiques reconnues en contexte de travail collaboratif, puisque la
+programmation se pratique beaucoup plus souvent en groupe que seul.
+
+Vous apprendrez à programmer en R, le langage au coeur de
+l'environnement statistique du même nom et l'un des outils les plus
+utilisés dans le monde pour l'analyse de données. Le système R connaît
+depuis plus d'une décennie une progression remarquable dans ses
+fonctionnalités, dans la variété de ses domaines d'application ou,
+plus simplement, dans le nombre de ses utilisateurs. La documentation
+sur l'utilisation de R en sciences naturelles, en sciences sociales,
+en finance, etc, ne manque pas. Cependant, peu d'ouvrages se
+concentrent sur l'apprentissage de R en tant que langage de
+programmation sous-jacent aux fonctionnalités statistiques. C'est la
+niche que je tâche d'occuper.
+
+L'analyse de données requiert souvent de manipuler ou de traiter du
+texte. Par conséquent, l'ouvrage aborde également les expressions
+régulières et divers utilitaires d'analyse et de contrôle de texte.
+
+Enfin, vous trouverez en annexe de brèves introductions à
+l'environnement de développement intégré RStudio et à l'éditeur de
+texte pour programmeurs GNU~Emacs, de même que les solutions complètes
+des exercices.
+
+\section*{Utilisation de l'ouvrage}
+
+L'ouvrage vise d'abord à vous exposer à un maximum de code, puis à
+vous faire pratiquer. C'est pourquoi plusieurs chapitres sont rédigés
+de manière synthétique et qu'ils comportent peu d'exemples au fil du
+texte.
+
+En revanche, vous serez appelé à lire et à exécuter le code
+informatique se trouvant dans les sections d'exemples à la fin de la
+plupart des chapitres. Ce code et les commentaires qui l'accompagnent
+reviennent sur l'essentiel des concepts du chapitre et les
+complémentent souvent. Je considère l'exercice d'«étude active»
+consistant à exécuter du code et à voir ses effets comme essentiel à
+l'apprentissage du langage R. Vous pouvez aussi inverser la
+proposition et étudier le code informatique avant le texte du chapitre
+correspondant si ce mode d'apprentissage vous convient mieux.
+
+Le code des sections d'exemples est distribué avec le document sous
+forme de fichiers de script. De plus, à chaque fichier \code{.R}
+correspond un fichier \code{.Rout} contenant les résultats de son
+évaluation non interactive.
+
+
+\section*{Fonctionnalités interactives}
+
+En consultation électronique, ce document se trouve enrichi de
+plusieurs fonctionnalités interactives.
+\begin{itemize}
+\item Intraliens du texte vers une ligne précise d'une section de code
+  informatique et, en sens inverse, du numéro de la ligne vers le
+  point de la référence dans le texte. Ces intraliens sont marqués par
+  la couleur \textcolor{link}{\rule{1.5em}{1.2ex}}.
+\item Intraliens entre le numéro d'un exercice et sa solution, et vice
+  versa. Ces intraliens sont aussi marqués par la couleur
+  \textcolor{link}{\rule{1.5em}{1.2ex}}.
+\item Intraliens entre les citations dans le texte et leur entrée dans
+  la bibliographie. Ces intraliens sont marqués par la couleur
+  \textcolor{citation}{\rule{1.5em}{1.2ex}}.
+\item Hyperliens vers des ressources externes marqués par le symbole
+  {\smaller\faExternalLink*} et la couleur
+  \textcolor{url}{\rule{1.5em}{1.2ex}}.
+\item Table des matières, liste des tableaux, liste des figures et
+  liste des vidéos permettant d'accéder rapidement à des ressources du
+  document.
+\item Index comprenant, entre autres, les principaux mots clés du
+  langage R et toutes leurs occurrences dans le texte ainsi que
+  dans le code informatique.
+\end{itemize}
+
+\section*{Blocs signalétiques}
+
+Le document est parsemé de divers types de blocs signalétiques
+inspirés de
+\link{https://asciidoctor.org/docs/user-manual/\#admonition}{AsciiDoc}
+qui visent à attirer votre attention sur une notion.
+
+\tipbox{Astuce! Ces blocs contiennent un truc, une astuce, ou tout
+  autre type d'information utile.}
+\vspace{-\baselineskip}
+
+\warningbox{Avertissement! Ces blocs mettent l'accent sur une notion
+  ou fournissent une information importante pour la suite.}
+\vspace{-\baselineskip}
+
+\cautionbox{Attention! Vous risquez de vous brûler ---
+  métaphoriquement s'entend --- si vous ne suivez pas les
+  recommandations de ces blocs.}
+\vspace{-\baselineskip}
+
+\importantbox{Important! Ces blocs contiennent les remarques les plus
+  importantes. Veillez à en tenir compte.}
+\vspace{-\baselineskip}
+
+\notebox{Ces blocs contiennent des remarques additionnelles sur
+  la matière ou des informations amusantes, mais non essentielles.}
+\vspace{-\baselineskip}
+
+%% Utilisation de la commande \awesomebox pour illustrer les blocs de
+%% vidéos pour éviter de créer une entrée dans la liste des vidéos.
+\awesomebox{\aweboxrulewidth}{\faYoutube}{url}{Ces blocs
+  contiennent des liens vers des vidéos dans ma %
+  \link{https://www.youtube.com/user/VincentGouletIntroR/videos}{chaine
+    YouTube}. Les vidéos sont répertoriées dans la liste des vidéos.}
+\vspace{-\baselineskip}
+
+\gotorbox{Ces blocs vous invitent à interrompre la lecture du texte
+  pour passer à l'étude du code R des sections d'exemples.}
+\vspace{-\baselineskip}
+
+\osxbox{Remarques spécifiques à macOS.}
+\vspace{-\baselineskip}
+
+\windowsbox{Remarques spécifiques à Windows.}
+
+\section*{Document libre}
+
+Tout comme R et l'ensemble des outils présentés dans ce document, le
+projet «Programmer avec R» s'inscrit dans le mouvement de
+l'\link{https://www.gnu.org/philosophy/free-sw.html}{informatique
+  libre}. Vous pouvez accéder à l'ensemble du code source en format
+{\LaTeX} en suivant le lien dans la page de copyright. Vous trouverez
+dans le fichier \code{README.md} toutes les informations utiles pour
+composer le document.
+
+Votre contribution à l'amélioration du document est également la
+bienvenue; consultez le fichier \code{CONTRIBUTING.md} fourni avec ce
+document et voyez votre nom ajouté au fichier \code{COLLABORATEURS}.
+
+Bonne lecture!
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-engine: xetex
+%%% TeX-master: "programmer-avec-r"
+%%% coding: utf-8
+%%% End:

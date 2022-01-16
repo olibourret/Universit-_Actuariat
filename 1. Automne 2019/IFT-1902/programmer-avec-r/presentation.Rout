@@ -1,0 +1,304 @@
+
+R Under development (unstable) (2019-07-23 r76873) -- "Unsuffered Consequences"
+Copyright (C) 2019 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin15.6.0 (64-bit)
+
+R est un logiciel libre livré sans AUCUNE GARANTIE.
+Vous pouvez le redistribuer sous certaines conditions.
+Tapez 'license()' ou 'licence()' pour plus de détails.
+
+R est un projet collaboratif avec de nombreux contributeurs.
+Tapez 'contributors()' pour plus d'information et
+'citation()' pour la façon de le citer dans les publications.
+
+Tapez 'demo()' pour des démonstrations, 'help()' pour l'aide
+en ligne ou 'help.start()' pour obtenir l'aide au format HTML.
+Tapez 'q()' pour quitter R.
+
+[Sauvegarde de la session précédente restaurée]
+
+> options(error=expression(NULL))
+> ## Copyright (C) 2019 Vincent Goulet
+> ##
+> ## Ce fichier fait partie du projet
+> ## «Programmer avec R»
+> ## https://gitlab.com/vigou3/programmer-avec-r
+> ##
+> ## Cette création est mise à disposition sous licence
+> ## Attribution-Partage dans les mêmes conditions 4.0
+> ## International de Creative Commons.
+> ## https://creativecommons.org/licenses/by-sa/4.0/
+> 
+> ###
+> ### COMMANDES R            
+> ###
+> 
+> ## Les expressions entrées à la ligne de commande sont
+> ## immédiatement évaluées et le résultat est affiché à
+> ## l'écran, comme avec une grosse calculatrice.
+> 1                          # une constante
+[1] 1
+> (2 + 3 * 5)^2/7            # expression mathématique
+[1] 41.28571
+> exp(3)                     # fonction exponentielle
+[1] 20.08554
+> sin(pi/2) + cos(pi/2)      # fonctions trigonométriques
+[1] 1
+> gamma(5)                   # fonction gamma
+[1] 24
+> 
+> ## Lorsqu'une expression est syntaxiquement incomplète,
+> ## l'invite de commande change de '> ' à '+ '.
+> 2 -                        # expression incomplète
++ 5 *                        # toujours incomplète
++ 3                          # complétée
+[1] -13
+> 
+> ## Taper le nom d'un objet affiche son contenu. Pour une
+> ## fonction, c'est son code source qui est affiché.
+> pi                         # constante numérique intégrée
+[1] 3.141593
+> letters                    # chaîne de caractères intégrée
+ [1] "a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l" "m" "n" "o" "p" "q" "r" "s"
+[20] "t" "u" "v" "w" "x" "y" "z"
+> LETTERS                    # version en majuscules
+ [1] "A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O" "P" "Q" "R" "S"
+[20] "T" "U" "V" "W" "X" "Y" "Z"
+> rnorm                      # fonction
+function (n, mean = 0, sd = 1) 
+.Call(C_rnorm, n, mean, sd)
+<bytecode: 0x7fa4f5d17cf0>
+<environment: namespace:stats>
+> 
+> ###
+> ### EXEMPLE DE SESSION DE TRAVAIL
+> ###
+> ### (Inspiré de l'annexe A du manuel «An Introduction to R»
+> ### livré avec R.)
+> ###
+> 
+> ## Afficher le répertoire de travail de R.
+> getwd()
+[1] "/Users/vincent/Documents/programmer-avec-r"
+> 
+> ## Générer deux vecteurs de nombres pseudo-aléatoires issus
+> ## d'une loi normale centrée réduite.
+> x <- rnorm(50)
+> y <- rnorm(x)
+> 
+> ## Graphique des couples (x, y).
+> plot(x, y)
+> 
+> ## Graphique d'une approximation de la densité du vecteur x.
+> plot(density(x))
+> 
+> ## Générer la suite 1, 2, ..., 10.
+> 1:10
+ [1]  1  2  3  4  5  6  7  8  9 10
+> 
+> ## La fonction 'seq' peut générer des suites plus générales.
+> seq(from = -5, to = 10, by = 3)
+[1] -5 -2  1  4  7 10
+> seq(from = -5, length = 10)
+ [1] -5 -4 -3 -2 -1  0  1  2  3  4
+> 
+> ## La fonction 'rep' répète des valeurs.
+> rep(1, 5)          # répéter 1 cinq fois
+[1] 1 1 1 1 1
+> rep(1:5, 5)        # répéter le vecteur 1,...,5 cinq fois
+ [1] 1 2 3 4 5 1 2 3 4 5 1 2 3 4 5 1 2 3 4 5 1 2 3 4 5
+> rep(1:5, each = 5) # répéter chaque élément du vecteur cinq fois
+ [1] 1 1 1 1 1 2 2 2 2 2 3 3 3 3 3 4 4 4 4 4 5 5 5 5 5
+> 
+> ## Arithmétique vectorielle.
+> v <- 1:12               # initialisation d'un vecteur
+> v + 2                   # additionner 2 à chaque élément de v
+ [1]  3  4  5  6  7  8  9 10 11 12 13 14
+> v * -12:-1              # produit élément par élément
+ [1] -12 -22 -30 -36 -40 -42 -42 -40 -36 -30 -22 -12
+> v + 1:3                 # le vecteur le plus court est recyclé
+ [1]  2  4  6  5  7  9  8 10 12 11 13 15
+> 
+> ## Vecteur de nombres uniformes sur l'intervalle [1, 10].
+> v <- runif(12, min = 1, max = 10)
+> v
+ [1] 8.202032 2.450053 2.964054 4.972030 4.206657 6.817309 5.710705 6.592486
+ [9] 2.556312 4.426064 2.178222 1.895841
+> 
+> ## Pour afficher le résultat d'une affectation, placer la
+> ## commande entre parenthèses.
+> ( v <- runif(12, min = 1, max = 10) )
+ [1] 1.097327 7.283022 9.483039 4.232327 1.892010 9.406955 3.490854 2.016073
+ [9] 7.539279 7.040600 5.527966 3.581390
+> 
+> ## Arrondi des valeurs de v à l'entier près.
+> ( v <- round(v) )
+ [1] 1 7 9 4 2 9 3 2 8 7 6 4
+> 
+> ## Créer une matrice 3 x 4 à partir des valeurs de
+> ## v. Remarquer que la matrice est remplie par colonne.
+> ( m <- matrix(v, nrow = 3, ncol = 4) )
+     [,1] [,2] [,3] [,4]
+[1,]    1    4    3    7
+[2,]    7    2    2    6
+[3,]    9    9    8    4
+> 
+> ## Les opérateurs arithmétiques de base s'appliquent aux
+> ## matrices comme aux vecteurs.
+> m + 2
+     [,1] [,2] [,3] [,4]
+[1,]    3    6    5    9
+[2,]    9    4    4    8
+[3,]   11   11   10    6
+> m * 3
+     [,1] [,2] [,3] [,4]
+[1,]    3   12    9   21
+[2,]   21    6    6   18
+[3,]   27   27   24   12
+> m ^ 2
+     [,1] [,2] [,3] [,4]
+[1,]    1   16    9   49
+[2,]   49    4    4   36
+[3,]   81   81   64   16
+> 
+> ## Éliminer la quatrième colonne afin d'obtenir une matrice
+> ## carrée.
+> ( m <- m[,-4] )
+     [,1] [,2] [,3]
+[1,]    1    4    3
+[2,]    7    2    2
+[3,]    9    9    8
+> 
+> ## Transposée et inverse de la matrice m.
+> t(m)
+     [,1] [,2] [,3]
+[1,]    1    7    9
+[2,]    4    2    9
+[3,]    3    2    8
+> solve(m)
+           [,1]       [,2]       [,3]
+[1,]  0.1052632  0.2631579 -0.1052632
+[2,]  2.0000000  1.0000000 -1.0000000
+[3,] -2.3684211 -1.4210526  1.3684211
+> 
+> ## Produit matriciel.
+> m %*% m                  # produit de m avec elle-même
+     [,1] [,2] [,3]
+[1,]   56   39   35
+[2,]   39   50   41
+[3,]  144  126  109
+> m %*% solve(m)           # produit de m avec son inverse
+             [,1]         [,2]          [,3]
+[1,] 1.000000e+00 8.881784e-16 -8.881784e-16
+[2,] 8.881784e-16 1.000000e+00 -4.440892e-16
+[3,] 0.000000e+00 0.000000e+00  1.000000e+00
+> round(m %*% solve(m))    # l'arrondi donne la matrice identité
+     [,1] [,2] [,3]
+[1,]    1    0    0
+[2,]    0    1    0
+[3,]    0    0    1
+> 
+> ## Consulter la rubrique d'aide de la fonction 'solve'.
+> ?solve
+solve                   package:base                   R Documentation
+
+_S_o_l_v_e _a _S_y_s_t_e_m _o_f _E_q_u_a_t_i_o_n_s
+
+_D_e_s_c_r_i_p_t_i_o_n:
+
+     This generic function solves the equation ‘a %*% x = b’ for ‘x’,
+     where ‘b’ can be either a vector or a matrix.
+
+_U_s_a_g_e:
+
+     solve(a, b, ...)
+     
+     ## Default S3 method:
+     solve(a, b, tol, LINPACK = FALSE, ...)
+     
+_A_r_g_u_m_e_n_t_s:
+
+       a: a square numeric or complex matrix containing the
+          coefficients of the linear system.  Logical matrices are
+          coerced to numeric.
+
+       b: a numeric or complex vector or matrix giving the right-hand
+          side(s) of the linear system.  If missing, ‘b’ is taken to be
+          an identity matrix and ‘solve’ will return the inverse of
+          ‘a’.
+
+     tol: the tolerance for detecting linear dependencies in the
+          columns of ‘a’.  The default is ‘.Machine$double.eps’. Not
+          currently used with complex matrices ‘a’.
+
+ LINPACK: logical.  Defunct and ignored.
+
+     ...: further arguments passed to or from other methods
+
+_D_e_t_a_i_l_s:
+
+     ‘a’ or ‘b’ can be complex, but this uses double complex arithmetic
+     which might not be available on all platforms.
+
+     The row and column names of the result are taken from the column
+     names of ‘a’ and of ‘b’ respectively.  If ‘b’ is missing the
+     column names of the result are the row names of ‘a’.  No check is
+     made that the column names of ‘a’ and the row names of ‘b’ are
+     equal.
+
+     For back-compatibility ‘a’ can be a (real) QR decomposition,
+     although ‘qr.solve’ should be called in that case.  ‘qr.solve’ can
+     handle non-square systems.
+
+     Unsuccessful results from the underlying LAPACK code will result
+     in an error giving a positive error code: these can only be
+     interpreted by detailed study of the FORTRAN code.
+
+_S_o_u_r_c_e:
+
+     The default method is an interface to the LAPACK routines ‘DGESV’
+     and ‘ZGESV’.
+
+     LAPACK is from <URL: http://www.netlib.org/lapack>.
+
+_R_e_f_e_r_e_n_c_e_s:
+
+     Anderson. E. and ten others (1999) _LAPACK Users' Guide_. Third
+     Edition. SIAM.
+     Available on-line at <URL:
+     http://www.netlib.org/lapack/lug/lapack_lug.html>.
+
+     Becker, R. A., Chambers, J. M. and Wilks, A. R. (1988) _The New S
+     Language_.  Wadsworth & Brooks/Cole.
+
+_S_e_e _A_l_s_o:
+
+     ‘solve.qr’ for the ‘qr’ method, ‘chol2inv’ for inverting from the
+     Choleski factor ‘backsolve’, ‘qr.solve’.
+
+_E_x_a_m_p_l_e_s:
+
+     hilbert <- function(n) { i <- 1:n; 1 / outer(i - 1, i, "+") }
+     h8 <- hilbert(8); h8
+     sh8 <- solve(h8)
+     round(sh8 %*% h8, 3)
+     
+     A <- hilbert(4)
+     A[] <- as.complex(A)
+     ## might not be supported on all platforms
+     try(solve(A))
+     
+
+> 
+> ## Liste des objets dans l'espace de travail.
+> ls()
+ [1] "a"         "A"         "abs"       "auj"       "b"         "cars"     
+ [7] "d"         "dist"      "dixsem"    "f"         "foo"       "foo_123"  
+[13] "foo.123"   "fun"       "g"         "Ginv"      "grandeurs" "i"        
+[19] "m"         "n"         "ocurve"    "p"         "q"         "ratio"    
+[25] "rgamma"    "scale"     "shape"     "square"    "sumsq"     "u"        
+[31] "v"         "x"         "y"         "z"        
+> 
+> ## Nettoyage.
+> rm(x, y, v, m)
+> 

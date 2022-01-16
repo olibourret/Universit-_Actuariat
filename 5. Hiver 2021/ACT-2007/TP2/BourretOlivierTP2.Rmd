@@ -1,0 +1,294 @@
+---
+title: "Travail pratique 2 ACT-2007"
+author: "Olivier Bourret"
+date: "20 avril 2021"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+header-includes: \usepackage{xcolor} \usepackage[makeroom]{cancel} \usepackage{bm}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question 1
+
+Chacun des résultats se trouvent par quelques simples étapes.
+
+1. **Trouver $_{10}p_x^{00}$**
+
+\begin{align*}
+_{t}p_x^{00} = _{t}p_x^{\overline{00}} &= e^{-\int_{s=0}^{t} \mu_{x+s}^{01} + \mu_{x+s}^{02} ds} \\
+&= e^{-\int_{s=0}^{t} 0.001 + 0.005 ds} \\
+&= e^{-\int_{s=0}^{t} 0.006 ds}\\
+&= e^{-0.006t}\\
+\vspace{3mm}\\
+\bm{\Rightarrow_{10}p_x^{00}} &=  \bm{e^{-0.006 \cdot (10)} =  e^{-0.06} \approx 0.941\,764\,534}
+\end{align*}
+
+\vspace{3mm}
+
+2. **Trouver $_{10}p_x^{01}$**
+
+\begin{align*}
+_{10}p_x^{01} &= \int_{t=0}^{10} \ _{10}p_x^{\overline{00}} \cdot \mu_{x+s}^{01} \cdot _{10-t}p_x^{\overline{11}} dt \qquad \textcolor{teal}{\longrightarrow} & \textcolor{teal}{_{10-t}p_x^{\overline{11}}} & \textcolor{teal}{= e^{-\int_{s=0}^{10-t} \mu_{x+t+s}^{12} ds}}\\
+&= \int_{t=0}^{10} e^{-0.006t}(0.001) \cdot e^{-0.012(10-t)} dt & &\textcolor{teal}{= e^{-\int_{s=0}^{10-t} 0.012 ds}}\\
+&= 0.001 e^{-0.12} \int_{t=0}^{10} e^{-0.006t} dt & &\textcolor{teal}{= e^{-0.012(10-t)}}\\
+&= 0.001 e^{-0.12} \left(\frac{e^{-0.06}-1}{-0.006} \right) \approx \bm{0.009\,140\,683}
+\end{align*}
+
+\vspace{3mm}
+
+3. **Trouver $_{10}p_x^{02}$**
+
+\begin{align*}
+_{10}p_x^{02} &= 1 - _{10}p_x^{00} - _{10}p_x^{01}\\
+&= 1 - e^{-0.06} - 0.009\,140\,683\\
+&= \bm{0.049\,094\,783}
+\end{align*}
+
+\newpage
+
+4. **Trouver $_{10}p_x^{11}$**
+
+\begin{align*}
+_{10}p_x^{11} = _{10}p_x^{\overline{11}} &= e^{-\int_{s=0}^{10} \mu_{x+s}^{12} ds} \\
+&= e^{-\int_{s=0}^{t} 0.012 ds} \\
+&= \bm{e^{-0.12} \approx 0.886\,920\,437}
+\end{align*}
+
+\vspace{3mm}
+
+5. **Trouver $_{10}p_x^{12}$**
+
+\begin{align*}
+_{10}p_x^{12} &= 1 -  _{10}p_x^{11}\\
+&= \bm{1 - e^{-0.12} \approx 0.113\,079\,563}
+\end{align*}
+
+
+\vspace{3mm}
+
+## Question 2
+
+### a) Calculer $_{10}p_{60}^{00}$, $_{10}p_{60}^{01}$ et $_{10}p_{60}^{02}$
+Avec l'équation forward de Kolmogorov, il est possible de bâtir le système d'équation suivant:
+
+
+\begin{align*}
+\bullet \qquad \frac{d}{dt}\left( _{t}p_{60}^{00} \right) &= _{t}p_{60}^{00} \, \mu_{60+t}^{00} + _{t}p_{60}^{01} \, \mu_{60+t}^{10} + _{t}p_{60}^{02} \, \mu_{60+t}^{20}\\
+\bullet \qquad \frac{d}{dt}\left( _{t}p_{60}^{01} \right) &= _{t}p_{60}^{00} \, \mu_{60+t}^{01} + _{t}p_{60}^{01} \, \mu_{60+t}^{11} + _{t}p_{60}^{02} \, \mu_{60+t}^{21}\\
+\bullet \qquad \frac{d}{dt}\left( _{t}p_{60}^{02} \right) &= _{t}p_{60}^{00} \, \mu_{60+t}^{02} + _{t}p_{60}^{01} \, \mu_{60+t}^{12} + _{t}p_{60}^{02} \, \mu_{60+t}^{22}
+\end{align*}
+
+Avec $\mu_{60+t}^{20} = \mu_{60+t}^{21} =\mu_{60+t}^{22} = 0$ et en remplaçant les $\mu_{60+t}^{ii}$ par $-(\sum_{j \ne i}^n\mu_{60+t}^{ij})$, nous pouvons réduire le système d'équation ainsi:
+
+
+\begin{align*}
+\bullet \qquad \frac{d}{dt}\left( _{t}p_{60}^{00} \right) &= -(\mu_{60+t}^{01} + \mu_{60+t}^{02}) _{t}p_{60}^{00} + \mu_{60+t}^{10} \, _{t}p_x^{01} \\
+\bullet \qquad \frac{d}{dt}\left( _{t}p_{60}^{01} \right) &=  \mu_{60+t}^{01} \, _{t}p_{60}^{00} - (\mu_{60+t}^{10} + \mu_{60+t}^{12}) \cdot _{t}p_{60}^{01}\\
+\bullet \qquad \frac{d}{dt}\left( _{t}p_{60}^{02} \right) &=  \mu_{60+t}^{02} \, _{t}p_{60}^{00} + \mu_{60+t}^{12} \cdot _{t}p_{60}^{01} 
+\end{align*}
+
+Puisque $\frac{_{t+h}p_{60}^{ij} -  _{t}p_{60}^{ij}}{h} \approx \frac{dt}{d}_{t}p_{60}^{ij}$ en isolant $_{t+h}p_{60}^{ij}$, on ontient $_{t+h}p_{60}^{ij} \approx h \cdot \frac{dt}{d}_{t}p_{60}^{ij} + _{t}p_{60}^{ij}$. Ainsi, de manière itérative, en supposant les valeurs initiale de $_{t}p_{60}^{00}= 1, \, _{t}p_{60}^{01} = 0$ et $_{t}p_{60}^{02} = 0$ on trouve les valeurs successives avec $h=1/12$ jusqu'à $t=10$. Le code de la fonction qui est programmée en R est le suivant:
+
+\vspace{3mm}
+
+```{r echo = TRUE}
+
+## Équation forward de Kolmogorov
+Kolmo <- function(t){
+    P_00 <- 1
+    P_01 <- 0
+    P_02 <- 0
+    h <- 1/12
+    i <- 1
+    a1 <- 4E-4
+    a2 <- 5E-4
+    b1 <- 3.4674E-6
+    b2 <- 7.5858E-5
+    c1 <- 0.138155
+    c2 <- 0.087498
+    for(i in 0:(t/h-1)){
+        x <- (-(a1 + b1 * exp(c1 * (60 + h*i)) + a2 + b2 * exp(c2 * (60 + h*i)))* P_00 + 0.1*(a1 + b1 * exp(c1 * (60 + h*i))) * P_01)*h + P_00
+        y <- ((a1 + b1 * exp(c1 * (60 + h*i))) * P_00 - (0.1 * (a1 + b1 * exp(c1 * (60 + h*i))) + a2 + b2 * exp(c2 * (60 + h*i)))* P_01) * h + P_01
+        z <- ((a2 + b2 * exp(c2 * (60 + h*i)))* P_00 + (a2 + b2 * exp(c2 * (60 + h*i)))* P_01) *h + P_02
+        P_00 <- x
+        P_01 <- y
+        P_02 <- z
+        i <- i+1
+    }
+    resultat <- c(P_00, P_01, P_02)
+    resultat
+}
+
+rep2 <- Kolmo(10)
+```
+
+\vspace{3mm}
+
+J'obtiens comme résultat:
+
+```{r echo=FALSE, results='asis'}
+
+
+### Table 1
+reponses <- data.frame("P_00" = rep2[1],
+                       "P_01"= rep2[2],
+                       "P_02"= rep2[3])
+
+library(knitr)
+library(xtable)
+
+kable(reponses, caption = "Résultats recherchés", escape = FALSE, align = "c",
+      col.names = c("$_{10}P_{60}^{00}$", "$_{10}P_{60}^{01}$", "$_{10}P_{60}^{02}$"))
+
+```
+
+### b) Expliquer pourquoi $_{10}p_{60}^{00} \ne _{10}p_{60}^{\overline{00}}$
+
+$_{10}p_{60}^{00}$ représente la probabilité d'être dans l'état $0$ à $60$ ans et de terminer à l'état $0$ à $60 + t$ avec la possibilité de sortir de l'état et d'y revenir. Pour $_{10}p_{60}^{\overline{00}}$, c'est le même principe, sauf qu'il est impossible de sortir de l'état $0$ et d'y revenir. Alors, puisque dans la situation, nous avons que $\mu_x^{01} \ne 0$ et $\mu_x^{10} \ne 0$, il est donc possible de sortir de l'état 0 et d'y revenir. Dans ce cas-ci, $_{10}p_{60}^{00}$ inclue $_{10}p_{60}^{\overline{00}}$ en plus de la probabilité de sortir de l'état 0 et d'y revenir. Ainsi, $_{10}p_{60}^{00} \ne _{10}p_{60}^{\overline{00}}$.
+
+\vspace{3mm}
+
+## Question 3
+
+La solution est relativement simple à calculer et peut se résoudre en quelques étapes. Voici ma démarche:
+
+\begin{align*}
+\bullet \qquad p_{40}^{(\tau)} &= 1 - q_{40}^{(\tau)}  &  \bullet \qquad p_{40}^{(\tau)} &= p_{40}^{'(1)} \cdot p_{40}^{'(2)}\\
+&= 1 - q_{40}^{(1)} - q_{40}^{(2)} & 0.66 &= (1-0.25)(1-y)\\
+&= 0.66 & \Rightarrow \quad y &= 0.12
+\end{align*}
+
+
+\begin{align*}
+\bullet \qquad p_{41}^{(\tau)} &= p_{41}^{'(1)} \cdot p_{41}^{'(2)} & \bullet \qquad l_{42} &= l_{40} \cdot p_{40}^{(\tau)} \cdot p_{41}^{(\tau)}\\
+&= (1-0.2)(1-2(0.12)) & &= 2000 (0.66)(0.608)\\
+&= 0.608 & &\bm{= 802.56}
+\end{align*}
+
+\newpage
+
+## Question 4
+
+### a) Calculer $_{20}q_{40}^{'(2)}$ et $_{20|10}q_{40}^{'(2)}$
+
+Pour commencer, il faut calculer $_{t}p_{40}^{'(2)}$ et $_{t}q_{40}^{'(2)}$ pour trouver $_{20}q_{40}^{'(2)}$.
+
+\begin{align*}
+_{t}p_{40}^{'(2)} &= e^{-\int_{s=0}^t \mu_{40+s}^{'(2)}ds}\\
+&= e^{-\int_{s=0}^t 0.01 ds}\\
+&= e^{-0.01t} \\[2ex]
+\Rightarrow \qquad _{t}q_{40}^{'(2)} &= 1- _{t}p_{40}^{'(2)}\\
+&= 1 - e^{-0.01t}\\
+\Rightarrow \qquad \bm{_{20}q_{40}^{'(2)}} &\bm{= 1-e^{-0.01(20)} \approx 0.181\,269\,247}
+\end{align*}
+
+Puisque $\mu_{40+t}{(2)} = 0.01  \Rightarrow \, X \sim \, Exp(\lambda = 0.01)$. Alors, par la proporiété de la loi sans mémoire, on peut dire que $_{t}q_{40}^{'(2)} = _{t}q_{60}^{'(2)}$. On peut donc trouver la réponse souhaitée.
+
+\begin{align*}
+_{20|10}q_{40}^{'(2)} &= _{20}p_{40}^{'(2)} \cdot _{10}q_{60}^{'(2)}\\
+&= e^{-0.01(20)} (1-e^{-0.01(10)})\\
+&\bm{= e^{-0.2}-e^{-0.3} \approx 0.077\,912\,532}
+\end{align*}
+
+
+### b) Calculer $_{20}q_{40}^{(2)}$ et $_{20|10}q_{40}^{(2)}$
+
+Premièrement, je trouve $_{t}p_{40}^{(\tau)}$
+
+\begin{align*}
+_{t}p_{40}^{'(1)} &= e^{-\int_{s=0}^t \mu_{40+s}^{'(1)}ds}\\
+&= e^{-\int_{s=0}^t \frac{1}{70-s} ds}\\
+&= e^{\left. -ln(70-s)\right\vert_{s=0}^t}\\
+&= \frac{70-t}{70}\\[2ex]
+\Rightarrow \qquad _{t}p_{40}^{(\tau)} &= _{t}p_{40}^{'(1)} \cdot _{t}p_{40}^{'(2)}\\
+&= \frac{70-t}{70}e^{-0.01t}
+\end{align*}
+
+Alors,
+
+\begin{align*}
+_{20}q_{40}^{(2)} &= \int_{t=0}^{20}\  _{t}p_{40}^{(\tau)} \cdot \mu_{x+t}^{(2)} dt \\
+&= \int_{t=0}^{20} \frac{70-t}{70} e^{-0.01t} (0.01) dt \\
+&= \frac{0.01}{70}\left[ \int_{t=0}^{20} 70 e^{-0.01t}dt - \int_{t=0}^{20} t e^{-0.01t}dt\right]\\
+&= \frac{0.01}{70}\left. \left[ \frac{70e^{-0.01t}}{-0.01}-\left( \frac{te^-0.01t}{-0.01} - \frac{1}{0.01^2} \left( e^{-0.01t}\right)\right)\right]\right\vert_{{t=0}}^{20}\\
+&\bm{= 0.156\,236\,252}
+\end{align*}
+
+Et,
+
+\begin{align*}
+_{30}q_{40}^{(2)} &= \int_{t=0}^{30}\  _{t}p_{40}^{(\tau)} \cdot \mu_{x+t}^{(2)} dt  \\
+&= \frac{0.01}{70}\left. \left[ \frac{70e^{-0.01t}}{-0.01}-\left( \frac{te^-0.01t}{-0.01} - \frac{1}{0.01^2} \left( e^{-0.01t}\right)\right)\right]\right\vert_{{t=0}}^{30}\\
+&= 0.206\,415\,618
+\end{align*}
+
+\begin{align*}
+_{20|10}q_{40}^{(2)} &= _{30}q_{40}^{(2)} - _{20}q_{40}^{(2)}\\
+&= 0.206\,415\,618 -0.156\,236\,252\\
+&\bm{= 0.050\,179\,366}
+\end{align*}
+
+\vspace{6mm}
+
+## Question 5
+
+Avant de se lancer dans la solution, voici quelques résultats préliminaires:
+
+\begin{align*}
+\bullet \quad q_{x}^{(1)} &= \frac{d_x^{(1)}}{l_x} = \frac{5}{1000} = \frac{1}{200} & \bullet \quad q_{x+1}^{(1)} &= \frac{d_{x+1}^{(1)}}{l_{x+1}} = \frac{5}{970} = \frac{1}{194}\\ 
+\bullet \quad q_{x}^{(2)} &= \frac{d_x^{(2)}}{l_x} = \frac{25}{1000} = \frac{1}{40} & \bullet \quad q_{x+1}^{(2)} &= \frac{d_{x+1}^{(2)}}{l_{x+1}} = \frac{30}{970} = \frac{3}{97}\\ 
+\bullet \quad q_{x}^{(\tau)} &= q_{x}^{(1)} + q_{x}^{(2)} = 0.005 + 0.025 =0.03 & \bullet \quad q_{x+1}^{(\tau)} &= q_{x+1}^{(1)} + q_{x+1}^{(2)} = \frac{1}{194} + \frac{3}{97} = \frac{7}{194}\\ 
+\bullet \quad p_{x}^{(\tau)} &= 1 - q_{x}^{(\tau)} = 1 - 0.03 = 0.97
+\end{align*}
+
+Pour le premier contrat, il est possible de calculer la valeur présente.
+
+\begin{align*}
+VPA_{@0}(\text{Prest}) &= 50\,000(vq_x^{(1)} + v^2 p_x^{(\tau)} \cdot q_{x+1}^{(1)}) + 20\,000(vq_x^{(2)} + v^2 p_x^{(\tau)} \cdot q_{x+1}^{(2)})\\
+&= 50\,000((1.05)^{-1}(0.005) + (1.05)^{-2} (0.97) \frac{1}{194}) + 20\,000((1.05)^{-1}(0.025) + (1.05)^{-2} (0.97) \frac{3}{97})\\
+&= 1\,485.260\,771
+\end{align*}
+
+Puisque la valeur présente est la même, il reste à calculer la prestation du deuxième contrat.
+
+\begin{align*}
+VPA_{@0}(\text{Prest}) &= X(vq_x^{(\tau)} + v^2 p_x^{(\tau)} \cdot q_{x+1}^{(\tau)}) \\
+1\,485.260\,771&= X((1.05)^{-1}(0.03) + (1.05)^{-2} (0.97) \frac{7}{194}) \\
+\bm{X} &\bm{= 24\,6241.060\,15}
+\end{align*}
+
+## Question 6
+
+Le numéro ressemble étrangement à celui du numéro 3. La seule différence, c'est que nous avons $\frac{q_{41}^{'(2)}}{q_{40}^{'(2)}}=2$. Si nous posons $q_{40}^{'(2)} = y$, nous aurons donc que $q_{41}^{'(2)} = 2y$. Ainsi, nous revenons exactement au même problème qu'au numéro 3. Alors, la solution est la suivante:
+
+
+
+\begin{align*}
+\bullet \qquad p_{40}^{(\tau)} &= 1 - q_{40}^{(\tau)}  &  \bullet \qquad p_{40}^{(\tau)} &= p_{40}^{'(1)} \cdot p_{40}^{'(2)}\\
+&= 1 - q_{40}^{(1)} - q_{40}^{(2)} & 0.66 &= (1-0.25)(1-y)\\
+&= 0.66 & \Rightarrow \quad y &= 0.12
+\end{align*}
+
+
+\begin{align*}
+\bullet \qquad p_{41}^{(\tau)} &= p_{41}^{'(1)} \cdot p_{41}^{'(2)} & \bullet \qquad l_{42} &= l_{40} \cdot p_{40}^{(\tau)} \cdot p_{41}^{(\tau)}\\
+&= (1-0.2)(1-2(0.12)) & &= 2000 (0.66)(0.608)\\
+&= 0.608 & &\bm{= 802.56}
+\end{align*}
+
+
+
+
+
+
+
+
+
+
+
+

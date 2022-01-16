@@ -1,0 +1,469 @@
+
+R Under development (unstable) (2019-07-23 r76873) -- "Unsuffered Consequences"
+Copyright (C) 2019 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin15.6.0 (64-bit)
+
+R est un logiciel libre livré sans AUCUNE GARANTIE.
+Vous pouvez le redistribuer sous certaines conditions.
+Tapez 'license()' ou 'licence()' pour plus de détails.
+
+R est un projet collaboratif avec de nombreux contributeurs.
+Tapez 'contributors()' pour plus d'information et
+'citation()' pour la façon de le citer dans les publications.
+
+Tapez 'demo()' pour des démonstrations, 'help()' pour l'aide
+en ligne ou 'help.start()' pour obtenir l'aide au format HTML.
+Tapez 'q()' pour quitter R.
+
+[Sauvegarde de la session précédente restaurée]
+
+> options(error=expression(NULL))
+> ## Copyright (C) 2019 Vincent Goulet
+> ##
+> ## Ce fichier fait partie du projet
+> ## «Programmer avec R»
+> ## https://gitlab.com/vigou3/programmer-avec-r
+> ##
+> ## Cette création est mise à disposition sous licence
+> ## Attribution-Partage dans les mêmes conditions 4.0
+> ## International de Creative Commons.
+> ## https://creativecommons.org/licenses/by-sa/4.0/
+> 
+> ## Ce fichier fournit le code utile pour refaire les exemples
+> ## du chapitre.
+> 
+> ###
+> ### VÉRIFICATION DE LA SYNTAXE
+> ###
+> 
+> ## Code de la fonction 'rgamma' avec des bogues, tel que
+> ## présenté à la figure 10.1.
+> ##
+> ## Refaire l'indentation de la fonction avec votre éditeur
+> ## pour programmeur. Cela devrait immédiatement faire
+> ## ressortir qu'il manque une parenthèse dans l'appel à la
+> ## fonction 'Ginv', à l'intérieur de la boucle 'while'.
+> rgamma <- function(n, shape, rate = 1; scale = 1/rate)
+Erreur : ';' inattendu(e) in "rgamma <- function(n, shape, rate = 1;"
+> {
++     if (shape <= 0 | shape >= 1)
++         stop("valeur de shape inadmissible")
++ 
++     ratio <- function(x)
++         if (x <= 1) exp(-x) else x^(shape - 1)
++ 
++     Ginv <- function(x)
++     {
++         k <- 1 + shape * exp(-1)
++         if (x <= 1/k)
++             (k * x)^(1/shape)
++         else
++             -log(((1/shape) + exp(-1)) * (1 - x))
++     }
++ 
++     x <- numeric(n)
++     i <- 1
++     while (i < n)
++     {
++         y <- Ginv(runif(1)
++         if (runif(1) <= ratio(y))
+Erreur : 'if' inattendu(e) in:
+"        y <- Ginv(runif(1)
+        if"
+>             x[i <- i + 1] <- y
+Error in x[i <- i + 1] <- y : objet 'i' introuvable
+>     }
+Erreur : '}' inattendu(e) in "    }"
+>     x * scale
+Error in x * scale : argument non numérique pour un opérateur binaire
+> }
+Erreur : '}' inattendu(e) in "}"
+> 
+> ## La parenthèse manquante a été ajoutée dans la définition
+> ## ci-dessous.
+> ##
+> ## Essayez de définir la fonction dans l'espace de travail.
+> ## L'interpréteur R devrait attraper l'erreur de syntaxe à la
+> ## toute première ligne, soit le ';' en lieu et place d'une
+> ## ','.
+> rgamma <- function(n, shape, rate = 1; scale = 1/rate)
+Erreur : ';' inattendu(e) in "rgamma <- function(n, shape, rate = 1;"
+> {
++     if (shape <= 0 | shape >= 1)
++         stop("valeur de shape inadmissible")
++ 
++     ratio <- function(x)
++         if (x <= 1) exp(-x) else x^(shape - 1)
++ 
++     Ginv <- function(x)
++     {
++         k <- 1 + shape * exp(-1)
++         if (x <= 1/k)
++             (k * x)^(1/shape)
++         else
++             -log(((1/shape) + exp(-1)) * (1 - x))
++     }
++ 
++     x <- numeric(n)
++     i <- 1
++     while (i < n)
++     {
++         y <- Ginv(runif(1))
++         if (runif(1) <= ratio(y))
++             x[i <- i + 1] <- y
++     }
++     x * scale
++ }
+Erreur : objet 'shape' introuvable
+> 
+> ## L'erreur de syntaxe est maintenant corrigée.
+> rgamma <- function(n, shape, rate = 1, scale = 1/rate)
++ {
++     if (shape <= 0 | shape >= 1)
++         stop("valeur de shape inadmissible")
++ 
++     ratio <- function(x)
++         if (x <= 1) exp(-x) else x^(shape - 1)
++ 
++     Ginv <- function(x)
++     {
++         k <- 1 + shape * exp(-1)
++         if (x <= 1/k)
++             (k * x)^(1/shape)
++         else
++             -log(((1/shape) + exp(-1)) * (1 - x))
++     }
++ 
++     x <- numeric(n)
++     i <- 1
++     while (i < n)
++     {
++         y <- Ginv(runif(1))
++         if (runif(1) <= ratio(y))
++             x[i <- i + 1] <- y
++     }
++     x * scale
++ }
+> 
+> ## Nous ne sommes pas sortis du bois: l'appel de la fonction
+> ## ci-dessous retourne une valeur de 0, ce qui n'est pas une
+> ## valeur admissible pour une distribution gamma.
+> rgamma(5, 0.5, 1)
+[1] 0.00000000 0.39968912 0.07137708 0.70376350 0.17036048
+> 
+> ## Vérification avec d'autres valeurs des arguments. Le bogue
+> ## est aisément reproductible.
+> rgamma(5, 0.5, 1)
+[1] 0.000000000 1.437810444 0.119392686 0.001499538 0.058736647
+> rgamma(5, 0.8, 1)
+[1] 0.0000000 0.8866421 0.1938972 0.6894382 1.1945896
+> rgamma(5, 0.5, 2)
+[1] 0.000000000 0.008813046 0.045388953 1.127056102 0.100395320
+> rgamma(10, 0.5, 1)
+ [1] 0.000000000 0.726287496 0.546840901 0.529704982 0.165281518 0.154058120
+ [7] 0.487251609 0.005317601 3.610651284 0.009070355
+> rgamma(1, 0.5, 1)
+[1] 0
+> 
+> ###
+> ### AFFICHAGE DE RÉSULTATS INTERMÉDIAIRES
+> ###
+> 
+> ## Afin de découvrir le bogue de la fonction, nous ajoutons
+> ## une commande 'print' à l'intérieur de la boucle 'while'.
+> rgamma <- function(n, shape, rate = 1, scale = 1/rate)
++ {
++     if (shape <= 0 | shape >= 1)
++         stop("valeur de shape inadmissible")
++ 
++     ratio <- function(x)
++         if (x <= 1) exp(-x) else x^(shape - 1)
++ 
++     Ginv <- function(x)
++     {
++         k <- 1 + shape * exp(-1)
++         if (x <= 1/k)
++             (k * x)^(1/shape)
++         else
++             -log(((1/shape) + exp(-1)) * (1 - x))
++     }
++ 
++     x <- numeric(n)
++     i <- 1
++     while (i < n)
++     {
++         y <- Ginv(runif(1))
++         if (runif(1) <= ratio(y))
++         {
++             print(paste("valeur de y acceptée:", y))
++             x[i <- i + 1] <- y
++             print(c(i, x))
++         }
++     }
++     x * scale
++ }
+> 
+> ## L'exécution de la commande ci-dessous permet de détecter
+> ## que lorsqu'une première valeur de 'y' est acceptée, elle
+> ## est placée en deuxième position dans le vecteur des
+> ## résultats 'x'. Ah! Ha! Le compteur 'i' est soit incrémenté
+> ## trop tôt, soit initialisé une unité trop haut.
+> rgamma(5, 0.5, 1)
+[1] "valeur de y acceptée: 0.191282171708472"
+[1] 2.0000000 0.0000000 0.1912822 0.0000000 0.0000000 0.0000000
+[1] "valeur de y acceptée: 0.0690719273979429"
+[1] 3.00000000 0.00000000 0.19128217 0.06907193 0.00000000 0.00000000
+[1] "valeur de y acceptée: 0.810128241415219"
+[1] 4.00000000 0.00000000 0.19128217 0.06907193 0.81012824 0.00000000
+[1] "valeur de y acceptée: 0.695181579987508"
+[1] 5.00000000 0.00000000 0.19128217 0.06907193 0.81012824 0.69518158
+[1] 0.00000000 0.19128217 0.06907193 0.81012824 0.69518158
+> 
+> ## Nous corrigeons la fonction ainsi: le compteur 'i' est
+> ## initialisé à 0 plutôt qu'à 1.
+> rgamma <- function(n, shape, rate = 1, scale = 1/rate)
++ {
++     if (shape <= 0 | shape >= 1)
++         stop("valeur de shape inadmissible")
++ 
++     ratio <- function(x)
++         if (x <= 1) exp(-x) else x^(shape - 1)
++ 
++     Ginv <- function(x)
++     {
++         k <- 1 + shape * exp(-1)
++         if (x <= 1/k)
++             (k * x)^(1/shape)
++         else
++             -log(((1/shape) + exp(-1)) * (1 - x))
++     }
++ 
++     x <- numeric(n)
++     i <- 0
++     while (i < n)
++     {
++         y <- Ginv(runif(1))
++         if (runif(1) <= ratio(y))
++             x[i <- i + 1] <- y
++     }
++     x * scale
++ }
+> 
+> ###
+> ### ÉVALUATION PAS-À-PAS
+> ###
+> 
+> ## La technique d'évaluation pas-à-pas consiste à définir tous
+> ## les arguments de la fonction dans l'espace de travail, puis
+> ## à exécuter le corps de la fonction ligne par ligne.
+> ##
+> ## Évaluons l'équivalent de l'appel 'rgamma(5, 0.5, 1)'
+> ## pas-à-pas avec le bogue 'i <- 1' remis en place.
+> ##
+> ## Explorez les valeurs des objets 'x', 'i' et 'y' après
+> ## l'évaluation de chaque expression, ci-dessous (ou, plus
+> ## précisément, lorsque c'est pertinent).
+> n <- 5
+> shape <- 0.5
+> scale <- 1
+> 
+> ## rgamma <- function(n, shape, rate = 1, scale = 1/rate)
+> ## {
+>     if (shape <= 0 | shape >= 1)
++         stop("valeur de shape inadmissible")
+> 
+>     ratio <- function(x)
++         if (x <= 1) exp(-x) else x^(shape - 1)
+> 
+>     Ginv <- function(x)
++     {
++         k <- 1 + shape * exp(-1)
++         if (x <= 1/k)
++             (k * x)^(1/shape)
++         else
++             -log(((1/shape) + exp(-1)) * (1 - x))
++     }
+> 
+>     x <- numeric(n)
+>     i <- 1
+>     ## while (i < n)
+>     ## {
+>         y <- Ginv(runif(1))
+>         u <- runif(1)
+>         if (u <= ratio(y))
++             x[i <- i + 1] <- y
+>     ## }
+>     x * scale
+[1] 0.00000000 0.02158406 0.00000000 0.00000000 0.00000000
+> ## }
+> 
+> ###
+> ### PILE DES APPELS DE FONCTIONS
+> ###
+> 
+> ## J'ai inséré un bogue additionnel dans la fonction interne
+> ## 'Ginv' de 'rgamma', ci-dessous. Définir la fonction.
+> rgamma <- function(n, shape, rate = 1, scale = 1/rate)
++ {
++     if (shape <= 0 | shape >= 1)
++         stop("valeur de shape inadmissible")
++ 
++     ratio <- function(x)
++         if (x <= 1) exp(-x) else x^(shape - 1)
++ 
++     Ginv <- function(x)
++     {
++         k <- 1 + shape * exp(-1) * variable.inconnue
++         if (x <= 1/k)
++             (k * x)^(1/shape)
++         else
++             -log(((1/shape) + exp(-1)) * (1 - x))
++     }
++ 
++     x <- numeric(n)
++     i <- 1
++     while (i < n)
++     {
++         y <- Ginv(runif(1))
++         u <- runif(1)
++         if (u <= ratio(y))
++             x[i <- i + 1] <- y
++     }
++     x * scale
++ }
+> 
+> ## Évaluer l'appel de fonction ci-dessous. Il y aura une
+> ## erreur.
+> rgamma(5, 0.5, 1)
+Error in Ginv(runif(1)) : objet 'variable.inconnue' introuvable
+Calls: rgamma -> Ginv
+> 
+> ## Afficher la pile des appels de fonctions. On voit que c'est
+> ## l'appel à 'Ginv' qui cause problème.
+> traceback()
+2: Ginv(runif(1))
+1: rgamma(5, 0.5, 1)
+> 
+> ###
+> ### NAVIGATEUR D'ENVIRONNEMENT
+> ###
+> 
+> ## La définition de la fonction 'rgamma' ci-dessous
+> ## contient un appel à la fonction 'browser'.
+> ##
+> ## L'appel à la fonction qui suit provoquera l'entrée dans le
+> ## navigateur d'environnement juste avant l'évaluation de
+> ## l'expression 'x <- numeric(n)'.
+> ##
+> ## L'utilisation du navigateur demande un temps d'adaptation à
+> ## cause de la forme de déphasage que l'on observe entre
+> ## l'affichage de la ligne qui sera évaluée et celle qui vient
+> ## d'être évaluée.
+> ##
+> ## L'interface de RStudio pour utiliser le navigateur est très
+> ## conviviale; consultez la documentation de RStudio pour un
+> ## bon tutoriel.
+> ##
+> ## Également, consultez la rubrique d'aide de 'browser' pour
+> ## connaitre les commandes disponibles à l'invite du
+> ## navigateur.
+> rgamma <- function(n, shape, rate = 1, scale = 1/rate)
++ {
++     if (shape <= 0 | shape >= 1)
++         stop("valeur de shape inadmissible")
++ 
++     ratio <- function(x)
++         if (x <= 1) exp(-x) else x^(shape - 1)
++ 
++     Ginv <- function(x)
++     {
++         k <- 1 + shape * exp(-1)
++         if (x <= 1/k)
++             (k * x)^(1/shape)
++         else
++             -log(((1/shape) + exp(-1)) * (1 - x))
++     }
++     browser()
++     x <- numeric(n)
++     i <- 1
++     while (i < n)
++     {
++         y <- Ginv(runif(1))
++         if (runif(1) <= ratio(y))
++             x[i <- i + 1] <- y
++     }
++     x * scale
++ }
+> rgamma(5, 0.5, 1)
+Called from: rgamma(5, 0.5, 1)
+Browse[1]> 
+debug: x <- numeric(n)
+Browse[2]> ###
+Browse[2]> ### EXEMPLE ADDITIONNEL
+Browse[2]> ###
+Browse[2]> 
+debug: i <- 1
+Browse[2]> ## Variation sur le thème de la suite de Fibonacci: une
+Browse[2]> ## fonction pour calculer non pas les 'n' premières valeurs
+Browse[2]> ## de la suite de Fibonacci, mais uniquement la 'n'ième
+Browse[2]> ## valeur.
+Browse[2]> ##
+Browse[2]> ## Mais il y a un mais: la fonction 'fibonaci', à l'instar de
+Browse[2]> ## son nom même, est truffée d'erreurs (de syntaxe,
+Browse[2]> ## d'algorithmique, de conception). À vous de trouver les
+Browse[2]> ## bogues. (Afin de préserver cet exemple, copiez le code
+Browse[2]> ## erroné plus bas ou dans un autre fichier avant d'y faire
+Browse[2]> ## les corrections.)
+Browse[2]> fibonaci <- function(nb)
++ {
++     x <- 0
++     x1 _ 0
+Erreur : unexpected input in:
+"    x <- 0
+    x1 _"
+Browse[2]>     x2 <- 1
+Browse[2]>     while (n > 0))
+Erreur : ')' inattendu(e) in "    while (n > 0))"
+Browse[2]> x <- x1 + x2
+Erreur : objet 'x1' introuvable
+Browse[2]> x2 <- x1
+Erreur : objet 'x1' introuvable
+Browse[2]> x1 <- x
+Browse[2]> n <- n - 1
+Browse[2]> }
+Erreur : '}' inattendu(e) in "}"
+Browse[2]> fibonaci(1)                # devrait donner 0
+Error in fibonaci(1) : impossible de trouver la fonction "fibonaci"
+Calls: rgamma
+Browse[2]> fibonaci(2)                # devrait donner 1
+Error in fibonaci(2) : impossible de trouver la fonction "fibonaci"
+Calls: rgamma
+Browse[2]> fibonaci(5)                # devrait donner 3
+Error in fibonaci(5) : impossible de trouver la fonction "fibonaci"
+Calls: rgamma
+Browse[2]> fibonaci(10)               # devrait donner 34
+Error in fibonaci(10) : impossible de trouver la fonction "fibonaci"
+Calls: rgamma
+Browse[2]> fibonaci(20)               # devrait donner 4181
+Error in fibonaci(20) : impossible de trouver la fonction "fibonaci"
+Calls: rgamma
+Browse[2]> debug: while (i < n) {
+    y <- Ginv(runif(1))
+    if (runif(1) <= ratio(y)) 
+        x[i <- i + 1] <- y
+}
+Browse[2]> debug: y <- Ginv(runif(1))
+Browse[2]> debug: if (runif(1) <= ratio(y)) x[i <- i + 1] <- y
+Browse[2]> debug: x[i <- i + 1] <- y
+Browse[2]> debug: (while) i < n
+Browse[2]> debug: y <- Ginv(runif(1))
+Browse[2]> debug: if (runif(1) <= ratio(y)) x[i <- i + 1] <- y
+Browse[2]> debug: x[i <- i + 1] <- y
+Browse[2]> debug: (while) i < n
+Browse[2]> debug: y <- Ginv(runif(1))
+Browse[2]> debug: if (runif(1) <= ratio(y)) x[i <- i + 1] <- y
+Browse[2]> debug: x[i <- i + 1] <- y
+Browse[2]> debug: (while) i < n
+Browse[2]> debug: x * scale
+Browse[2]> [1] 0.00000000 0.07353237 0.31419612 1.50139280 0.00000000
+> 

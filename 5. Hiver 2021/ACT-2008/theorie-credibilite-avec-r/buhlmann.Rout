@@ -1,0 +1,294 @@
+
+R version 4.0.0 (2020-04-24) -- "Arbor Day"
+Copyright (C) 2020 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin17.0 (64-bit)
+
+R est un logiciel libre livré sans AUCUNE GARANTIE.
+Vous pouvez le redistribuer sous certaines conditions.
+Tapez 'license()' ou 'licence()' pour plus de détails.
+
+R est un projet collaboratif avec de nombreux contributeurs.
+Tapez 'contributors()' pour plus d'information et
+'citation()' pour la façon de le citer dans les publications.
+
+Tapez 'demo()' pour des démonstrations, 'help()' pour l'aide
+en ligne ou 'help.start()' pour obtenir l'aide au format HTML.
+Tapez 'q()' pour quitter R.
+
+[Sauvegarde de la session précédente restaurée]
+
+> options(error=expression(NULL))
+> ## Copyright (C) 2020 Vincent Goulet
+> ##
+> ## Ce fichier fait partie du projet
+> ## «Théorie de la crédibilité avec R»
+> ## https://gitlab.com/vigou3/theorie-credibilite-avec-r
+> ##
+> ## Cette création est mise à disposition sous licence
+> ## Attribution-Partage dans les mêmes conditions 4.0
+> ## International de Creative Commons.
+> ## https://creativecommons.org/licenses/by-sa/4.0/
+> 
+> ###
+> ### APPROCHE PARAMÉTRIQUE  
+> ###
+> 
+> ## Charger le package actuar dans la session de travail.
+> library(actuar)
+
+Attachement du package : ‘actuar’
+
+The following object is masked from ‘package:grDevices’:
+
+    cm
+
+> 
+> ## Les primes bayésiennes linéaires et les primes de
+> ## crédibilité de Bühlmann sont identiques dans l'approche
+> ## paramétrique.
+> ##
+> ## Tel que mentionné dans le texte du chapitre, 'cm' effectue
+> ## le calcul des premières à partir des formules des secondes.
+> ## Comparez les résultats ci-dessous aux formules des
+> ## combinaisons de distribution Poisson/gamma et
+> ## exponentielle/gamma.
+> cm("bayes", likelihood = "poisson",
++    shape = 3, rate = 2)
+Call:
+cm(formula = "bayes", likelihood = "poisson", shape = 3, rate = 2)
+
+Structure Parameters Estimators
+
+  Collective premium: 1.5 
+
+  Between variance: 0.75 
+  Within variance: 1.5 
+
+> cm("bayes", likelihood = "exponential",
++    shape = 3, rate = 2)
+Call:
+cm(formula = "bayes", likelihood = "exponential", shape = 3, 
+    rate = 2)
+
+Structure Parameters Estimators
+
+  Collective premium: 1 
+
+  Between variance: 1 
+  Within variance: 2 
+
+> 
+> ## Un coup d'oeil au code source de la fonction 'bayes' révèle
+> ## le secret de fabrication. Comme cette fonction est interne
+> ## au paquetage (autrement dit, vous ne pouvez l'appeler
+> ## directement), vous devez pour y accéder ajouter le préfixe
+> ## 'actuar:::' devant le nom de l'objet pour afficher son
+> ## contenu.
+> actuar:::bayes
+function (x, likelihood = c("poisson", "bernoulli", "geometric", 
+    "exponential", "normal", "binomial", "negative binomial", 
+    "gamma", "pareto"), shape, rate = 1, scale = 1/rate, shape1, 
+    shape2, mean = 0, sd = 1, size, shape.lik, sd.lik, min) 
+{
+    likelihood <- match.arg(likelihood)
+    if (likelihood == "pareto") {
+        if (missing(min)) 
+            stop("lower bound of the likelihood missing")
+        if (missing(shape) || (missing(rate) && missing(scale))) 
+            stop("one of the Gamma prior parameter \"shape\", \"rate\" or \"scale\" missing")
+        coll <- shape * scale
+        vars <- c(NA, NA)
+        if (is.null(x)) 
+            cred <- ind.means <- n <- 0
+        else if (is.vector(x, mode = "numeric")) {
+            n <- length(x)
+            sumlog <- sum(log(x)) - n * log(min)
+            ind.means <- n/sumlog
+            cred <- 1/(1 + 1/(scale * sumlog))
+        }
+        else {
+            n <- ncol(x)
+            sumlog <- rowSums(log(x)) - n * log(min)
+            ind.means <- n/sumlog
+            cred <- 1/(1 + 1/(scale * sumlog))
+        }
+    }
+    else {
+        if (likelihood == "poisson") {
+            if (missing(shape) || (missing(rate) && missing(scale))) 
+                stop("one of the Gamma prior parameter \"shape\", \"rate\" or \"scale\" missing")
+            coll <- shape * scale
+            vars <- c(coll * scale, coll)
+            K <- 1/scale
+        }
+        else if (likelihood == "bernoulli") {
+            if (missing(shape1) || missing(shape2)) 
+                stop("one of the Beta prior parameter \"shape1\" or \"scale2\" missing")
+            K <- shape1 + shape2
+            coll <- shape1/K
+            vars <- (shape1 * shape2) * c(1, K)/(K^2 * (K + 1))
+        }
+        else if (likelihood == "binomial") {
+            if (missing(shape1) || missing(shape2)) 
+                stop("one of the Beta prior parameter \"shape1\" or \"scale2\" missing")
+            if (missing(size)) 
+                stop("parameter \"size\" of the likelihood missing")
+            K <- (shape1 + shape2)/size
+            coll <- shape1/K
+            vars <- (shape1 * shape2) * c(1, K)/(K^2 * (shape1 + 
+                shape2 + 1))
+        }
+        else if (likelihood == "geometric") {
+            if (missing(shape1) || missing(shape2)) 
+                stop("one of the Beta prior parameter \"shape1\" or \"scale2\" missing")
+            K <- shape1 - 1
+            coll <- shape2/K
+            vars <- shape2 * (shape1 + shape2 - 1)/(K * (K - 
+                1))
+            vars <- c(vars/K, vars)
+        }
+        else if (likelihood == "negative binomial") {
+            if (missing(shape1) || missing(shape2)) 
+                stop("one of the Beta prior parameter \"shape1\" or \"scale2\" missing")
+            if (missing(size)) 
+                stop("parameter \"size\" of the likelihood missing")
+            K <- (shape1 - 1)/size
+            coll <- shape2/K
+            vars <- shape2 * (shape1 + shape2 - 1)/(K * (shape1 - 
+                2))
+            vars <- c(vars/K, vars)
+        }
+        else if (likelihood == "exponential") {
+            if (missing(shape) || (missing(rate) && missing(scale))) 
+                stop("one of the Gamma prior parameter \"shape\", \"rate\" or \"scale\" missing")
+            K <- shape - 1
+            coll <- 1/(K * scale)
+            vars <- c(coll^2, coll/scale)/(shape - 2)
+        }
+        else if (likelihood == "gamma") {
+            if (missing(shape) || (missing(rate) && missing(scale))) 
+                stop("one of the Gamma prior parameter \"shape\", \"rate\" or \"scale\" missing")
+            if (missing(shape.lik)) 
+                stop("parameter \"shape.lik\" of the likelihood missing")
+            K <- (shape - 1)/shape.lik
+            coll <- 1/(K * scale)
+            vars <- c(coll^2, coll/scale)/(shape - 2)
+        }
+        else if (likelihood == "normal") {
+            if (missing(sd.lik)) 
+                stop("parameter \"sd.lik\" of the likelihood missing")
+            coll <- mean
+            vars <- c(sd, sd.lik)^2
+            K <- vars[2L]/vars[1L]
+        }
+        else stop("unsupported likelihood")
+        if (is.null(x)) 
+            cred <- ind.means <- n <- 0
+        else if (is.vector(x, mode = "numeric")) {
+            n <- length(x)
+            ind.means <- mean(x)
+            cred <- n/(n + K)
+        }
+        else {
+            n <- ncol(x)
+            ind.means <- rowMeans(x)
+            cred <- n/(n + K)
+        }
+    }
+    structure(list(means = list(coll, ind.means), weights = list(NULL, 
+        n), unbiased = vars, iterative = NULL, cred = cred, nodes = 1L), 
+        class = "bayes", model = "Linear Bayes")
+}
+<bytecode: 0x7ff05bb987b8>
+<environment: namespace:actuar>
+> 
+> ###
+> ### APPROCHE NON PARAMÉTRIQUE  
+> ###
+> 
+> ## Nous illustrons ici comment utiliser la fonction 'cm' pour
+> ## calculer des primes de crédibilité pour des modèles non
+> ## paramétriques.
+> ##
+> ## L'interface de 'cm' pour ce type de modèle est fortement
+> ## inspirée de 'lm', la fonction d'ajustement de modèles
+> ## linéaires de R.
+> ##
+> ## La fonction suppose d'abord que les données se trouvent
+> ## dans une matrice ou dans un data frame à raison d'une ligne
+> ## par contrat. La matrice ou le data frame doit également
+> ## comporter une colonne (nommée) pour identifier les contrats
+> ## à l'aide d'une valeur numérique ou texte.
+> (x <- data.frame(contract = 1:3,
++                  matrix(c(0, 3, 3,
++                           1, 4, 3,
++                           2, 2, 2,
++                           1, 1, 1,
++                           2, 4, 2,
++                           0, 4, 1), nrow = 3)))
+  contract X1 X2 X3 X4 X5 X6
+1        1  0  1  2  1  2  0
+2        2  3  4  2  1  4  4
+3        3  3  3  2  1  2  1
+> 
+> ## Les arguments de 'cm' obligatoires pour l'ajustement du
+> ## modèle de Bühlmann sont les suivants:
+> ##
+> ## formula: formule de la forme '~ termes' où, dans le modèle
+> ##   de Bühlmann, 'termes' est simplement le nom de la colonne
+> ##   des données contenant les identifiants des contrats;
+> ## data: les données
+> ##
+> ## Si la matrice ou le data frame contient des données autres
+> ## que celles servant à la modélisation, l'argument 'ratios'
+> ## permet d'indiquer dans quelles colonnes se trouvent les
+> ## données. Par défaut, la fonction considérera que toutes les
+> ## colonnes (autres que celle présente dans la formule)
+> ## contiennent des données.
+> (fit <- cm(~ contract, x))                 # appel simple
+Call:
+cm(formula = ~contract, data = x)
+
+Structure Parameters Estimators
+
+  Collective premium: 2 
+
+  Between contract variance: 0.8222222 
+  Within contract variance: 1.066667 
+
+> (fit <- cm(~ contract, x, ratios = X1:X6)) # équivalent ici
+Call:
+cm(formula = ~contract, data = x, ratios = X1:X6)
+
+Structure Parameters Estimators
+
+  Collective premium: 2 
+
+  Between contract variance: 0.8222222 
+  Within contract variance: 1.066667 
+
+> 
+> ## Calcul des primes de crédibilité.
+> predict(fit)
+[1] 1.177778 2.822222 2.000000
+> 
+> ## Résultats détaillés.
+> summary(fit)
+Call:
+cm(formula = ~contract, data = x, ratios = X1:X6)
+
+Structure Parameters Estimators
+
+  Collective premium: 2 
+
+  Between contract variance: 0.8222222 
+  Within contract variance: 1.066667 
+
+Detailed premiums
+
+    contract Indiv. mean Weight Cred. factor Cred. premium
+    1        1           6      0.8222222    1.177778     
+    2        3           6      0.8222222    2.822222     
+    3        2           6      0.8222222    2.000000     
+
+> 

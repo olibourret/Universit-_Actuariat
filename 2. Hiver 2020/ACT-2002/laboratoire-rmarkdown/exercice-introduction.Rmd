@@ -1,0 +1,70 @@
+---
+title: "Traduction du manuel de statistiques"
+author: "Thomas Paré-Bourque"
+date: "16/04/2020"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+
+#Section 8.5 : Intervalle de confiance 
+Un estimateur d'intervalle est une règle spécifiant la méthode d'utilisation des mesures de l'échantillon pour calculer deux nombres qui forment les extrémités de l'intervalle. Idéalement, le l'intervalle résultant aura deux propriétés: Premièrement, il contiendra le paramètre cible $\theta$; deuxièmement, il sera relativement étroit. Un ou les deux points finaux de l'intervalle, étant Les fonctions des mesures de l'échantillon varient de façon aléatoire d'un échantillon à l'autre. Ainsi, la longueur et l'emplacement de l'intervalle sont des quantités aléatoires, et nous ne pouvons pas nous assurer que le paramètre cible (fixe) $\theta$ se situera entre les extrémités de tout intervalle unique calculé à partir d'un seul échantillon. Cela étant, notre objectif est pour trouver un estimateur d'intervalle capable de générer des intervalles étroits qui ont une forte probabilité d'enfermer $\theta$. Les estimateurs d'intervalle sont communément appelés intervalles de confiance. Le haut et le bas les points limites d'un intervalle de confiance sont appelés les limites de confiance supérieure et inférieure, respectivement. La probabilité qu'un intervalle de confiance (aléatoire) englobe $\theta$ (une quantité fixe) est appelé coefficient de confiance. D'un point de vue pratique, le coefficient de confiance identifie la fraction du temps, en échantillonnage répété, que les intervalles construits contiendront le paramètre cible $\theta$. Si nous savons que le coefficient de confiance associé à notre estimateur est élevé, nous pouvons être très confiant que tout intervalle de confiance, construit en utilisant les résultats d'un seul échantillon, contiendra $\theta$. Supposons que $\widehat{\theta}_L$ et $\widehat{\theta}_U$ sont les limites de confiance inférieures et supérieures (aléatoires), respectivement, pour un paramètre $\theta$. Puis si  
+
+ÉCRITURE MATH
+
+la probabilité $(1-\alpha)$ est le coefficient de confiance. L'intervalle aléatoire résultant, défini par [$\widehat{\theta}_L$, $\widehat{\theta}_U$] , est appelé un intervalle de confiance bilatéral. Il est également possible de former un intervalle de confiance unilatéral tel que
+
+ÉCRITURE MATH
+
+Bien que seul [$\widehat{\theta}_L$ soit aléatoire dans ce cas, l'intervalle de confiance est [$\widehat{\theta}_L$, $\infty$). De même, nous pourrions avoir un intervalle de confiance unilatéral supérieur tel que
+ÉCRITURE MATH
+L'intervalle de confiance implicite ici est $(−\infty, \widehat{\theta}_U]$. Une méthode très utile pour trouver des intervalles de confiance est appelée la méthode du pivot. Cette méthode dépend de la recherche d'une quantité pivot qui possède deux caractéristiques:  
+1. Elle est fonction des mesures de l'échantillon et du paramètre inconnu $\theta$, où $\theta$ est la seule quantité inconnue.  
+2. Sa distribution de probabilité ne dépend pas du paramètre $\theta$.  
+Si la distribution de probabilité de la quantité pivot est connue, la logique suivante peut être utilisé pour former l'estimation d'intervalle souhaitée. Si $Y$ est une variable aléatoire, $c \ge 0$ (pas égal, juste pas capable de trouver ce symbole) est une constante, et $P(a \leq Y \leq b) = 0.7$; alors certainement $P(ca \leq cY \leq cb) = .7$. De même, pour toute constante $d$, $P(a+d \leq Y+d \leq b+d) = 0.7$. Autrement dit, la probabilité de l'événement $(a \leq Y \leq b)$ n'est pas affecté par un changement d'échelle ou une translation de Y. Ainsi, si nous connaissons la distribution de probabilité d'une quantité pivot, nous pourrons peut-être utiliser des opérations comme celles-ci pour former l'estimateur d'intervalle souhaité. Nous illustrons cette méthode dans les exemples suivants.
+
+EXEMPLES ÉCRITURE MATH
+
+Les deux exemples précédents illustrent l'utilisation de la méthode pivot pour trouver limites de confiance pour les paramètres inconnus. Dans chaque cas, les estimations d'intervalle ont été développés sur la base d'une seule observation de la distribution. Ces exemples ont été introduites principalement pour illustrer la méthode pivot. Dans le reste sections de ce chapitre, nous utilisons cette méthode en conjonction avec les distributions d'échantillonnage présenté au chapitre 7 pour développer des estimations d'intervalle de plus grande pratique importance.
+#Section 8.6 : Intervalle de confiance pour grands échantillons
+
+Dans la section 8.3, nous avons présenté quelques estimateurs ponctuels sans biais pour les paramètres $\mu$, p, $\mu_1 - \mu_2$ et $p_1 - p_2$. Comme nous l'avons indiqué dans cette section, pour de grands échantillons, tous ces points les estimateurs ont des distributions d'échantillonnage approximativement normales avec des erreurs donnée dans le tableau 8.1. Autrement dit, dans les conditions de la section 8.3, si le paramètre cible $\theta$ est $\mu$, $p$, $\mu_1 - \mu_2$, ou $p_1 - p_2$, alors pour les grands échantillons, $Z = \frac{\widehat{\theta}- \theta}{\sigma_\widehat{\theta}}$  possède approximativement une distribution normale standard. Par conséquent, $Z = \frac{\widehat{\theta}- \theta}{\sigma_\widehat{\theta}}$ forme (au moins approximativement) une quantité pivot, et la méthode pivot peut être utilisé pour développer des intervalles de confiance pour le paramètre cible $\theta$.  
+
+EXEMPLE 8.6  
+
+Par des arguments analogues, nous pouvons déterminer que $100*(1 − \alpha)\%$ de confiance unilatérale
+les limites, souvent appelées respectivement limites supérieure et inférieure, sont données par
+$100*(1 − \alpha)\%$ borne inférieure pour $\theta = \widehat{\theta} - z*\alpha*\sigma_\widehat{\theta}$
+$100*(1 − \alpha)\%$ borne supérieure pour $\theta = \widehat{\theta} + z*\alpha*\sigma_\widehat{\theta}$
+Supposons que nous calculons à la fois une borne inférieure de $100*(1 − \alpha)\%$ et une borne supérieure de $100*(1 − \alpha)\%$
+borne pour $\theta$. Nous décidons ensuite d'utiliser ces deux bornes pour former un intervalle de confiance
+pour $\theta$. Quel sera le coefficient de confiance de cet intervalle? Un coup d'oeil sur le précédent confirme que la combinaison des limites inférieures et supérieures, chacune avec confiance le coefficient $(1-\alpha)$ , donne un intervalle bilatéral avec le coefficient de confiance $(1-2\alpha)$. Dans les conditions décrites à la section 8.3, les résultats donnés plus haut dans la section peuvent être utilisés pour trouver des intervalles de confiance à large échantillon (unilatéral ou bilatéral)
+pour  $\mu$, p, $\mu_1 - \mu_2$ et $p_1 - p_2$. Les exemples suivants illustrent des applications
+de la méthode générale développée dans l'exemple 8.6.
+
+EXEMPLE 8.7 et EXEMPLE 8.8
+Notez que cet intervalle de confiance contient zéro. Ainsi, une valeur nulle pour la différence
+en proportions $(p_1 - p_2)$ est "crédible" (à un niveau de confiance d'environ 98%)
+sur la base des données observées. Cependant, l'intervalle inclut également la valeur .1.
+Ainsi, .1 représente une autre valeur de $(p_1 - p_2)$ qui est "crédible" sur la base de la
+données que nous avons analysées.
+Nous terminons cette section par une étude empirique de la performance du
+procédure d'estimation d'intervalle sur un grand échantillon pour une seule proportion de population p, basée
+sur Y, le nombre de succès observés lors de n essais dans une expérience binomiale. Dans
+ce cas, $\theta = p$; $\widehat{\theta} = \widehat{p} = \frac{Y}{n}$ et $\sigma_\widehat{\theta} = \sigma_\widehat{p} = \sqrt{\frac{p(1-p)}{n}} \approx \sqrt{\frac{\widehat{p}(1-\widehat{p})}{n}}$
+(Comme dans la section 8.3,
+$\sqrt{\frac{\widehat{p}(1-\widehat{p})}{n}}$ fournit une bonne approximation de $\sigma_\widehat{p}$.) Les limites de confiance sont alors 
+$$
+\widehat{\theta}_L = \widehat{p}-z_{\alpha/2}\sqrt{\frac{\widehat{p}(1-\widehat{p})}{n}}
+\space et \space
+\widehat{\theta}_U = \widehat{p}+z_{\alpha/2}\sqrt{\frac{\widehat{p}(1-\widehat{p})}{n}}.
+$$
+La figure 8.8 montre les résultats de 24 expériences binomiales indépendantes, chacune basée sur
+35 essais lorsque la vraie valeur de $p = 0,5$. Pour chacune des expériences, nous avons calculé le nombre de succès y, la valeur de $\widehat{p} = \frac{y}{35}$ 5 et la confiance correspondante à l'intervalle est de $95\%$, en utilisant la formule $\widehat{p} \pm 1,96$
+(Notez que $z_{0.25} = 1,96$.) Dans la première expérience binomiale, nous avons observé $y = 18$, $\widehat{p}= 18/35 = 0,5143$, et  $\sigma_\widehat{p} = \sqrt{\frac{\widehat{p}(1-\widehat{p})}{n}} = \sqrt{\frac{(0.5143)(0.4857)}{35}} = 0.0845$.
+Ainsi, l'intervalle obtenu dans la première expérience est de $0.5143 \pm 1.96(0.0845)$ ou $(0.34487, 0.6799)$. L'estimation pour $p$ de la première expérience est indiqué par le grand point le plus bas sur la figure 8.8, etl'intervalle de confiance résultant est donné par la ligne horizontale passant par ce point. La ligne verticale indique la vraie valeur de $p$, $0.5$ dans ce cas. Notez que l'intervalle obtenu dans le premier essai (de taille 35) contient en fait la vraie valeur de la population proportion $p$. Les 23 intervalles de confiance restants contenus dans cette petite simulation sont donnés par le reste des lignes horizontales de la figure 8.8. Notez que chaque intervalle individuel soit contient la vraie valeur de $p$, soit il n'en contient pas. Cependant, la vraie valeur de $p$ est contenue dans 23 des 24 (95,8%) intervalles observés. Si la même procédure était utilisée plusieurs fois, chaque intervalle individuel serait contiennent ou ne contiennent pas la vraie valeur de p, mais le pourcentage de tous les intervalles qui la capture p serait très proche de 95%. Vous êtes «à 95% confiant» que l'intervalle contient le paramètre car l'intervalle a été obtenu à l'aide d'une procédure qui génère des intervalles qui contiennent le paramètre environ 95% des fois où est utilisée. L'applet ConfidenceIntervalP (accessible à academic.cengage.com/statistics/ wackerly) a été utilisé pour produire la figure 8.8. Que se passe-t-il si différentes valeurs de $n$ ou différents coefficients de confiance sont-ils utilisés? Obtenons-nous des résultats similaires si la vraie valeur de $p$ est autre chose que $0.5$? Plusieurs des exercices suivants permettront vous utilisez l'applet pour répondre à des questions comme celles-ci. Dans cette section, nous avons utilisé la méthode pivot pour dériver la confiance des grands échantillons intervalles pour les paramètres $\mu, p,\mu_1-\mu_2, p_1-p_2$ dans les conditions de Section 8.3. La formule clé est $\widehat{\theta} \pm z_{\alpha/2}\sigma_{\widehat{\theta}}$ où les valeurs de $\widehat{\theta}$ et $\sigma_{\widehat{\theta}}$ sont celles indiquées dans le tableau 8.1. Lorsque $\theta = \mu$ est la cible , alors $\widehat{\theta}= \bar{Y}$ et $\sigma^2_{\widehat{\theta}} = \sigma^2/n$, où $\sigma^2$ est la variance de la population. Si la la vraie valeur de $\sigma^2$ est connue, cette valeur doit être utilisée pour calculer la confiance intervalle. Si $\sigma^2$ n'est pas connu et $n$ est grand, il n'y a pas de perte de précision sérieuse si $s^2$ remplace $\sigma^2$ dans la formule de l'intervalle de confiance. De même, si $\sigma^2_1$ et $\sigma^2_2$ sont inconnus et $n_1$ et $n_2$ sont grands, $s^2_1$ et $s^2_2$ peuvent être substitués à ceux-ci valeurs de la formule pour un intervalle de confiance à grand échantillon pour $\theta = \mu_1 - \mu_2$. Lorsque $\theta =p$ est le paramètre cible, alors $\widehat{\theta} = \widehat{p}$ et $\sigma_{\widehat{p}} = \sqrt{pq/n}$. 
+Parce que $p$ est le paramètre cible inconnu, $\sigma_{\widehat{p}}$ ne peut pas être évalué. Si $n$ est grand et que nous substituons $\widehat{p}$ pour $p$ (et $\widehat{q} = 1− \widehat{p}$ pour $q$) dans la formule pour $\sigma_{\widehat{p}}$, cependant, la confiance qui en résulte, l'intervalle aura approximativement le coefficient de confiance indiqué. Pour des grands $n_1$ et $n_2$, des énoncés similaires sont valables lorsque $\widehat{p}_1$ et $\widehat{p}_2$ sont utilisés pour estimer $p_1$ et $p_2$, respectivement, dans la formule pour $\sigma^2_{\widehat{p}_1 - \widehat{p}_2}$. La justification théorique de ces substitutions sera prévu à la section 9.3.
+
+

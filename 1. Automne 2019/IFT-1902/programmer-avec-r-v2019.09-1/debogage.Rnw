@@ -1,0 +1,1152 @@
+%%% Copyright (C) 2019 Vincent Goulet
+%%%
+%%% Ce fichier fait partie du projet
+%%% «Programmer avec R»
+%%% https://gitlab.com/vigou3/programmer-avec-r
+%%%
+%%% Cette création est mise à disposition sous licence
+%%% Attribution-Partage dans les mêmes conditions 4.0
+%%% International de Creative Commons.
+%%% https://creativecommons.org/licenses/by-sa/4.0/
+
+\chapter{Débogage}
+\label{chap:debogage}
+
+\def\scriptfilename{\currfilebase.R}
+\SweaveOpts{echo=FALSE}
+
+<<echo=FALSE, results=hide>>=
+source(".Sweaveprofile")   # configuration
+source("Stangle.R")        # lancement de Stangle
+@
+<<script>>=
+## Copyright (C) 2019 Vincent Goulet
+##
+## Ce fichier fait partie du projet
+## «Programmer avec R»
+## https://gitlab.com/vigou3/programmer-avec-r
+##
+## Cette création est mise à disposition sous licence
+## Attribution-Partage dans les mêmes conditions 4.0
+## International de Creative Commons.
+## https://creativecommons.org/licenses/by-sa/4.0/
+@
+
+\begin{objectifs}
+\item Repérer et corriger des erreurs de programmation, syntaxiques et
+  logiques.
+\item Utiliser les outils de débogage de R.
+\item Valider des résultats calculés avec ceux de l'expérimentation et
+  analyser des résultats obtenus.
+\end{objectifs}
+
+Il est assez rare d'arriver à écrire un bout de code sans bogue du
+premier coup. Par conséquent, qui dit programmation dit séances de
+débogage. En fait, il n'est pas rare que le débogage et les tests de
+validité accaparent la plus grande part du temps de développement d'un
+projet.
+
+Les techniques de débogage les plus simples et naïves sont parfois
+les plus efficaces et certainement les plus faciles à apprendre.
+Lorsqu'elles ne suffisent pas à la tâche, les outils de débogage de R
+peuvent accélérer la résolution des problèmes. Je présente dans les
+sections suivantes trois techniques de débogage que j'utilise
+régulièrement, de la plus simple à la plus puissante.
+
+Au cours du chapitre, nous allons tâcher de déboguer une fonction de
+simulation de nombres aléatoires issus de la distribution gamma avec
+fonction de densité de probabilité
+\begin{equation*}
+  f(x) = \frac{\lambda^\alpha}{\Gamma(\alpha)}\,
+  x^{\alpha - 1} e^{-\lambda x},
+  \quad x > 0, 0 < \alpha < 1, \lambda > 0.
+\end{equation*}
+basée sur l'algorithme d'acceptation-rejet suivant.
+
+\begin{algorithme}
+  \label{algo:debogage:rgamma}
+  Simuler un nombre issu d'une distribution gamma de paramètres
+  $0 < \alpha < 1$ et $\lambda > 0$.
+  \begin{enumerate}
+  \item Simuler $u$, $v$ d'une distribution uniforme sur $(0, 1)$.
+  \item Calculer $y = G^{-1}(u)$, où
+    \begin{equation*}
+      G^{-1}(x) =
+      \begin{cases}
+        \left( \dfrac{\alpha + e}{e}\, x \right)^{1/\alpha},
+        & 0 \leq x \leq e/(\alpha + e) \\
+        - \ln [((1/\alpha) + (1/e))(1 - x)],
+        & e/(\alpha + e) < x \leq 1.
+      \end{cases}
+    \end{equation*}
+  \item Si
+    \begin{displaymath}
+      v \leq
+      \begin{cases}
+        e^{-y},        & 0 \leq y \leq 1 \\
+        y^{\alpha - 1}, & y > 1,
+      \end{cases}
+    \end{displaymath}
+    alors poser $x \leftarrow y$. Sinon, retourner à l'étape 1.
+  \item Retourner $\lambda x$.
+  \end{enumerate}
+\end{algorithme}
+
+La fonction \code{rgamma} qui se trouve à la
+\autoref{fig:debogage:rgamma} est une mise en œuvre directe de
+l'algorithme, à la différence près qu'elle permet de simuler $n$
+valeurs plutôt qu'une seule. Surtout, j'y ai également inséré quelques
+petites anomalies. Voyons voir si nous pouvons les trouver.
+
+\begin{figure}[t]
+  \renewcommand{\theFancyVerbLine}{%
+    \textcolor{gray}{\tiny\ttfamily\arabic{FancyVerbLine}}}
+\begin{Verbatim}[frame=single, numbers=left, numbersep=3pt]
+rgamma <- function(n, shape, rate = 1; scale = 1/rate)
+{
+    if (shape <= 0 | shape >= 1)
+        stop("valeur de shape inadmissible")
+
+    ratio <- function(x)
+        if (x <= 1) exp(-x) else x^(shape - 1)
+
+    Ginv <- function(x)
+    {
+        k <- 1 + shape * exp(-1)
+        if (x <= 1/k)
+            (k * x)^(1/shape)
+        else
+            -log(((1/shape) + exp(-1)) * (1 - x))
+    }
+
+    x <- numeric(n)
+    i <- 1
+    while (i < n)
+    {
+        y <- Ginv(runif(1)
+        if (runif(1) <= ratio(y))
+            x[i <- i + 1] <- y
+    }
+    x * scale
+}
+\end{Verbatim}
+  \caption{Code d'une fonction à déboguer}
+  \label{fig:debogage:rgamma}
+\end{figure}
+
+
+\section{Approche naïve}
+\label{sec:debogage:syntaxe}
+
+La première technique de débogage que vous devriez utiliser consiste
+simplement à vérifier la syntaxe de votre programme et à afficher des
+résultats intermédiaires pour identifier les sources d'erreurs.
+
+Les erreurs de syntaxe sont de loin les erreurs les plus fréquentes
+--- en particulier l'oubli de parenthèses ou d'accolades. Ici, votre
+premier outil de débogage demeure votre éditeur de texte pour
+programmeur --- d'où l'importance d'en utiliser un bon. D'ailleurs, je
+vous recommande de lire l'argumentaire bien plus développé sur le
+sujet de \citet[chapitre~3]{Hunt:pragmatic:1999}.
+
+Un bon éditeur de texte va, entre autres choses, indenter le code
+automatiquement en fonction de ce qu'il contient, et non en fonction
+de ce que vous \emph{pensez} qu'il contient. J'utilise pour ma part
+l'éditeur \index{Emacs}GNU~Emacs depuis de nombreuses années pour des
+tâches d'édition de diverses natures et jamais je n'ai pris le moteur
+d'indentation en défaut. En d'autres termes, quand Emacs ne dispose
+pas le code comme je pense qu'il devrait l'être, c'est moi qui ai fait
+une erreur quelque part. Pratique.
+
+Dans \index{RStudio}RStudio, pour obtenir une fonctionnalité
+équivalente, il suffit de réfaire l'indentation du code avec l'option
+\code{Reindent Lines} du menu \code{Code}.
+
+La simple édition du code de la \autoref{fig:debogage:rgamma} avec
+un bon outil fait immédiatement ressortir un premier problème dans la
+boucle \code{while} (lignes 20--25), qui se retrouve indentée comme
+ci-dessous.
+\begin{Schunk}
+\begin{Verbatim}
+while (i < n)
+{
+    y <- Ginv(runif(1)
+              if (runif(1) <= ratio(y))
+                  x[i <- i + 1] <- y
+}
+\end{Verbatim}
+\end{Schunk}
+
+C'est ainsi que nous remarquons qu'il manque une parenthèse fermante
+dans l'expression \code{y <- Ginv(runif(1)}. Voilà déjà une erreur
+de corrigée.
+
+Lors de la définition d'une fonction, l'interpréteur R effectue une
+vérification de la syntaxe. Cela permet de détecter plusieurs types
+d'erreurs relativement simples à corriger. Prenez simplement garde:
+une erreur peut prendre sa source plusieurs lignes avant celle que
+l'interpréteur identifie comme causant problème.
+
+Dans notre exemple, l'interpréteur identifie correctement que nous
+avons utilisé un point-virgule «\code{;}» en lieu et place d'une
+virgule «\code{,}» pour séparer deux arguments dans la définition de
+la fonction.
+\begin{Schunk}
+\begin{Verbatim}
+Erreur : ';' inattendu(e) in
+"rgamma <- function(n, shape, rate = 1;"
+\end{Verbatim}
+\end{Schunk}
+
+Avec ces deux erreurs maintenant corrigées, nous pouvons définir la
+fonction dans l'espace de travail et l'utiliser sans erreur
+d'exécution.
+<<echo=FALSE>>=
+rgamma <- function(n, shape, rate = 1, scale = 1/rate)
+{
+    if (shape <= 0 | shape >= 1)
+        stop("valeur de shape inadmissible")
+
+    ratio <- function(x)
+        if (x <= 1) exp(-x) else x^(shape - 1)
+
+    Ginv <- function(x)
+    {
+        k <- 1 + shape * exp(-1)
+        if (x <= 1/k)
+            (k * x)^(1/shape)
+        else
+            -log(((1/shape) + exp(-1)) * (1 - x))
+    }
+
+    x <- numeric(n)
+    i <- 1
+    while (i < n)
+    {
+        y <- Ginv(runif(1))
+        if (runif(1) <= ratio(y))
+            x[i <- i + 1] <- y
+    }
+    x * scale
+}
+@
+<<echo=TRUE>>=
+rgamma(5, 0.5, 1)
+@
+
+Les personnes un tant soit peu familières avec la distribution gamma
+auront tôt fait de remarquer une anomalie dans les résultats
+ci-dessus: la distribution étant strictement positive, elle ne peut
+générer la valeur $0$ que l'on retrouve en première position du
+vecteur.
+
+Une des premières choses à investiguer lorsqu'un bogue survient, c'est
+s'il est \emph{reproductible}, tant avec les mêmes conditions d'entrée
+(les valeurs des arguments) que sous d'autres conditions. Voyons voir.
+<<echo=TRUE>>=
+rgamma(5, 0.5, 1)
+rgamma(5, 0.8, 1)
+rgamma(5, 0.5, 2)
+rgamma(10, 0.5, 1)
+rgamma(1, 0.5, 1)
+@
+
+Il semble y avoir une constante, ici: c'est toujours la première
+valeur du vecteur de résultats qui est nulle, quel que soit le nombre de
+valeurs aléatoires demandé ou la paramétrisation de la loi gamma. Cela
+disculpe fort probablement les fonctions internes \code{ratio} et
+\code{Ginv} puisqu'elles semblent faire leur travail correctement pour
+les cas autres que le tout premier.
+
+Dès qu'une fonction comporte une boucle, vos efforts de débogage
+devraient se tourner de ce côté. En effet, il est très facile de se
+tromper dans le critère d'arrêt d'une boucle, de telle sorte qu'il
+manque une itération ou, à l'inverse, qu'il y en a une de trop. Il
+faut également examiner l'effet des compteurs de près: seraient-ils
+incrémentés trop tôt ou trop tard dans la boucle?
+
+Il est temps de regarder une première technique de débogage, de loin
+la plus simple. Lorsqu'une fonction ne retourne pas le résultat
+attendu, placez des commandes \icode{print} à des endroits
+stratégiques dans la fonction de façon à pouvoir suivre les valeurs
+prises par les différents objets. Dans notre exemple, nous aimerions
+suivre les valeurs du vecteur \code{x}, du compteur \code{i} et de
+l'objet \code{y}. Pour ce faire, nous remplaçons les lignes 20 à 25 de
+la \autoref{fig:debogage:rgamma} par l'extrait de code
+ci-dessous\footnote{%
+  Le code modifié est fourni en exemple dans la
+  \autoref{sec:debogage:exemples}.}, %
+puis nous exécutons de nouveau la fonction.
+\begin{Schunk}
+\begin{Verbatim}
+while (i < n)
+{
+    y <- Ginv(runif(1))
+    if (runif(1) <= ratio(y))
+    {
+        print(paste("valeur de y acceptée:", y))
+        x[i <- i + 1] <- y
+        print(c(i, x))
+    }
+}
+\end{Verbatim}
+\end{Schunk}
+<<echo=FALSE>>=
+rgamma <- function(n, shape, rate = 1, scale = 1/rate)
+{
+    if (shape <= 0 | shape >= 1)
+        stop("valeur de shape inadmissible")
+    ratio <- function(x)
+        if (x <= 1) exp(-x) else x^(shape - 1)
+    Ginv <- function(x)
+    {
+        k <- 1 + shape * exp(-1)
+        if (x <= 1/k)
+            (k * x)^(1/shape)
+        else
+            -log(((1/shape) + exp(-1)) * (1 - x))
+    }
+    x <- numeric(n)
+    i <- 1
+    while (i < n)
+    {
+        y <- Ginv(runif(1))
+        if (runif(1) <= ratio(y))
+        {
+            print(paste("valeur de y acceptée:", y))
+            x[i <- i + 1] <- y
+            print(c(i, x))
+        }
+    }
+    x * scale
+}
+@
+<<echo=TRUE>>=
+rgamma(5, 0.5, 1)
+@
+
+Les résultats précédents nous apprennent que lorsque la première
+valeur \code{y} est acceptée, elle est placée en seconde position dans
+le vecteur \code{x}. Le coupable est donc notre compteur \code{i}! En
+y regardant de plus près, nous réalisons, en effet, qu'il est
+initialisé à la valeur $1$ à l'extérieur de la boucle \code{while}
+(ligne 19 de la \autoref{fig:debogage:rgamma}) et qu'il est ensuite
+incrémenté \emph{avant} que l'affectation dans \code{x} ne soit
+effectuée dans la clause \code{if} (ligne 24). Le correctif est donc
+facile à appliquer: initialiser \code{i} avec la valeur $0$. Ceci
+fait, la fonction retourne maintenant des valeurs plausibles.
+<<echo=FALSE>>=
+rgamma <- function(n, shape, rate = 1, scale = 1/rate)
+{
+    if (shape <= 0 | shape >= 1)
+        stop("valeur de shape inadmissible")
+    ratio <- function(x)
+        if (x <= 1) exp(-x) else x^(shape - 1)
+    Ginv <- function(x)
+    {
+        k <- 1 + shape * exp(-1)
+        if (x <= 1/k)
+            (k * x)^(1/shape)
+        else
+            -log(((1/shape) + exp(-1)) * (1 - x))
+    }
+    x <- numeric(n)
+    i <- 0
+    while (i < n)
+    {
+        y <- Ginv(runif(1))
+        if (runif(1) <= ratio(y))
+        {
+            print(paste("valeur de y acceptée:", y))
+            x[i <- i + 1] <- y
+            print(c(i, x))
+        }
+    }
+    x * scale
+}
+@
+<<echo=TRUE>>=
+rgamma(5, 0.5, 1)
+@
+
+En l'état, la fonction \code{rgamma} semble valide. Je vous
+rappelle la mise en garde de la
+\autoref{sec:bases:vecteurs:arithmetique}: avec le recyclage des
+vecteurs dans R, ce n'est pas parce qu'une expression --- ou une
+fonction --- s'exécute sans erreur apparente que le calcul effectué
+est bon pour autant. Il faut vérifier l'exactitude des calculs à
+l'aide de tests de contrôle. Le sujet ne sera pas étudié plus en détail ici.
+
+
+\tipbox{Lorsqu'une erreur survient, assurez-vous de bien lire les
+  messages d'erreur de R. Il faut parfois apprendre à les reconnaître.
+  Par exemple, le message assez fréquent «\code{valeur manquante là où
+    TRUE / FALSE est requis}» provient d'une clause \code{if} dont
+  l'argument vaut \code{NA} plutôt que \code{TRUE} ou \code{FALSE}. En
+  général, c'est parce que des valeurs manquantes se sont faufilées à
+  votre insu dans les calculs jusqu'à l'instruction \code{if}.}
+
+
+\section{Évaluation pas-à-pas}
+\label{sec:debogage:pas-a-pas}
+
+La technique d'affichage de résultats intermédiaires s'est avérée
+suffisante pour trouver et corriger les bogues de la fonction
+\code{rgamma}, à la section précédente. Ce n'est toutefois pas
+toujours ainsi.
+
+Une autre méthode de débogage simple à mettre en œuvre avec les
+langages de programmation interprétés comme R consiste à évaluer
+pas-à-pas le code d'une fonction. Voici comment procéder.
+\begin{enumerate}
+\item Définir dans l'espace de travail tous les arguments de la
+  fonction en y affectant les valeurs avec lesquelles vous souhaitez
+  tester le code.
+\item Exécuter ligne par ligne le \emph{corps} de la fonction. Après
+  chaque ligne ou groupe de lignes, vérifier les valeurs des
+  différents objets. Cela permet habituellement de détecter les
+  expressions qui causent problème.
+\item Lorsque la fonction contient une boucle, sauter par-dessus la
+  ligne contenant l'expression \code{for}, \code{while} ou
+  \code{repeat} (et celle contenant l'éventuelle accolade ouvrante)
+  pour pouvoir exécuter les itérations de la boucle une à une. Porter
+  une attention particulière à la première et à la dernière itération.
+\end{enumerate}
+
+Vous trouverez ci-dessous la transcription d'une session de débogage
+par la méthode pas-à-pas pour l'exemple de la section précédente.
+Remarquez comment je n'ai pas évalué les lignes 1--2 et 20--21 de la
+\autoref{fig:debogage:rgamma}. J'ai également placé le nombre
+aléatoire issu de l'expression \code{runif(1)} dans la clause
+\code{if} dans un objet \code{u} afin de pouvoir valider le test. Au
+final, la technique permet de détecter le problème de compteur mal
+initialisé.
+
+\begin{Schunk}
+\begin{Verbatim}
+> n <- 5
+> shape <- 0.5
+> scale <- 1
+>     if (shape <= 0 | shape >= 1)
++         stop("valeur de shape inadmissible")
+>     ratio <- function(x)
++         if (x <= 1) exp(-x) else x^(shape - 1)
+>     Ginv <- function(x)
++     {
++         k <- 1 + shape * exp(-1)
++         if (x <= 1/k)
++             (k * x)^(1/shape)
++         else
++             -log(((1/shape) + exp(-1)) * (1 - x))
++     }
+>     x <- numeric(n)
+>     i <- 1
+> x
+[1] 0 0 0 0 0
+> i
+[1] 1
+>         u <- runif(1)
+>         if (u <= ratio(y))
++             x[i <- i + 1] <- y
+> u
+[1] 0.9470823
+> ratio(y)
+[1] 0.9426682
+> x
+[1] 0 0 0 0 0
+>         y <- Ginv(runif(1))
+>         u <- runif(1)
+>         if (u <= ratio(y))
++             x[i <- i + 1] <- y
+> u
+[1] 0.1297151
+> ratio(y)
+[1] 0.5810007
+> x
+[1] 0.0000000 0.5430033 0.0000000 0.0000000 0.0000000
+> i
+[1] 2
+\end{Verbatim}
+\end{Schunk}
+
+\tipbox{Une fois la séance de débogage terminée, supprimez de l'espace
+  de travail les objets que vous avez créés au cours de celle-ci, puis
+  évaluez de nouveau votre fonction. Cela vous prémunira contre une
+  fonction qui, par la magie de la portée lexicale de R, serait valide
+  seulement lorsque certains objets existent dans l'espace de
+  travail.}
+
+
+\section{Navigateur d'environnements}
+\label{sec:debogage:browser}
+
+Pour efficace qu'elle soit, la technique d'évaluation pas-à-pas devient
+rapidement fastidieuse lorsque la fonction à déboguer est longue ou,
+surtout, lorsqu'elle contient de nombreux appels à des fonctions dont
+nous souhaitons également valider le code. Dans de telles situations,
+les outils de débogage de R peuvent nous simplifier la tâche.
+
+Un premier outil de R très utile dès qu'un appel de fonction retourne
+un message d'erreur est la fonction \Icode{traceback}. Je vous
+encourage fortement à développer le réflexe de l'utiliser. La fonction
+affiche la pile des appels de fonction (\emph{call stack}) en ordre
+chronologique inverse au moment de l'erreur. Cela permet d'identifier
+avec précision l'appel de fonction qui a causé l'erreur.
+\begin{Schunk}
+\begin{Verbatim}
+> foo <- function(x) bar(2 * x)
+> bar <- function(x) x + variable.inconnue
+> foo(2)
+Error in bar(2 * x) (from #1) : objet 'variable.inconnue'
+introuvable
+> traceback()
+2: bar(2 * x) at #1
+1: foo(2)
+\end{Verbatim}
+\end{Schunk}
+
+Le second --- et plus puissant --- outil de débogage de R permet en
+quelque sorte d'automatiser la technique d'évaluation pas-à-pas.
+L'idée est la suivante: pour analyser le déroulement d'une fonction
+\code{fun}, vous ajoutez un appel à la fonction \Icode{browser} en un
+point quelconque de la fonction et vous définissez la fonction dans
+l'espace de travail. Vous évaluez ensuite un appel à la fonction.
+Quand l'interpréteur atteint la commande \code{browser()}, il
+interrompt le déroulement de la fonction et il vous remet le contrôle
+dans un mode d'interaction spécial nommé «navigateur d'environnement».
+Celui-ci vous permet d'explorer à loisir l'environnement d'évaluation
+(\autoref{chap:environnement}) de la fonction en ce point. Vous
+pouvez également poursuivre l'exécution de la fonction ligne par ligne
+comme dans la technique d'évaluation pas-à-pas. Avantage non
+négligeable: le navigateur peut entrer récursivement dans
+l'environnement d'évaluation de chaque appel de fonction.
+
+Une fois entré dans le navigateur d'environnement, diverses commandes
+spéciales deviennent disponibles. Je ne présente ici que les plus
+importantes; consultez la rubrique d'aide de la fonction
+\icode{browser} pour la liste complète.
+
+\begin{ttscript}{m}
+\item[\code{n}] évaluer la prochaine expression de la fonction (celle
+  qui est affichée à l'invite de commande du navigateur), sans
+  toutefois entrer dans les appels de fonction.
+\item[\code{s}] évaluer la prochaine expression de la fonction en
+  entrant dans les appels de fonctions.
+\item[\code{c}] quitter le navigateur et poursuivre l'exécution de la
+  fonction normalement.
+\item[\code{Q}] quitter le navigateur ainsi que l'évaluation en cours
+  pour retourner à l'invite de commande de R.
+\end{ttscript}
+
+Reprenons l'exemple de la section précédente en supposant que nous
+avons inséré la commande \code{browser()} à la ligne 17 de la
+\autoref{fig:debogage:rgamma}. La transcription d'une séance
+d'utilisation du navigateur d'environnement suit.
+
+\begin{Schunk}
+\begin{Verbatim}
+> rgamma(5, 0.5, 1)
+Called from: rgamma(5, 0.5, 1)
+Browse[1]> n
+debug à #18 :x <- numeric(n)
+Browse[2]> n
+debug à #19 :i <- 1
+Browse[2]> x
+[1] 0 0 0 0 0
+Browse[2]> n
+debug à #20 :while (i < n) {
+    y <- Ginv(runif(1))
+    if (runif(1) <= ratio(y))
+        x[i <- i + 1] <- y
+}
+Browse[2]> i
+[1] 1
+Browse[2]> n
+debug à #22 :y <- Ginv(runif(1))
+Browse[2]> s
+debugging in: Ginv(runif(1))
+debug à #9 :{
+    k <- 1 + shape * exp(-1)
+    if (x <= 1/k)
+        (k * x)^(1/shape)
+    else -log(((1/shape) + exp(-1)) * (1 - x))
+}
+Browse[3]> n
+debug à #11 :k <- 1 + shape * exp(-1)
+Browse[3]> n
+debug à #12 :if (x <= 1/k) (k * x)^(1/shape)
+    else -log(((1/shape) + exp(-1)) * (1 - x))
+Browse[3]> k
+[1] 1.18394
+Browse[3]> n
+debug à #12 :-log(((1/shape) + exp(-1)) * (1 - x))
+Browse[3]> n
+exiting from: Ginv(runif(1))
+debug à #23 :if (runif(1) <= ratio(y)) x[i <- i + 1] <- y
+Browse[2]> n
+debug à #23 :x[i <- i + 1] <- y
+Browse[2]> n
+debug à #20 :(while) i < n
+Browse[2]> y
+[1] 1.667504
+Browse[2]> x
+[1] 0.000000 1.667504 0.000000 0.000000 0.000000
+Browse[2]> c
+debug à #26 :x * scale
+Browse[2]> c
+[1] 0.000000000 1.667504209 0.164785294 1.176891303
+[5] 0.008645285
+\end{Verbatim}
+\end{Schunk}
+
+\tipbox{Les environnements de développement intégrés comme
+  \index{Emacs}Emacs avec le mode ESS ou \index{RStudio}RStudio
+  facilitent l'utilisation du navigateur d'environnement. Consultez la
+  documentation de votre éditeur sous la rubrique \emph{Debugging}
+  pour en tirer le meilleur parti.}
+
+
+\section{Méthode du canard en plastique}
+\label{sec:debogage:canard}
+
+Ce chapitre ne serait pas complet sans une mention de la méthode de
+débogage dite du
+\link{https://fr.wikipedia.org/wiki/Méthode_du_canard_en_plastique}{\emph{canard
+    en plastique}}. \citet[chapitre~3]{Hunt:pragmatic:1999}, encore
+eux, sont généralement considérés comme les pères de la méthode ou, du
+moins, de son appellation.
+
+La méthode du canard en plastique consiste simplement à expliquer
+méticuleusement son code source à une personne qui se contente de vous
+écouter en hochant la tête ou, de manière à peu près équivalente, à un
+objet inanimé comme un canard en plastique. L'important, c'est de le
+faire à voix haute et en explicitant chacune des hypothèses et chacune
+des étapes du programme. Le regard neuf que vous porterez au code peut
+vous permettre d'y déceler les problèmes.
+
+\gotorbox{Étudiez le fichier de script \code{\scriptfilename}
+  reproduit à la \autoref{sec:paquetages:exemples}.}
+
+<<script, results=hide>>=
+## Ce fichier fournit le code utile pour refaire les exemples
+## du chapitre.
+
+###
+### VÉRIFICATION DE LA SYNTAXE
+###
+
+## Code de la fonction 'rgamma' avec des bogues, tel que
+## présenté à la figure 10.1.
+##
+## Refaire l'indentation de la fonction avec votre éditeur
+## pour programmeur. Cela devrait immédiatement faire
+## ressortir qu'il manque une parenthèse dans l'appel à la
+## fonction 'Ginv', à l'intérieur de la boucle 'while'.
+##-!- rgamma <- function(n, shape, rate = 1; scale = 1/rate)
+##-!- {
+##-!-     if (shape <= 0 | shape >= 1)
+##-!-         stop("valeur de shape inadmissible")
+##-!-
+##-!-     ratio <- function(x)
+##-!-         if (x <= 1) exp(-x) else x^(shape - 1)
+##-!-
+##-!-     Ginv <- function(x)
+##-!-     {
+##-!-         k <- 1 + shape * exp(-1)
+##-!-         if (x <= 1/k)
+##-!-             (k * x)^(1/shape)
+##-!-         else
+##-!-             -log(((1/shape) + exp(-1)) * (1 - x))
+##-!-     }
+##-!-
+##-!-     x <- numeric(n)
+##-!-     i <- 1
+##-!-     while (i < n)
+##-!-     {
+##-!-         y <- Ginv(runif(1)
+##-!-         if (runif(1) <= ratio(y))
+##-!-             x[i <- i + 1] <- y
+##-!-     }
+##-!-     x * scale
+##-!- }
+
+## La parenthèse manquante a été ajoutée dans la définition
+## ci-dessous.
+##
+## Essayez de définir la fonction dans l'espace de travail.
+## L'interpréteur R devrait attraper l'erreur de syntaxe à la
+## toute première ligne, soit le ';' en lieu et place d'une
+## ','.
+##-!- rgamma <- function(n, shape, rate = 1; scale = 1/rate)
+##-!- {
+##-!-     if (shape <= 0 | shape >= 1)
+##-!-         stop("valeur de shape inadmissible")
+##-!-
+##-!-     ratio <- function(x)
+##-!-         if (x <= 1) exp(-x) else x^(shape - 1)
+##-!-
+##-!-     Ginv <- function(x)
+##-!-     {
+##-!-         k <- 1 + shape * exp(-1)
+##-!-         if (x <= 1/k)
+##-!-             (k * x)^(1/shape)
+##-!-         else
+##-!-             -log(((1/shape) + exp(-1)) * (1 - x))
+##-!-     }
+##-!-
+##-!-     x <- numeric(n)
+##-!-     i <- 1
+##-!-     while (i < n)
+##-!-     {
+##-!-         y <- Ginv(runif(1))
+##-!-         if (runif(1) <= ratio(y))
+##-!-             x[i <- i + 1] <- y
+##-!-     }
+##-!-     x * scale
+##-!- }
+
+## L'erreur de syntaxe est maintenant corrigée.
+rgamma <- function(n, shape, rate = 1, scale = 1/rate)
+{
+    if (shape <= 0 | shape >= 1)
+        stop("valeur de shape inadmissible")
+
+    ratio <- function(x)
+        if (x <= 1) exp(-x) else x^(shape - 1)
+
+    Ginv <- function(x)
+    {
+        k <- 1 + shape * exp(-1)
+        if (x <= 1/k)
+            (k * x)^(1/shape)
+        else
+            -log(((1/shape) + exp(-1)) * (1 - x))
+    }
+
+    x <- numeric(n)
+    i <- 1
+    while (i < n)
+    {
+        y <- Ginv(runif(1))
+        if (runif(1) <= ratio(y))
+            x[i <- i + 1] <- y
+    }
+    x * scale
+}
+
+## Nous ne sommes pas sortis du bois: l'appel de la fonction
+## ci-dessous retourne une valeur de 0, ce qui n'est pas une
+## valeur admissible pour une distribution gamma.
+rgamma(5, 0.5, 1)
+
+## Vérification avec d'autres valeurs des arguments. Le bogue
+## est aisément reproductible.
+rgamma(5, 0.5, 1)
+rgamma(5, 0.8, 1)
+rgamma(5, 0.5, 2)
+rgamma(10, 0.5, 1)
+rgamma(1, 0.5, 1)
+
+###
+### AFFICHAGE DE RÉSULTATS INTERMÉDIAIRES
+###
+
+## Afin de découvrir le bogue de la fonction, nous ajoutons
+## une commande 'print' à l'intérieur de la boucle 'while'.
+rgamma <- function(n, shape, rate = 1, scale = 1/rate)
+{
+    if (shape <= 0 | shape >= 1)
+        stop("valeur de shape inadmissible")
+
+    ratio <- function(x)
+        if (x <= 1) exp(-x) else x^(shape - 1)
+
+    Ginv <- function(x)
+    {
+        k <- 1 + shape * exp(-1)
+        if (x <= 1/k)
+            (k * x)^(1/shape)
+        else
+            -log(((1/shape) + exp(-1)) * (1 - x))
+    }
+
+    x <- numeric(n)
+    i <- 1
+    while (i < n)
+    {
+        y <- Ginv(runif(1))
+        if (runif(1) <= ratio(y))
+        {
+            print(paste("valeur de y acceptée:", y))
+            x[i <- i + 1] <- y
+            print(c(i, x))
+        }
+    }
+    x * scale
+}
+
+## L'exécution de la commande ci-dessous permet de détecter
+## que lorsqu'une première valeur de 'y' est acceptée, elle
+## est placée en deuxième position dans le vecteur des
+## résultats 'x'. Ah! Ha! Le compteur 'i' est soit incrémenté
+## trop tôt, soit initialisé une unité trop haut.
+rgamma(5, 0.5, 1)
+
+## Nous corrigeons la fonction ainsi: le compteur 'i' est
+## initialisé à 0 plutôt qu'à 1.
+rgamma <- function(n, shape, rate = 1, scale = 1/rate)
+{
+    if (shape <= 0 | shape >= 1)
+        stop("valeur de shape inadmissible")
+
+    ratio <- function(x)
+        if (x <= 1) exp(-x) else x^(shape - 1)
+
+    Ginv <- function(x)
+    {
+        k <- 1 + shape * exp(-1)
+        if (x <= 1/k)
+            (k * x)^(1/shape)
+        else
+            -log(((1/shape) + exp(-1)) * (1 - x))
+    }
+
+    x <- numeric(n)
+    i <- 0
+    while (i < n)
+    {
+        y <- Ginv(runif(1))
+        if (runif(1) <= ratio(y))
+            x[i <- i + 1] <- y
+    }
+    x * scale
+}
+
+###
+### ÉVALUATION PAS-À-PAS
+###
+
+## La technique d'évaluation pas-à-pas consiste à définir tous
+## les arguments de la fonction dans l'espace de travail, puis
+## à exécuter le corps de la fonction ligne par ligne.
+##
+## Évaluons l'équivalent de l'appel 'rgamma(5, 0.5, 1)'
+## pas-à-pas avec le bogue 'i <- 1' remis en place.
+##
+## Explorez les valeurs des objets 'x', 'i' et 'y' après
+## l'évaluation de chaque expression, ci-dessous (ou, plus
+## précisément, lorsque c'est pertinent).
+n <- 5
+shape <- 0.5
+scale <- 1
+
+## rgamma <- function(n, shape, rate = 1, scale = 1/rate)
+## {
+    if (shape <= 0 | shape >= 1)
+        stop("valeur de shape inadmissible")
+
+    ratio <- function(x)
+        if (x <= 1) exp(-x) else x^(shape - 1)
+
+    Ginv <- function(x)
+    {
+        k <- 1 + shape * exp(-1)
+        if (x <= 1/k)
+            (k * x)^(1/shape)
+        else
+            -log(((1/shape) + exp(-1)) * (1 - x))
+    }
+
+    x <- numeric(n)
+    i <- 1
+    ## while (i < n)
+    ## {
+        y <- Ginv(runif(1))
+        u <- runif(1)
+        if (u <= ratio(y))
+            x[i <- i + 1] <- y
+    ## }
+    x * scale
+## }
+
+###
+### PILE DES APPELS DE FONCTIONS
+###
+
+## J'ai inséré un bogue additionnel dans la fonction interne
+## 'Ginv' de 'rgamma', ci-dessous. Définir la fonction.
+rgamma <- function(n, shape, rate = 1, scale = 1/rate)
+{
+    if (shape <= 0 | shape >= 1)
+        stop("valeur de shape inadmissible")
+
+    ratio <- function(x)
+        if (x <= 1) exp(-x) else x^(shape - 1)
+
+    Ginv <- function(x)
+    {
+        k <- 1 + shape * exp(-1) * variable.inconnue
+        if (x <= 1/k)
+            (k * x)^(1/shape)
+        else
+            -log(((1/shape) + exp(-1)) * (1 - x))
+    }
+
+    x <- numeric(n)
+    i <- 1
+    while (i < n)
+    {
+        y <- Ginv(runif(1))
+        u <- runif(1)
+        if (u <= ratio(y))
+            x[i <- i + 1] <- y
+    }
+    x * scale
+}
+
+## Évaluer l'appel de fonction ci-dessous. Il y aura une
+## erreur.
+##-!- rgamma(5, 0.5, 1)
+
+## Afficher la pile des appels de fonctions. On voit que c'est
+## l'appel à 'Ginv' qui cause problème.
+##-!- traceback()
+
+###
+### NAVIGATEUR D'ENVIRONNEMENT
+###
+
+## La définition de la fonction 'rgamma' ci-dessous
+## contient un appel à la fonction 'browser'.
+##
+## L'appel à la fonction qui suit provoquera l'entrée dans le
+## navigateur d'environnement juste avant l'évaluation de
+## l'expression 'x <- numeric(n)'.
+##
+## L'utilisation du navigateur demande un temps d'adaptation à
+## cause de la forme de déphasage que l'on observe entre
+## l'affichage de la ligne qui sera évaluée et celle qui vient
+## d'être évaluée.
+##
+## L'interface de RStudio pour utiliser le navigateur est très
+## conviviale; consultez la documentation de RStudio pour un
+## bon tutoriel.
+##
+## Également, consultez la rubrique d'aide de 'browser' pour
+## connaitre les commandes disponibles à l'invite du
+## navigateur.
+rgamma <- function(n, shape, rate = 1, scale = 1/rate)
+{
+    if (shape <= 0 | shape >= 1)
+        stop("valeur de shape inadmissible")
+
+    ratio <- function(x)
+        if (x <= 1) exp(-x) else x^(shape - 1)
+
+    Ginv <- function(x)
+    {
+        k <- 1 + shape * exp(-1)
+        if (x <= 1/k)
+            (k * x)^(1/shape)
+        else
+            -log(((1/shape) + exp(-1)) * (1 - x))
+    }
+    browser()
+    x <- numeric(n)
+    i <- 1
+    while (i < n)
+    {
+        y <- Ginv(runif(1))
+        if (runif(1) <= ratio(y))
+            x[i <- i + 1] <- y
+    }
+    x * scale
+}
+##-!- rgamma(5, 0.5, 1)
+
+###
+### EXEMPLE ADDITIONNEL
+###
+
+## Variation sur le thème de la suite de Fibonacci: une
+## fonction pour calculer non pas les 'n' premières valeurs
+## de la suite de Fibonacci, mais uniquement la 'n'ième
+## valeur.
+##
+## Mais il y a un mais: la fonction 'fibonaci', à l'instar de
+## son nom même, est truffée d'erreurs (de syntaxe,
+## d'algorithmique, de conception). À vous de trouver les
+## bogues. (Afin de préserver cet exemple, copiez le code
+## erroné plus bas ou dans un autre fichier avant d'y faire
+## les corrections.)
+##-!- fibonaci <- function(nb)
+##-!- {
+##-!-     x <- 0
+##-!-     x1 _ 0
+##-!-     x2 <- 1
+##-!-     while (n > 0))
+##-!- x <- x1 + x2
+##-!- x2 <- x1
+##-!- x1 <- x
+##-!- n <- n - 1
+##-!- }
+##-!- fibonaci(1)                # devrait donner 0
+##-!- fibonaci(2)                # devrait donner 1
+##-!- fibonaci(5)                # devrait donner 3
+##-!- fibonaci(10)               # devrait donner 34
+##-!- fibonaci(20)               # devrait donner 4181
+@
+
+
+\section{Exemples}
+\label{sec:debogage:exemples}
+
+\def\scriptfilename{debogage.R}
+
+\scriptfile{\scriptfilename}
+\lstinputlisting[firstline=\scriptfirstline]{\scriptfilename}
+
+\section{Exercices}
+\label{sec:debogage:exercices}
+
+\Opensolutionfile{solutions}[solutions-debogage]
+
+\begin{Filesave}{solutions}
+\section*{Chapitre \ref*{chap:debogage}}
+\addcontentsline{toc}{section}{Chapitre \protect\ref*{chap:debogage}}
+
+\end{Filesave}
+
+\begin{exercice}[nosol]
+  Trouver les erreurs qui empêchent la définition de la fonction
+  suivante.
+  \begin{Schunk}
+\begin{verbatim}
+AnnuiteFinPeriode <- function(n, i)
+{{
+    v <- 1/1 + i)
+    ValPresChaquePmt <- v^(1:n)
+    sum(ValPresChaquepmt)
+}
+\end{verbatim}
+  \end{Schunk}
+\end{exercice}
+
+\begin{exercice}
+  La fonction ci-dessous calcule la valeur des paramètres d'une loi
+  normale, gamma ou Pareto à partir de la moyenne et de la variance,
+  qui sont connues par l'utilisateur.
+  \begin{Schunk}
+\begin{verbatim}
+param <- function(moyenne, variance, loi)
+{
+    loi <- tolower(loi)
+    if (loi == "normale")
+        param1 <- moyenne
+        param2 <- sqrt(variance)
+        return(list(mean = param1, sd = param2))
+    if (loi == "gamma")
+        param2 <- moyenne/variance
+        param1 <- moyenne * param2
+        return(list(shape = param1, scale = param2))
+    if (loi == "pareto")
+        cte <- variance/moyenne^2
+        param1 <- 2 * cte/(cte-1)
+        param2 <- moyenne * (param1 - 1)
+        return(list(alpha = param1, lambda = param2))
+    stop("La loi doit etre une de \"normale\",
+\"gamma\" ou \"pareto\"")
+}
+\end{verbatim}
+  \end{Schunk}
+  L'utilisation de la fonction pour diverses lois donne les résultats
+  suivants:
+<<echo=FALSE>>=
+param <- function(moyenne, variance, loi)
+{
+    loi <- tolower(loi)
+    if (loi == "normale")
+        param1 <- moyenne
+        param2 <- sqrt(variance)
+        return(list(mean = param1, sd = param2))
+    if (loi == "gamma")
+        param2 <- moyenne/variance
+        param1 <- moyenne * param2
+        return(list(shape = param1, scale = param2))
+    if (loi == "pareto")
+        cte <- variance/moyenne^2
+        param1 <- 2 * cte/(cte-1)
+        param2 <- moyenne * (param1 - 1)
+        return(list(alpha = param1, lambda = param2))
+    stop("La loi doit etre une de \"normale\", \"gamma\" ou \"pareto\"")
+}
+@
+<<echo=TRUE>>=
+param(2, 4, "normale")
+@
+\begin{Schunk}
+\begin{Sinput}
+> param(50, 7500, "gamma")
+\end{Sinput}
+\begin{Soutput}
+Erreur dans param(50, 7500, "gamma") : Objet "param1"
+introuvable
+\end{Soutput}
+\end{Schunk}
+\begin{Schunk}
+\begin{Sinput}
+> param(50, 7500, "pareto")
+\end{Sinput}
+\begin{Soutput}
+Erreur dans param(50, 7500, "pareto") : Objet "param1"
+introuvable
+\end{Soutput}
+\end{Schunk}
+  \begin{enumerate}
+  \item Expliquer pour quelle raison la fonction se comporte ainsi.
+  \item Appliquer les correctifs nécessaires à la fonction pour que
+    celle-ci puisse calculer les bonnes valeurs. (Les erreurs ne se
+    trouvent pas dans les mathématiques de la fonction.)
+  \end{enumerate}
+  \begin{sol}
+    Il manque des accolades aux clauses \code{if}.
+    \begin{Schunk}
+\begin{verbatim}
+param <- function (moyenne, variance, loi)
+{
+    loi <- tolower(loi)
+    if (loi == "normale")
+    {
+        param1 <- moyenne
+        param2 <- sqrt(variance)
+        return(list(mean = param1, sd = param2))
+    }
+    if (loi == "gamma")
+    {
+        param2 <- moyenne/variance
+        param1 <- moyenne * param2
+        return(list(shape = param1, scale = param2))
+    }
+    if (loi == "pareto")
+    {
+        cte <- variance/moyenne^2
+        param1 <- 2 * cte/(cte-1)
+        param2 <- moyenne * (param1 - 1)
+        return(list(alpha = param1, lambda = param2))
+    }
+    stop("La loi doit etre une de \"normale\",
+\"gamma\" ou \"pareto\"")
+}
+\end{verbatim}
+    \end{Schunk}
+  \end{sol}
+\end{exercice}
+
+\Closesolutionfile{solutions}
+
+%%% Local Variables:
+%%% mode: noweb
+%%% TeX-engine: xetex
+%%% TeX-master: "programmer-avec-r"
+%%% coding: utf-8
+%%% End:

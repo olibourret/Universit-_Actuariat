@@ -1,0 +1,473 @@
+---
+title: "Travail pratique 2"
+author: "Olivier Bourret & Marianne Chouinard"
+date: "19/12/2020"
+output: pdf_document
+header-includes:  \usepackage{xcolor} \usepackage[makeroom]{cancel}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Préambule
+
+Dans l'optique de consolider nos apprentissages du cours de processus stochastiques, il nous est demandé de faire l'analyse de deux cas. L'un des deux met plus l'accent sur la théorie des processus de Poisson et de renouvellement, tandis l'autre se concentre davantage sur les Martingales et le mouvement Brownien. Pour chaque équipe, les paramètres ainsi que des lois particulières étaient attribuées, afin de travailler chacun sur un choix unique. Pour l'équipe numéro 9, pour la Poisson conditionnelle mixte $N_i(t) \sim Poisson(\Lambda_i)$, où $\Lambda_i \sim Uniforme(a,b)$. Voici le reste des paramètres assignés:
+
+
+```{r echo=FALSE, results='asis'}
+### Table 1
+param_ab <- data.frame("i" = c(1:3),
+                       "n_i"= c(35,25,40),
+                       "a_i"= c(0,0,0),
+                       "b_i"= c(4,5,6),
+                       "alpha_i"= c(1,1,1),
+                       "beta_i"= c(1.5,2,2.5),
+                       "M_i"= c(1500,2500,1000),
+                        "delta_i" = c("2%", "2%","2%"))
+
+library(knitr)
+library(xtable)
+
+kable(param_ab, caption = "Paramètres du numéro 1 a) et b)", escape = FALSE, align = "l",
+      col.names = c("$i$", "$n_i$", "$a_i$", "$b_i$", "$\\alpha_i$", "$\\beta_i$", "$M_i$","$\\delta_i$"))
+
+### Table 2
+param_c <- data.frame("i" = c(1:3),
+                      "n_i"= c(35,25,40),
+                      "theta_i"= c(2,3,4),
+                      "lambda_i"= c(0.03,0.04,0.05),
+                      "alpha_i"= c(1,1,1),
+                      "beta_i"= c(1.5,2,2.5),
+                      "M_i"= c(1500,2500,1000),
+                      "delta_i" = c("2%", "2%","2%"))
+
+kable(param_c, caption = "Paramètres du numéro 1 c)", escape = FALSE, align = "r",
+      col.names = c("$i$", "$n_i$", "$\\theta_i$", "$\\lambda_i$", "$\\alpha_i$", "$\\beta_i$", "$M_i$", "$\\delta_i$"))
+
+## Table 3
+param_2ecas <- data.frame("mu"= 0.05, "sigma" = 0.1, "force_interet"= 0.02, "k_1"= 115, "k_2"= 127, "T_1"= 1, "T_2"= 2, "lambda"= 0.1, "alpha"= "?", "beta"= 0.5)
+
+kable(param_2ecas, caption = "Paramètres du numéro 2", escape = FALSE,
+      col.names = c("$\\mu$", "$\\sigma$", "$\\delta$", "$K_1$", "$K_2$", "$T_1$", "$T_2$", "$\\lambda$", "$\\alpha$", "$\\beta_i$"))
+
+```
+
+
+# Question 1
+
+## a) Moyenne théorique de la perte actualisée
+
+Pour cette section, il est demandé de trouver la moyenne théorique de la perte actualisée pour une période de longueur $t$, dont la force d'intérêt est nulle. Il est important de mentionner que puisque la force d'intérêt est de $0\%$, la formule qui exprime la perte totale sera légèrement modifiée si $N_i(t)>0$.
+
+
+
+\begin{align*}
+L_i(t) &= \sum_{k=1}^{N_i(t)}e^{-\delta S_{i,k}}M_i X_{i,k}\\
+&= \sum_{k=1}^{N_i(t)}e^{-0 \cdot S_{i,k}}M_i X_{i,k}\\
+&= \sum_{k=1}^{N_i(t)}M_i X_{i,k}\\
+\end{align*}
+
+Ainsi, la solution de la moyenne théorique se simplifie, puisque que $S_{i,k}$ disparaît. On aura alors,
+
+\begin{align*}
+E[L_{TOT}(t)] &= E[L_1(t) + L_2(t) + \dots  + L_100(t)]\\
+&= E[L_1(t)] + \dots + E[L_35(t)] + E[L_36(t)] + \dots + E[L_60(t)] + E[L_61(t)] + \dots + E[L_100(t)] \\
+&= 35\cdot E[L_1(t)] + 25 \cdot E[L_36(t)] + 40 \cdot E[L_61(t)]
+\end{align*}
+
+Le dernier résultat est possible, car pour $i = 1,\dots, 35,  i = 36, \dots, 60, i = 61,\dots,100$, chacun des $i$ de chaque groupe possèdent la même distribution avec les mêmes paramètres, alors l'espérance demeure la même. Il est donc intéréssant de généraliser et trouver $E[L_i(t)]$ peu importe le $i$.
+
+\begin{align}
+E[L_i(t)] &= E[E[L_i(t) | N_i(t)]] \notag\\
+&= E[L_i(t) | N_i(t) = k] \cdot Pr(N_i(t) = k) \notag\\
+&= E \left[ \sum_{k=1}^{N_i(t)} M_i \cdot X_{i,k}| N_i(t) = k \right] \cdot Pr(N_i(t) = k) \notag\\
+&= M_i \cdot E \left[ \sum_{k=1}^{N_i(t)} X_{i,k}| N_i(t) = k \right] \cdot Pr(N_i(t) = k) \notag\\
+&= M_i \cdot \left( E[X_{i,1} | N_i(t) = k] + \dots + E[X_{i,k} | N_i(t) = k] \right) \cdot Pr(N_i(t) = k) \notag\\
+&= M_i (k \cdot E[X_{i,k}]) Pr(N_i(t) = k) \notag\\
+où ~ X_{i,k} &\sim Beta(\alpha = 1, \beta = \beta_i) \Rightarrow E[X_{i,k}] =\frac{1}{1+\beta_i} \notag\\
+&= M_i \left( \frac{1}{1+\beta_i} \right) Pr(N_i(t) = k)
+\end{align}
+
+Il est également possible de trouver $Pr(N_i(t)=k)$
+
+\begin{align}
+Pr(N_i(t) = k) &= \int_0^{b_i} Pr(N_i(t) = k | \Lambda = \lambda) \cdot g_{\Lambda}(\lambda) d\lambda \notag\\
+&= \int_0^{b_i} \frac{(\lambda t)^k \cdot e^{-\lambda t}}{k!} \cdot \frac{1}{b_i} d\lambda \notag\\
+&= \frac{1}{b_i \textcolor{OliveNreen}{t}}\int_0^{b_i} \frac{t^{k+1} \lambda^k e^{-t \lambda}}{k!} d\lambda \longrightarrow \textcolor{Mahogany}{Gamma(k+1, t)} \notag\\
+&= \frac{1}{b_i t} \left( 1 - \sum_{j=0}^k \frac{(tb_i)^j e^{-tb_j}}{j!} \right)
+\end{align}
+
+En appliquant le résultat de l'équation (2) dans l'équation (1) on retrouve,
+
+\begin{align}
+E[L_i(t)] &= M_i \left( \frac{1}{1+\beta_i} \right)\frac{1}{b_i t} \left( 1 - \sum_{j=0}^k \frac{(tb_i)^j e^{-tb_j}}{j!} \right) \notag\\
+ &= \frac{M_i \cdot k}{(1+\beta_i) b_i t} \left( 1 - e^{-tb_i}\sum_{j=0}^k \frac{(tb_i)^j}{j!} \right)
+\end{align}
+
+Pour les différents $i$ on aura:
+
+\begin{align*}
+&\bullet i= 1, \dots, 35 \Rightarrow \frac{150k}{t} \left(1- e^{-4t} \sum_{j=0}^k \frac{(4t)^j}{j!} \right)\\
+&\bullet i= 36, \dots, 100 \Rightarrow \frac{500k}{3t} \left(1- e^{-5t} \sum_{j=0}^k \frac{(5t)^j}{j!} \right)\\
+&\bullet i= 61, \dots, 100 \Rightarrow \frac{1000k}{21t} \left(1- e^{-6t} \sum_{j=0}^k \frac{(6t)^j}{j!} \right)
+\end{align*}
+
+La perte moyenne théorique sera donc,
+
+
+\begin{align*}
+E[L_{TOT}(t)] &= 35\cdot E[L_1(t)] + 25 \cdot E[L_36(t)] + 40 \cdot E[L_61(t)]\\
+&= 35 \left[\frac{150k}{t} \left(1- e^{-4t} \sum_{j=0}^k \frac{(4t)^j}{j!} \right) \right]\\
+&+ 25 \left[ \frac{500k}{3t} \left(1- e^{-5t} \sum_{j=0}^k \frac{(5t)^j}{j!} \right)\right]\\
+&+ 40 \left[\frac{1000k}{21t} \left(1- e^{-6t} \sum_{j=0}^k \frac{(6t)^j}{j!} \right) \right]\\
+&= \frac{5250k}{t} \left(1- e^{-4t} \sum_{j=0}^k \frac{(4t)^j}{j!} \right) + \frac{12500k}{3t} \left(1- e^{-5t} \sum_{j=0}^k \frac{(5t)^j}{j!} \right) + \frac{40000k}{21t} \left(1- e^{-6t} \sum_{j=0}^k \frac{(6t)^j}{j!} \right)\\
+&= \frac{5250k}{t} \Gamma(4;k+1,t) + \frac{12500k}{3t} \Gamma(5;k+1,t) + \frac{40000k}{21t} \Gamma(6;k+1,t)\\
+\end{align*}
+$$\tag*{$\blacksquare$}$$
+
+
+
+## b) Simulation de 1000 pertes avec $\Lambda_i \sim Uniforme(a_i,b_i)$ où $t=10$
+
+Pour la simulation, il fallait tout d'abord se questionner sur la méthode utilisée pour simuler la perte totale des 1000 cas. Chaque contrat suit un processus de Poisson mixte où le paramètre $\Lambda_i$ est une variable aléatoire d'une loi $U(a_i,b_i)$. Ainsi, lorsque $\Lambda_i$ est connu, il conserve la même valeur pour le reste du processus. Au lieu de simuler le nombre de pertes pour les 10 prochaines années, il est plus simple de simuler chaque perte jusqu'à ce qu'on arrive à 10 ans. En effet, de cette manière, le nombre de pertes est connu ainsi que le moment auquel la perte survient. Cette dernière information est réutilisée dans l'actualisation de la perte $(S_{i,k})$.
+
+Pour connaître le temps entre la $(n-1)^{ième}$ et la $n^{ième}$ perte, $Tn$, lorsque $\Lambda_i$ est connu, $T_n \sim Exp(\lambda)$. Pour ce faire, nous créé une fonction qui suit cette algorithme tout simple:
+
+1. Simulation d'un nombre aléatoire d'un $\lambda$ à partir d'une $Uniforme(a_1,b_1)$. 
+
+2. Création d'une boucle:
+
+i. Simulation d'un nombre aléatoire d'une $Exp(\lambda)$ qui représente $T_n$.
+
+ii. Simulation d'un nombre aléatoire d'une $Beta(\alpha_1, \beta_1)$ qui représente taux de la perte qui vient de survenir.
+
+iii. Somme des $T_n$ préalablement simulés qui donne $S_{i,k}$, soit le temps depuis le début du processus pour avoir n pertes.
+
+iv. Si $S_{i,k} \geq 10$ fin de la boucle
+
+3. Somme des pertes actualisées en fonction du temps où la perte est survenue depuis $t=0, (S_{i,k})$, du taux de la perte $(X_{i,k})$ et du montant associé au produit dérivé $(M_i)$.
+
+Fin de l'algorithme.
+
+Le code de cette fonction a été généré ainsi:
+
+```{r echo=TRUE}
+# Fonction de perte des contrats type 1
+Simulation_1 <- function(){
+
+    lambda <- runif(1,0,4)
+    T_i <- c()
+    X_i <- c()
+    S_ik <- c()
+    perte <- c()
+    temps <- 0
+    while(temps<10){
+      T_i <- append(T_i, rexp(1,rate = lambda)) ## Temps entre 2 pertes
+      X_i <- append(X_i,rbeta(1, shape1 = 1, shape2 = 1.5)) ## Taux de la perte
+      S_ik <- append(S_ik, sum(T_i)) ## Somme des temps de perte
+      temps <- sum(T_i)
+    }
+    T_i <- T_i[-length(T_i)]
+    S_ik <- S_ik[-length(S_ik)]
+    X_i <- X_i[-length(X_i)]
+    
+    sum(exp(-0.02*S_ik)*1500*X_i)
+}
+```
+
+```{r echo=FALSE}
+Simulation_2 <- function(){
+  
+  lambda <- runif(1,0,5)
+  T_i <- c()
+  X_i <- c()
+  S_ik <- c()
+  perte <- c()
+  temps <- 0
+  while(temps<10){
+    T_i <- append(T_i, rexp(1,rate = lambda))
+    X_i <- append(X_i,rbeta(1, shape1 = 1, shape2 = 2))
+    S_ik <- append(S_ik, sum(T_i))
+    temps <- sum(T_i)
+  }
+  T_i <- T_i[-length(T_i)]
+  S_ik <- S_ik[-length(S_ik)]
+  X_i <- X_i[-length(X_i)]
+  
+  sum(exp(-0.02*S_ik)*2500*X_i)
+}
+
+## Fonction de perte des contrats type 3
+Simulation_3 <- function(){
+  
+  lambda <- runif(1,0,6)
+  T_i <- c()
+  X_i <- c()
+  S_ik <- c()
+  perte <- c()
+  temps <- 0
+  while(temps<10){
+    T_i <- append(T_i, rexp(1,rate = lambda))
+    X_i <- append(X_i,rbeta(1, shape1 = 1, shape2 = 2.5))
+    S_ik <- append(S_ik, sum(T_i))
+    temps <- sum(T_i)
+  }
+  T_i <- T_i[-length(T_i)]
+  S_ik <- S_ik[-length(S_ik)]
+  X_i <- X_i[-length(X_i)]
+  
+  sum(exp(-0.02*S_ik)*1000*X_i)
+  
+}
+```
+Le même processus s'applique pour la création des fonctions des valeurs actualisées des pertes pour les contrats $i = 36, \dots, 60~et~i= 61, \dots, 100$, mais avec les valeurs des paramètres associés aux contrats $i$. Il suffit maintenant de réappliquer ces fonctions le nombre de fois nécessaire pour les 100 contrats du portefeuille d'en faire la somme pour avoir la perte totale actualisée. Cette procédure est appliquée 1000 fois, afin d'avoir nos 1000 simulations désirées. 
+
+```{r echo=FALSE}
+## Fonction pour simuler n échantillons
+simPerteTot <- function(n){
+  i <- 1
+  pertetot <- c()
+  
+  for(i in 1:n){
+    a <- sum(replicate(35, Simulation_1()))
+    b <- sum(replicate(25, Simulation_2()))
+    c <- sum(replicate(40, Simulation_3()))
+    pertetot <- append(pertetot,sum(a,b,c))
+    i+1
+  }
+  pertetot
+}
+
+
+simUnif <- simPerteTot(1000)
+```
+
+Ces 1000 simulations peuvent donner une idée de la répartition des valeurs possibles. Il intéressant de connaître certaines statistiques telles que la moyenne, la variance, et l'approximation de la VaR et de la TVaR.
+
+```{r echo=FALSE}
+Moyenne <- round(mean(simUnif),0)
+Variance <- round(sd(simUnif)^2,0)
+VaR90 <- quantile(simUnif,0.9)
+VaR95 <- quantile(simUnif,0.95)
+VaR99 <- quantile(simUnif,0.99)
+TVaR90 <- mean(tail(sort(simUnif),100))
+TVaR95 <- mean(tail(sort(simUnif),50))
+TVaR99 <- mean(tail(sort(simUnif),10))
+
+TableStats <- data.frame("Moyenne"= c(Moyenne,"",""),
+                         "Variance"= c(Variance,"",""),
+                         "alpha"= c("10%","5%","1%"),
+                         "VaR(1-alpha)" = c(VaR90, VaR95,VaR99),
+                         "TVaR(1-alpha)" = c(TVaR90, TVaR95,TVaR99))
+
+kable(TableStats, caption = "Statistiques des 1000 simulations", escape = FALSE,
+      col.names = c("Moyenne", "Variance", "$\\alpha$", "$VaR(1-\\alpha)$", "$TVaR(1-\\alpha)$"))
+```
+
+Afin de mieux voir la répartition des données, voici la répartition des pertes totales actualisées pour une longueur de $t=10$.
+
+```{r echo=FALSE}
+q05 <- quantile(simUnif,0.05)
+q95 <- quantile(simUnif,0.95)
+q100 <- quantile(simUnif,1)
+hist(simUnif, probability = TRUE, nclass = 20, col = "azure",
+     main = "Distribution des 1000 simulations des pertes",
+     xlab = "Perte actualisée (en $)", ylab = "Densité")
+
+abline(v = mean(simUnif), col = "blue4", lty = 2, lwd = 3) # Moyenne
+abline(v = q95, col = "green4", lty = 3, lwd = 3)
+abline(v = q05, col = "green4", lty = 3, lwd = 3)
+  lines(density(simUnif), col = "red4", lwd = 2)
+
+legend("topright", legend = c("Moyenne","Quantile à 5% et 95%"),
+       col = c("blue4","green4"), lty = c(2,3), lwd = c(3,3), cex=0.70)  
+
+x1 <- min(which(density(simUnif)$x >= q95))
+x2 <- max(which(density(simUnif)$x <  q100))
+with(density(simUnif), polygon(x=c(x[c(x1,x1:x2,x2)]),
+                               y= c(0, y[x1:x2], 0), col="red3"))
+```
+
+La distribution des 1000 pertes totales actualisées ressemble à une distribution d'une loi normale de moyenne $\mu=$ `r Moyenne` et de variance $\sigma^2=$ `r Variance`. Les valeurs approximatives que les pertes peuvent prendre sont entre `r round(min(simUnif),-4)` et `r round(max(simUnif),-4)`.
+
+
+
+# c) Simulation de 1000 pertes avec renouvellement Gamma où $t=10$
+
+La question c) revient essentiellement au même principe utilisé qu'au numéro 1 b), cependant le temps entre les renouvellement est donné par une loi $Gamma(\theta_i,\lambda_i)$ dont les paramètres ont été énoncés dans le le préambule. Donc, la création des fonctions pour simuler les 1000 pertes utilise pratiquement le même algorithme. Ce qui diffère, c'est que le lambda n'est pas simulé et que $T_n$ est une valeur aléatoire provenant d'un loi Gamma. La fonction pour évaluer la perte d'un contrat où $i= 1, \dots,35$ sera la suivante:
+
+```{r echo=TRUE}
+## Fonction pour simuler Gamma type 1
+SimGamma_1 <- function(){
+  
+  T_i <- c()
+  X_i <- c()
+  S_ik <- c()
+  perte <- c()
+  temps <- 0
+  while(temps<10){
+    T_i <- append(T_i, rgamma(1, shape = 2, rate = 0.03))
+    X_i <- append(X_i,rbeta(1, shape1 = 1, shape2 = 1.5))
+    S_ik <- append(S_ik, sum(T_i))
+    temps <- sum(T_i)
+  }
+  T_i <- T_i[-length(T_i)]
+  S_ik <- S_ik[-length(S_ik)]
+  X_i <- X_i[-length(X_i)]
+  
+  sum(exp(-0.02*S_ik)*1500*X_i)
+}
+```
+
+```{r echo =FALSE}
+## Fonction pour simuler Gamma type 2
+SimGamma_2 <- function(){
+  
+  T_i <- c()
+  X_i <- c()
+  S_ik <- c()
+  perte <- c()
+  temps <- 0
+  while(temps<10){
+    T_i <- append(T_i, rgamma(1, shape = 3, rate = 0.04))  
+    X_i <- append(X_i,rbeta(1, shape1 = 1, shape2 = 2))
+    S_ik <- append(S_ik, sum(T_i))
+    temps <- sum(T_i)
+  }
+  T_i <- T_i[-length(T_i)]
+  S_ik <- S_ik[-length(S_ik)]
+  X_i <- X_i[-length(X_i)]
+  
+  sum(exp(-0.02*S_ik)*2500*X_i)
+}
+
+
+## Fonction pour simuler Gamma type 3
+SimGamma_3 <- function(){
+  
+  T_i <- c()
+  X_i <- c()
+  S_ik <- c()
+  perte <- c()
+  temps <- 0
+  while(temps<10){
+    T_i <- append(T_i, rgamma(1, shape = 4, rate = 0.05))  
+    X_i <- append(X_i,rbeta(1, shape1 = 1, shape2 = 2.5))
+    S_ik <- append(S_ik, sum(T_i))
+    temps <- sum(T_i)
+  }
+  T_i <- T_i[-length(T_i)]
+  S_ik <- S_ik[-length(S_ik)]
+  X_i <- X_i[-length(X_i)]
+  
+  sum(exp(-0.02*S_ik)*1000*X_i)
+}
+```
+
+Ensuite, le même processus s'applique pour la création des fonctions des valeurs actualisées des pertes pour les contrats $i = 36, \dots, 60~et~i= 61, \dots, 100$, mais avec les valeurs des paramètres associés aux contrats $i$. Ainsi, il reste à appliquer ces fonctions le nombre de fois nécessaire pour simuler les 100 pertes actualisées. En appliquant 1000 fois cette procédure, nous obtenons les valeurs recherchées.
+
+```{r echo=FALSE}
+simPerteTotGamma <- function(n){
+  i <- 1
+  pertetot <- c()
+  
+  for(i in 1:n){
+    a <- sum(replicate(35, SimGamma_1()))
+    b <- sum(replicate(25, SimGamma_2()))
+    c <- sum(replicate(40, SimGamma_3()))
+    pertetot <- append(pertetot,sum(a,b,c))
+    i+1
+  }
+  pertetot
+}
+
+simGamma <- simPerteTotGamma(1000)
+```
+
+Encore une fois, il est intéressant de regarder les statistiques de cet échantillon. On obtient:
+
+```{r echo=FALSE}
+Moyenne <- round(mean(simGamma),0)
+Variance <- round(sd(simGamma)^2,0)
+VaR90 <- round(quantile(simGamma,0.9),0)
+VaR95 <- round(quantile(simGamma,0.95),0)
+VaR99 <- round(quantile(simGamma,0.99),0)
+TVaR90 <- round(mean(tail(sort(simGamma),100)),0)
+TVaR95 <- round(mean(tail(sort(simGamma),50)),0)
+TVaR99 <- round(mean(tail(sort(simGamma),10)),0)
+
+TableStats <- data.frame("Moyenne"= c(Moyenne,"",""),
+                         "Variance"= c(Variance,"",""),
+                         "alpha"= c("10%","5%","1%"),
+                         "VaR(1-alpha)" = c(VaR90, VaR95,VaR99),
+                         "TVaR(1-alpha)" = c(TVaR90, TVaR95,TVaR99))
+
+kable(TableStats, caption = "Statistiques des 1000 simulations", escape = FALSE,
+      col.names = c("Moyenne", "Variance", "$\\alpha$", "$VaR(1-\\alpha)$", "$TVaR(1-\\alpha)$"))
+```
+
+Question d'avoir un visuel de la distribution des valeurs obtenues, nous avons fait l'histogramme des 1000 simulations en plus d'y insérer la moyenne et les quantiles à $5\%$ et à $95\%$ et la VaR à $95\%$.
+
+```{r echo=FALSE}
+## Graphique des simulation
+q05 <- quantile(simGamma,0.05)
+q95 <- quantile(simGamma,0.95)
+q100 <- quantile(simGamma,1)
+
+
+hist(simGamma, probability = TRUE, nclass = 20, col = "azure",
+     main = "Distribution des 1000 simulations des pertes",
+     xlab = "Perte actualisée (en $)", ylab = "Densité")
+
+abline(v = mean(simGamma), col = "blue4", lty = 2, lwd = 3) # Moyenne
+abline(v = q05, col = "green4", lty = 3, lwd = 3)
+abline(v = q95, col = "green4", lty = 3, lwd = 3)
+lines(density(simGamma), col = "red4", lwd = 2)
+
+legend("topright", legend = c("Moyenne","VaR à 5% et 95%"),
+       col = c("blue4","green4"), lty = c(2,3), lwd = c(3,3)) 
+
+
+x1 <- min(which(density(simGamma)$x >= q95))
+x2 <- max(which(density(simGamma)$x <  q100))
+with(density(simGamma), polygon(x=c(x[c(x1,x1:x2,x2)]),
+                                y= c(0, y[x1:x2], 0), col="red3"))
+```
+
+
+## Comparaison des résultats en b) et en c) 
+
+Le premier réflexe qu'il est possible d'avoir, en regardant les résultats c'est de se questionner sur la validité des résultats et à savoir si tout à été fait correctement. En effet, l'énorme différence entre les valeurs simulées en b) et en c) peuvent semer le doute dans notre esprit, mais il faut garder son calme et réflichir aux valeurs obtenues. 
+
+En effet, en b) nous avions des processus de Poisson mixte dont la valeur de $\lambda$ varie en fonction d'une loi $Uniforme(0,b_i)$. Ainsi, en 10 ans, si l'on a un $\lambda$ qui peut se situer entre 0 et 6, bien l'espérance du nombre total de pertes peut se retrouver entre 0 et 60. De plus, le temps de renouvellement entre deux évènement suit une $Exp(\lambda)$, alors le temps espéré entre 2 évènements pourrait être dans l'intervale $(\frac{1}{6},\infty)$. Donc, en 10 ans, si le temps moyen entre 2 renouvellements se trouve à être $\frac{1}{2}$, alors en 10 ans, il peut tout de même y avoir plusieurs pertes.
+
+Pour la Gamma, en prenant la même logique, l'espérance du temps entre les renouvellements est beaucoup plus grand $(E[T_n]= \frac{\theta_i}{\lambda_i})$. Avec les données fournies à notre équipe, les espérances du temps de renouvellement sont de $\{66.\overline{6}, 75, 85\}$ pour les trois combinaisons des paramètres fournis. Ainsi, les évènements deviennent très rares dans une période de 10 ans, ce qui fait en sorte que les valeurs totales actualisées des pertes demeurent très basses.
+
+
+
+
+
+
+
+
+
+
+
+## d) Trouver $\alpha$ de sorte que le processus de la valeur de l'action suive une sous-Martingale
+
+\begin{align*}
+E[S_t | S_{t-1}] &= S_{t-1}e^{\mu}\\
+E\left[ S_{t-1}e^{\mu +\sigma(Z(t)-Z(t-1))+\sum_{i=N(t-1)}^{N(t)}X_i} \right] &= S_{t-1}e^{\mu}\\
+\cancel{S_{t-1}}E\left[e^{\mu +\sigma(Z(t)-Z(t-1))+\sum_{i=N(t-1)}^{N(t)}X_i} \right] &= \cancel{S_{t-1}}e^{\mu}\\
+\cancel{e^{\mu}} E\left[e^{\sigma(Z(t)-Z(t-1))+\sum_{i=N(t-1)}^{N(t)}X_i} \right] &= \cancel{e^{\mu}}\\
+E\left[e^{W(1) + \sum_{i=N(t-1)}^{N(t)}X_i} \right] &= 1\\
+E\left[e^{W(1)} \right] E\left[e^{\sum_{i=N(t-1)}^{N(t)}X_i} \right] &= 1\\
+e^{\sigma^2}e^{\lambda \left[\frac{e^{\lambda} - 1 - \alpha}{\alpha} \right]} &= 1\\
+e^{\sigma^2 + \lambda \left[\frac{e^{\lambda} - 1 - \alpha}{\alpha} \right]} &= 1\\
+\sigma^2 + \lambda \left[ \frac{e^{\alpha}-1-\alpha}{\alpha} \right] &= ln(1) = 0
+\end{align*}
+
+
+

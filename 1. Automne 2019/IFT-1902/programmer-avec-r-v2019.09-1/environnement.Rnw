@@ -1,0 +1,800 @@
+%%% Copyright (C) 2019 Vincent Goulet
+%%%
+%%% Ce fichier fait partie du projet
+%%% «Programmer avec R»
+%%% https://gitlab.com/vigou3/programmer-avec-r
+%%%
+%%% Cette création est mise à disposition sous licence
+%%% Attribution-Partage dans les mêmes conditions 4.0
+%%% International de Creative Commons.
+%%% https://creativecommons.org/licenses/by-sa/4.0/
+
+\chapter{Environnement et règles d'évaluation}
+\label{chap:environnement}
+
+\def\scriptfilename{\currfilebase.R}
+\SweaveOpts{echo=FALSE}
+
+<<echo=FALSE, results=hide>>=
+source(".Sweaveprofile")   # configuration
+source("Stangle.R")        # lancement de Stangle
+@
+<<script>>=
+## Copyright (C) 2019 Vincent Goulet
+##
+## Ce fichier fait partie du projet
+## «Programmer avec R»
+## https://gitlab.com/vigou3/programmer-avec-r
+##
+## Cette création est mise à disposition sous licence
+## Attribution-Partage dans les mêmes conditions 4.0
+## International de Creative Commons.
+## https://creativecommons.org/licenses/by-sa/4.0/
+@
+
+\begin{objectifs}
+\item Décrire les concepts d'environnement d'une fonction et
+  d'environnement d'évaluation de R.
+\item Comprendre comment R associe des symboles à des valeurs.
+\item Utiliser la portée lexicale et l'évaluation paresseuse pour
+  simplifier les fonctions R.
+\end{objectifs}
+
+Ce chapitre vise à expliquer plusieurs règles d'évaluation et de
+portée des variables que nous avons jusqu'ici un peu laissées dans
+l'ombre pour en appeler plutôt à votre bonne intuition. Pour
+illustrer, reprenons l'un de nos tous premiers exemples de fonction au
+\autoref{chap:bases}, celui du calcul du carré d'un nombre avec la
+fonction \code{square}.
+<<echo=TRUE>>=
+square <- function(x) x * x
+@
+
+Nous n'avons jamais remis en doute que la valeur de \code{x} à
+l'intérieur de la fonction \code{square} doit être celle passée en
+argument, et non celle d'un objet \code{x} qui existerait déjà dans
+l'espace de travail. De plus, si un tel objet \code{x} devait exister
+dans l'espace de travail, l'exécution de la fonction \code{square} ne
+devrait pas modifier sa valeur.
+<<echo=TRUE>>=
+x <- 5
+square(10)
+x
+@
+
+Examinons maintenant cet autre exemple quelque peu artificiel, mais
+néanmoins instructif, tiré de \citet{Ihaka:R:1996}. Une fonction
+\code{f} calcule le carré d'un nombre, puis affiche le résultat à
+l'écran par le biais d'une autre fonction \code{g}.
+<<echo=TRUE>>=
+f <- function(x)
+{
+    y <- x * x
+    g <- function() print(y)
+    g()
+}
+@
+
+On remarquera que l'objet \code{y} n'est pas un argument de \code{f},
+mais qu'il est défini dans la fonction. De plus, la fonction \code{g}
+utilise \code{y} sans que cet objet ne soit un de ses arguments. Dans
+les circonstances, quels seront, selon vous, les résultats des
+expressions suivantes et, surtout, pourquoi? Allez les essayer, je
+vous attends ici.
+<<echo=TRUE, eval=FALSE>>=
+y <- 123
+f(10)
+y
+@
+
+Les questions ci-dessus trouvent leurs réponses dans les concepts
+d'environnement et de \index{portee lexicale@portée lexicale}portée
+lexicale de R. Maitriser ces concepts permet à la fois de simplifier
+notre code et de réduire significativement les sources de bogues. Le
+chapitre traite également du concept d'évaluation paresseuse auquel
+les programmeurs sont moins souvent directement confrontés, mais qui
+permet aussi de coder plus efficacement.
+
+\gotorbox{Avant d'aller plus loin, passez en revue les lignes
+  \reflines{environnement:contexte} du fichier de script
+  \code{\scriptfilename} reproduit à la
+  \autoref{sec:environnement:exemples}. Je vous invite
+  particulièrement à tenter de répondre à la colle de la ligne
+  \ref{lst:environnement:contexte:fin}.}
+
+<<script, results=hide>>=
+###
+### CONTEXTE  `\labelline{environnement:contexte}`
+###
+
+## La portée (domaine où un objet existe et comporte une
+## valeur) des arguments d'une fonction et de tout objet
+## défini à l'intérieur de celle-ci se limite à la fonction.
+##
+## Ceci signifie que l'interpréteur R fait bien la distinction
+## entre un objet dans l'espace de travail et un objet utilisé
+## dans une fonction (fort heureusement!).
+square <- function(x) x * x  # fonction de bases.R
+x <- 5                       # objet dans l'espace de travail
+square(10)                   # dans 'square' x vaut 10
+x                            # valeur inchangée
+square(x)                    # passer valeur de 'x' à 'square'
+square(x = x)                # colle... signification?  `\labelline{environnement:contexte:fin}`
+@
+
+
+\section{Environnement}
+\label{sec:environnement:environnement}
+
+Un \emph{environnement}\Index{environnement} dans R est un objet
+spécial formé de deux composantes: un
+\emph{dictionnaire}\Index{dictionnaire}\footnote{La traduction
+  littérale du terme \emph{frame} utilisé dans la documentation de R
+  serait \emph{cadre}, mais ce terme est moins explicite que
+  «dictionnaire». Oui, il s'agit bien du même \emph{frame} que l'on
+  retrouve dans \emph{data frame}.} %
+constitué de couples symbole-valeur, et un pointeur vers
+l'\emph{environnement englobant}\Index{environnement!englobant}. La
+\autoref{fig:environnement:environnement} propose une
+représentation schématique de l'environnement.
+
+\begin{figure}
+  \centering
+  \setlength{\unitlength}{1mm}
+  \begin{picture}(50,32)
+    \put(10,0){%
+      \framebox(40,25)[tl]{
+        \begin{minipage}{35\unitlength}
+          \rule{0mm}{2ex}% increase distance from frame
+          dictionnaire \\[6pt]
+          \small
+          (\meta{symbole}, \meta{valeur}) \\
+          (\meta{symbole}, \meta{valeur}) \\
+          $\vdots$
+        \end{minipage}}}
+    \put(10,20){\line(-1,0){8}}
+    \put(10,20){\circle*{0.8}}
+    \put(2,20){\vector(0,1){7}}
+    \put(0,29){environnement englobant}
+  \end{picture}
+  \caption{Représentation schématique d'un environnement dans R}
+  \label{fig:environnement:environnement}
+\end{figure}
+
+La notion, plutôt abstraite, devient plus concrète dans le contexte de
+la création et des appels de fonctions, où les environnements jouent
+un rôle important. Nous nous concentrons dans cette section sur le cas
+de la création des fonctions; le rôle des environnements dans les
+appels de fonctions est étudié à la section suivante.
+
+En termes techniques, une fonction définie avec \icode{function}
+dans R constitue une \emph{fermeture}\Index{fermeture}, ou
+\emph{clôture} (du Lisp \emph{closure}). Cette fermeture est formée de
+trois éléments, dont deux que nous connaissons déjà bien: les
+arguments formels de la fonction et le corps de la fonction. Le
+troisième élément est l'environnement de la fonction. Les fonctions
+\Icode{formals}, \Icode{body} et \Icode{environment} permettent
+d'extraire ces trois éléments, dans l'ordre.
+
+L'environnement d'une fonction est toujours construit comme suit:
+l'environnement englobant est l'environnement actif au moment de la
+définition de la fonction (à moins qu'il ne soit changé) et le
+dictionnaire «capture» tous les objets (ou toutes les paires
+symbole-valeur) de ce même environnement actif.
+
+Autrement dit, dès que nous définissons une fonction, R lui attribue
+un environnement. Lorsque la fonction est créée dans l'espace de
+travail, son environnement englobant est l'\emph{environnement
+  global}\Index{environnement!global}, représenté par le symbole
+\index{GlobalEnv@\code{.GlobalEnv}|bfhyperpage}\code{.GlobalEnv}, et son
+dictionnaire contient tous les objets se trouvant dans l'espace de
+travail. (Les expressions ci-dessous sont exécutées dans un espace de
+travail vide au préalable.)
+<<echo=FALSE>>=
+rm(list = ls())
+@
+<<echo=TRUE>>=
+x <- 5
+square <- function(x) x * x
+formals(square)
+body(square)
+environment(square)
+ls(envir = environment(square))
+get("x", envir = environment(square))
+@
+
+Quelques fonctions permettent de manipuler les environnements de
+fonctions. Nous en avons déjà utilisé trois ci-dessus.
+\begin{ttscript}{environment}
+\item[\Icode{environment}] extraction ou modification de
+  l'environnement
+\item[\icode{ls}] affichage de la liste des éléments
+  de l'environnement
+\item[\Icode{get}] extraction de la valeur associée à un symbole
+  dans l'environnement
+\item[\Icode{assign}] affectation d'une nouvelle paire
+  symbole-valeur dans l'environnement
+\item[\Icode{new.env}] création d'un nouvel environnement (vide par
+  défaut)
+\end{ttscript}
+
+\tipbox{La fonction \Icode{ls.str} permet d'afficher en une seule
+  commande la liste des objets d'un environnement et les valeurs de
+  ceux-ci.}
+
+\section{Environnement d'évaluation}
+\label{sec:environnement:evaluation}
+
+Dans R, tout appel de fonction entraine implicitement la création d'un
+\emph{environnement d'évaluation}\Index{environnement!d'évaluation},
+distinct de l'environnement de la fonction, et dans lequel, comme le
+nom l'indique, la fonction sera évaluée. Cet environnement
+d'évaluation ne vit que durant l'exécution de la fonction. Son
+environnement englobant est l'environnement de la fonction et son
+dictionnaire comprend toutes les variables définies à l'intérieur de
+la fonction, y compris les arguments.
+
+Pour bien illustrer tout cela, nous aurons recours à l'ingénieuse
+notation de \citet{Ihaka:R:1996} par laquelle un environnement
+d'évaluation $\rho$ est représenté sous la forme:
+\begin{equation*}
+  \rho = \{ \meta{symbole} \mapsto \meta{valeur},
+  \meta{symbole} \mapsto \meta{valeur},  \dots; \rho_e\},
+\end{equation*}
+où $\rho_e$ est l'environnement englobant. Nous noterons $\rho_0$
+l'environnement global\index{environnement!global} et $\rho_s$ son
+environnement englobant\index{environnement!englobant}\footnote{%
+  Oui, l'environnement dit «global» est lui-même englobé d'un
+  environnement!}, %
+l'environnement contenant les fonctions et les constantes du système.
+Reprenons l'exemple de la section précédente.
+<<echo=TRUE>>=
+x <- 5
+square <- function(x) x * x
+@
+
+Après l'exécution des deux commandes ci-dessus (toujours dans un
+espace de travail vide au préalable), l'environnement global contient
+les objets \code{x} et \code{square}. Nous avons donc:
+\begin{equation*}
+  \rho_0 = \{ \code{x} \mapsto 5, \code{square} \mapsto \phi; \rho_s \},
+\end{equation*}
+où $\phi$ représente symboliquement la définition de la fonction
+\code{square}.
+
+Un appel à la fonction \code{square} crée un nouvel environnement
+d'évaluation $\rho_1$.
+<<echo=TRUE, eval=FALSE>>=
+square(10)
+@
+
+Conformément à ce qui a été établi plus haut, l'environnement
+englobant de $\rho_1$ est celui de la fonction \code{square},
+$\rho_0$. De plus, le dictionnaire contient la paire (\code{x}, $10$),
+soit le symbole et la valeur de l'argument de la fonction. La fonction
+\code{square} est donc évaluée dans l'environnement
+\begin{equation*}
+  \rho_1 = \{ \code{x} \mapsto 10; \rho_0 \}.
+\end{equation*}
+Or, dans cet environnement, la valeur de \code{x} est $10$. C'est
+pourquoi l'expression \verb=x * x= retourne la valeur $100$.
+
+C'est ainsi, à l'aide des environnements d'évaluation, que R ne
+confond pas la valeur de \code{x} dans l'espace de travail et celle à
+l'intérieur de la fonction \code{square}, pas plus que la seconde
+n'écrase la première durant l'exécution de la fonction.
+
+Il y a toutefois plus à connaitre à ce sujet. C'est l'objet de la
+prochaine section.
+
+\warningbox{La mécanique de création d'environnements d'évaluation
+  pour tous les appels de fonctions fait en sorte que ceux-ci coûtent
+  cher en temps et en ressources système. C'est pour cette raison que
+  le calcul récursif est plutôt inefficace en R.}
+
+\gotorbox{Étudiez les exemples additionnels des lignes
+  \reflines{environnement:environnement} du fichier de script
+  \code{\scriptfilename} reproduit à la
+  \autoref{sec:environnement:exemples}.}
+
+<<script, results=hide>>=
+###
+### ENVIRONNEMENT ET ENVIRONNEMENT D'ÉVALUATION  `\labelline{environnement:environnement}`
+###
+
+## Un environnement est un objet spécial qui contient un lien
+## vers un environnement englobant (ou «parent») et un
+## dictionnaire de symboles auxquels sont associés des
+## valeurs (bref, des objets avec des valeurs).
+##
+## La création d'une fonction R (une «fermeture» en termes
+## techniques) entraine automatiquement la création d'un
+## environnement pour cette fonction:
+##
+## - l'environnement englobant est l'environnement actif (dans
+##   lequel la fonction est créée);
+## - le dictionnaire «capture» les objets de l'environnement
+##   actif.
+##
+## Le cas le plus simple est celui des fonctions créées dans
+## l'espace de travail .GlobalEnv.
+f <- function(x) x + 2     # création d'une fonction
+formals(f)                 # arguments formels
+body(f)                    # corps de la fonction
+environment(f)             # environnement de la fonction
+
+## Lorsqu'une fonction est créée à l'intérieur d'une autre
+## fonction, son environnement hérite automatiquement de
+## toutes les variables définies dans la première fonction.
+##
+## L'exemple suivant devrait permettre de clarifier tout cela.
+## La fonction 'f', qui a un argument 'x', retourne une
+## fonction (anonyme) qui a un argument, 'y'.
+f <- function(x)
+    function(y) x + y
+
+## L'appel de la fonction 'f' donne une valeur à son argument
+## 'x'. À l'intérieur de cet appel, la fonction anonyme est
+## créée. La valeur de 'x' est alors «capturée» dans
+## l'environnement de la fonction anonyme.
+##
+## En affectant le résultat (une fonction, ne l'oublions pas)
+## de l'appel de 'f' à un objet, celui-ci devient une fonction
+## avec un environnement qui contient la fameuse valeur de
+## 'x'.
+g <- f(2)
+ls(envir = environment(g))
+get("x", envir = environment(g))
+ls.str(envir = environment(g)) # plus simple
+
+## Par conséquent, lorsque nous appelons la fonction 'g',
+## l'expression 'x + y' utilise la valeur de 'x' dans
+## l'environnement de la fonction et la valeur de 'y' passée
+## en argument.
+g(10)
+
+## Cette capture d'objets est parfois problématique: si
+## plusieurs objets existent au moment où une fonction est
+## créée à l'intérieur d'une autre, tous les objets se
+## trouvent transférés dans l'environnement de la nouvelle
+## fonction.
+##
+## Dans de tels cas, nous pouvons utiliser la fonction
+## 'new.env' pour créer un environnement vide et, par la
+## suite, affecter des objets dans l'environnement avec la
+## fonction 'assign'.
+##
+## Reprenons l'exemple ci-dessus en supposant que la valeur de
+## 'x' que nous voulons placer dans l'environnement est non
+## pas celle passée en argument, mais plutôt toujours 42.
+## Parce que 42, on le sait, c'est la réponse à tout.
+##
+## Voici comment procéder.
+f <- function(x)
+{
+    fun <- function(y) x + y
+    environment(fun) <- new.env()
+    assign("x", 42, envir = environment(fun))
+    fun
+}
+g <- f(2)
+ls.str(envir = environment(g))
+g(10)                      #-*- `\labelline{environnement:environnement:fin}`
+@
+
+
+\section{Portée lexicale}
+\label{sec:environnement:portee}
+
+Qu'arrive-t-il lorsqu'une variable n'est pas définie dans
+l'environnement d'évaluation\index{environnement!d'évaluation} d'une
+fonction? C'est là qu'entrent en jeu les très importantes règles de
+\emph{portée lexicale}\Index{portee lexicale@portée lexicale}
+(\emph{lexical scoping}) de R. Celles-ci établissent comment R
+recherche un symbole.
+
+\begin{itemize}
+\item En premier lieu, R recherche le symbole dans le dictionnaire de
+  l'environnement courant. Si le symbole est trouvé, sa valeur est
+  retournée et la recherche est terminée.
+\item Autrement, R recherche le symbole \emph{dans le dictionnaire de
+    l'environnement englobant}. Cette procédure se répète autant de
+  fois que nécessaire. En d'autres termes, R recherche dans
+  l'environnement englobant\index{environnement!englobant}, dans
+  l'environnement englobant de l'environnement englobant, et ainsi de
+  suite jusqu'à ce que le symbole soit trouvé.
+\item Lorsque R atteint l'environnement
+  global\index{environnement!global}
+  \index{GlobalEnv@\code{.GlobalEnv}}\code{.GlobalEnv}, la recherche
+  se poursuit le long du chemin de recherche (\emph{search path}) qui
+  contient les paquetages chargés dans la session de travail:
+<<echo=TRUE>>=
+search()
+@
+\item Si R n'a toujours pas trouvé le symbole dans l'environnement du
+  paquetage de base (\code{package:base} ci-dessus), il passe à
+  l'environnement vide\index{environnement!vide} et, par conséquent,
+  la recherche du symbole échoue.
+\end{itemize}
+
+Les règles de portée lexicale méritent une bonne illustration.
+Reprenons le second exemple de l'introduction du chapitre.
+<<echo=TRUE>>=
+y <- 123
+f <- function(x)
+{
+    y <- x * x
+    g <- function() print(y)
+    g()
+}
+f(10)
+@
+
+En supposant, comme précédemment, un espace de travail vide avant
+l'exécution des commandes ci-dessus, l'environnement global est
+maintenant:
+\begin{equation*}
+  \rho_0 = \{ \code{y} \mapsto 123, \code{f} \mapsto \phi; \rho_s \}.
+\end{equation*}
+La fonction \code{f} étant définie dans l'espace de travail, son
+environnement est $\rho_0$.
+
+L'évaluation de \code{f} en une certaine valeur entraine la création
+d'une cascade d'environnements. Tout d'abord, l'appel de la fonction
+crée, comme dans l'exemple de la
+\autoref{sec:environnement:evaluation}, l'environnement d'évaluation
+\begin{equation*}
+  \rho_1 = \{ \code{x} \mapsto 10; \rho_0 \}.
+\end{equation*}
+Le corps de la fonction \code{f} est ensuite évalué dans $\rho_1$, ce
+qui entraine l'ajout de deux objets dans l'environnement:
+\begin{equation*}
+  \rho_1 = \{ \code{x} \mapsto 10, \code{y} \mapsto 100,
+              \code{g} \mapsto \gamma; \rho_0 \},
+\end{equation*}
+où $\gamma$ est une représentation symbolique de la fonction \code{g}.
+Celle-ci se voit automatiquement munie d'un environnement dont
+l'environnement englobant est $\rho_1$.
+
+Toujours à l'intérieur de la fonction \code{f}, l'appel \code{g()}
+crée un nouvel environnement d'évaluation $\rho_2$ pour la fonction
+\code{g}. L'environnement englobant est $\rho_1$ et, comme cette
+fonction n'a aucun argument, son dictionnaire est vide:
+\begin{equation*}
+  \rho_2 = \{ ; \rho_1 \}.
+\end{equation*}
+L'expression \code{print(y)} est ensuite évaluée dans l'environnement
+$\rho_2$. L'objet \code{y} n'existe pas dans cet environnement. En
+vertu des règles de portée lexicale, R va alors rechercher le symbole
+\code{y} dans l'environnement enrobant $\rho_1$. À cet endroit, la
+valeur $100$ correspond au symbole. C'est donc cette valeur qui est
+affichée à l'écran. La valeur $123$ dans l'espace de travail n'entre
+jamais en jeu.
+<<echo=TRUE>>=
+f(10)
+@
+
+\cautionbox{Vous aurez compris que R trouvera éventuellement dans
+  l'espace de travail une variable qui n'est pas définie à l'intérieur
+  d'une fonction. Il est extrêmement dangereux de compter sur cette
+  fonctionnalité puisque la valeur dans l'espace de travail peut
+  changer à tout moment! Prenez l'habitude de passer en argument
+  toutes les valeurs dont une fonction qui est appelée depuis l'espace
+  de travail peut avoir besoin.}
+
+La \index{portee lexicale@portée lexicale}portée lexicale de R est un
+outil puissant et, comme tous les outils puissants, il peut s'avérer
+dangereux. La mise en garde ci-dessus enjoint de ne pas se fier à la
+portée lexicale dans les fonctions conçues pour être appelées depuis
+la ligne de commande. Par contre, la portée lexicale est très utile
+pour simplifier le code des fonctions créées à l'intérieur d'autres
+fonctions puisque nous pouvons faire l'économie de passer tous les
+arguments d'une fonction à l'autre. Vous trouverez un exemple complet
+dans le code informatique de la \autoref{sec:environnement:exemples}.
+
+\gotorbox{Étudiez les lignes \reflines{environnement:portee}
+  du fichier de script \code{\scriptfilename} reproduit à la
+  \autoref{sec:environnement:exemples}.}
+
+<<script, results=hide>>=
+###
+### PORTÉE LEXICALE  `\labelline{environnement:portee}`
+###
+
+## Tout appel de fonction dans R crée un environnement
+## d'évaluation dans lequel sont définies les variables
+## locales de la fonction, y compris les arguments. Cet
+## environnement d'évaluation a comme environnement englobant
+## celui de la fonction.
+##
+## Le concept de portée lexicale signifie que lorsqu'un objet
+## n'existe pas dans l'environnement d'évaluation, R va le
+## rechercher dans les environnements englobants jusqu'à ce
+## que soit trouvée une valeur ou jusqu'à ce que
+## l'environnement vide soit atteint (auquel cas l'objet
+## n'existe pas).
+##
+## En pratique, cela signifie qu'il n'est pas toujours
+## nécessaire de passer des objets en argument. Il suffit de
+## compter sur la portée lexicale.
+##
+## Tel que promis dans le fichier bases.R, revenons en détail
+## sur la construction d'une fonction pour calculer
+##
+##   f(x, y) = x (1 + xy)^2 + y (1 - y) + (1 + xy)(1 - y).
+##
+## Deux termes sont répétés dans cette expression. Nous avons
+## donc
+##
+##   a = 1 + xy
+##   b = 1 - y
+##
+## et f(x, y) = x a^2 + y b + a b.
+##
+## Nous pourrions décomposer le problème en deux fonctions:
+## une première pour calculer 'x a^2 + y b + a b' pour des
+## valeurs de 'x', 'y', 'a' et 'b' données, et une seconde
+## pour calculer 'a = 1 + xy' et 'b = 1 - y' et les fournir à
+## la première fonction.
+g <- function(x, y, a, b)
+    x * a^2 + y * b + a * b
+f <- function(x, y)
+    g(x, y, 1 + x * y, 1 - y)
+f(2, 3)
+f(2, 4)
+
+## Cependant, la fonction 'g' ne sert pas à grand chose ici en
+## dehors de 'f'. Nous pouvons donc plutôt la définir à
+## l'intérieur de cette dernière.
+f <- function(x, y)
+{
+    g <- function(x, y, a, b)
+        x * a^2 + y * b + a * b
+    g(x, y, 1 + x * y, 1 - y)
+}
+f(2, 3)
+f(2, 4)
+
+## La portée lexicale de R nous permet de simplifier le code:
+## inutile de passer les valeurs de 'x' et 'y' à la fonction
+## 'g' puisque R les trouvera automatiquement dans
+## l'environnement d'évaluation de 'f'.
+f <- function(x, y)
+{
+    g <- function(a, b)
+        x * a^2 + y * b + a * b
+    g(1 + x * y, 1 - y)
+}
+f(2, 3)
+f(2, 4)                    #-*- `\labelline{environnement:portee:fin}`
+@
+
+
+\section{Évaluation paresseuse}
+\label{sec:environnement:lazy}
+
+R utilise par défaut une technique d'évaluation des arguments des
+fonctions appelée %
+\index{evaluation@évaluation paresseuse}\emph{évaluation paresseuse} %
+(\emph{lazy evaluation}). Ce que cela signifie, c'est que toute
+expression passée en argument à une fonction ne sera évaluée qu'au
+moment où la valeur de l'argument sera utilisée dans la fonction, et
+pas avant. Ainsi, une expression en argument pourrait ne jamais être
+évaluée. Ou encore, la valeur par défaut d'un argument peut dépendre
+de la valeur d'un autre argument puisque celui-ci sera connu au moment
+de l'évaluation.
+
+Par exemple, la fonction \code{sumsq} ci-dessous calcule la somme des
+écarts au carré entre les éléments d'un vecteur \code{y} et une valeur
+pivot \code{about}, par défaut la moyenne des éléments de \code{y}. On
+remarque que la valeur par défaut de l'argument \code{about} dépend de
+celle de l'argument \code{y}.
+<<echo=TRUE>>=
+sumsq <- function(y, about = mean(y))
+    sum((y - about)^2)
+@
+
+Avec l'évaluation paresseuse, d'une part, le calcul de la moyenne sera
+effectué uniquement lorsque l'argument \code{about} n'est pas spécifié
+dans l'appel de \code{sumsq}, et ce, seulement au moment d'effectuer
+le calcul \code{y - about}. D'autre part, la valeur de \code{y} sera
+connue au moment d'effectuer ce calcul. Joli, non?
+
+\gotorbox{Étudiez les lignes \reflines{environnement:lazy} du fichier
+  de script \code{\scriptfilename}.}
+
+<<script, results=hide>>=
+###
+### ÉVALUATION PARESSEUSE  `\labelline{environnement:lazy}`
+###
+
+## L'évaluation paresseuse est une technique par laquelle un
+## argument d'une fonction est évalué uniquement au moment où
+## sa valeur est requise, et jamais avant.
+##
+## Il est sans doute raisonnable de supposer que l'objet
+## 'does_not_exist' n'existe pas dans votre espace de travail.
+## Avec l'évaluation paresseuse, nous pourrions passer cet
+## objet inexistant en argument à une fonction sans que cela
+## ne cause d'erreur... à condition que l'argument ne soit
+## jamais utilisé dans la fonction.
+f <- function(x, y)
+    if (x > 0) x * x else y
+f(5, does_not_exist)       # argument 'y' jamais utilisé
+##-!- f(0, does_not_exist)       # argument 'y' utilisé
+f(0, 1/0)                  # argument 'y' utilisé
+
+## Voici un autre exemple plus intéressant tiré de Ihaka et
+## Gentleman (1996).
+##
+## Vous savez que tout calcul avec des données manquantes
+## retourne 'NA'.
+##
+## Nous pouvons généraliser la fonction 'sumsq' présentée dans
+## le texte du chapitre pour faire en sorte qu'elle puisse
+## retirer les éventuelles données manquantes d'un vecteur en
+## argument avant de faire la somme des écarts au carré.
+##
+## Grâce à l'évaluation paresseuse, les données manquantes
+## seront également supprimées *avant* le calcul de la moyenne
+## dans le cas où c'est la valeur par défaut de l'argument
+## 'about' qui est utilisée.
+sumsq <- function(y, about = mean(y), na.rm = FALSE)
+{
+    if (na.rm)
+        y <- y[!is.na(y)]
+    sum((y - about)^2)
+}
+sumsq(c(10, 0, NA, -10), na.rm = TRUE) #-*- `\labelline{environnement:lazy:fin}`
+@
+
+
+\section{Exemples}
+\label{sec:environnement:exemples}
+
+\scriptfile{\scriptfilename}
+\lstinputlisting[firstline=\scriptfirstline]{\scriptfilename}
+
+
+\section{Exercices}
+\label{sec:environnement:exercices}
+
+\Opensolutionfile{solutions}[solutions-environnement]
+
+\begin{Filesave}{solutions}
+\section*{Chapitre \ref*{chap:environnement}}
+\addcontentsline{toc}{section}{Chapitre \protect\ref*{chap:environnement}}
+
+\end{Filesave}
+
+\begin{exercice}
+  La fonction \icode{ecdf} de R retourne une fonction pour calculer
+  la fonction de répartition empirique d'un vecteur de
+  données $(x_1, \dots, x_n)$:
+  \begin{equation*}
+    F_n(x) = \frac{\# x_i \leq x}{n}.
+  \end{equation*}
+<<echo=TRUE>>=
+Fn <- ecdf(c(1, 1, 3))
+mode(Fn)
+Fn(0:3)
+@
+  Expliquer pourquoi il n'est pas nécessaire de fournir les valeurs du
+  vecteur \code{x} à \code{Fn} lorsque l'on veut calculer $F_n(x)$.
+  \emph{Astuce}: fouiller dans l'environnement de la fonction
+  \code{Fn}.
+  \begin{sol}
+    La réponse au mystère se cache dans l'environnement de la
+    fonction \code{Fn}:
+<<echo=TRUE>>=
+ls.str(envir = environment(Fn))
+@
+    L'environnement de la fonction contient donc les éléments requis
+    pour calculer la fonction de répartition empirique en un point
+    quelconque, soit, entre autres, les valeurs distinctes du
+    vecteur de données (vecteur \code{x}) et les valeurs correspondantes
+    de la fonction de répartition empirique (vecteur \code{y}).
+  \end{sol}
+\end{exercice}
+
+\begin{exercice}
+  Justifier le résultat du bloc d'expressions ci-dessous.
+<<echo=TRUE>>=
+y <- 123
+f <- function(x)
+{
+    z <- x * x
+    g <- function() print(y)
+    g()
+}
+f(10)
+@
+  \begin{sol}
+    Le résultat de \code{f(10)} est $123$ puisque \code{y} n'est pas
+    défini dans la fonction \code{f}. Par conséquent, R va remonter jusqu'à
+    l'environnement global pour trouver le symbole et la valeur qui
+    lui est associée.
+  \end{sol}
+\end{exercice}
+
+\begin{exercice}
+  Déterminer le résultat du bloc d'expressions ci-dessous \citep[tiré
+  de][]{Wickham:adv-r:2017}.
+<<echo=TRUE, eval=FALSE>>=
+x <- 20
+f <- function()
+{
+    x <- 10
+    function() x
+}
+g <- f()
+g()
+@
+  \begin{sol}
+    La fonction \code{f} retourne une fonction (anonyme) qui elle-même
+    retourne la valeur d'un objet \code{x} qui ne fait pas partie de
+    ses arguments, mais qui se trouve dans son environnement
+    d'évaluation. La valeur de \code{x} dans cet environnement est
+    $10$. C'est donc cette valeur que retourne l'appel \code{g()}.
+  \end{sol}
+\end{exercice}
+
+\begin{exercice}
+  Déterminer le résultat du bloc d'expressions ci-dessous \citep[tiré
+  de][]{Wickham:adv-r:2017}.
+<<echo=TRUE, eval=FALSE>>=
+x <- 0
+y <- 10
+f <- function()
+{
+    x <- 1
+    g()
+}
+g <- function()
+{
+    x <- 2
+    h()
+}
+h <- function()
+{
+    x <- 3
+    x + y
+}
+f()
+@
+  \begin{sol}
+    Si l'on suit la chaine de fonctions, le calcul qui est effectué
+    par \code{f()} est en définitive \code{x + y}. Reste à déterminer
+    les valeurs de \code{x} et de \code{y} au moment du calcul. C'est
+    facile pour \code{y}: l'objet n'est défini que dans l'espace de
+    travail et sa valeur est $10$. Quant à \code{x}, même si sa valeur
+    change à plusieurs reprise (plus précisément: l'objet est défini
+    dans plusieurs environnements successifs), R utilisera celle qui a
+    cours lorsque l'addition est effectuée, soit celle à l'intérieur
+    de la fonction \code{h}. Le résultat cherché est donc $13$.
+  \end{sol}
+\end{exercice}
+
+\begin{exercice}
+  Écrire une fonction R qui calcule le produit de deux nombres passés
+  en arguments. Si un seul nombre est donné en argument, la fonction
+  calcule le produit de ce nombre avec son logarithme. \emph{Astuce}:
+  tirer profit de l'évaluation paresseuse.
+  \begin{sol}
+    Grâce à l'évaluation paresseuse, il suffit de spécifier comme
+    valeur par défaut pour le second argument le logarithme du premier
+    argument.
+<<echo=TRUE>>=
+f <- function(x, y = log(x)) x * y
+@
+  \end{sol}
+\end{exercice}
+
+\Closesolutionfile{solutions}
+
+%%% Local Variables:
+%%% mode: noweb
+%%% TeX-engine: xetex
+%%% TeX-master: "programmer-avec-r"
+%%% coding: utf-8
+%%% End:

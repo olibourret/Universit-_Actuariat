@@ -1,0 +1,150 @@
+===
+=== Méthodes numériques en actuariat avec R
+===
+
+# 2019.05 (2019-04-29)
+
+## Nouveautés
+
+- Ajout d'une astuce sur la dérivée d'une matrice à la fin de la
+  section 7.2 et d'un exercice sur ce sujet (nouvel exercice 7.11).
+- Ajout de l'exemple 9.2 sur le développement des matrices L et U dans
+  la décomposition LU.
+
+## Autres modications
+
+- Changement cosmétique d'opérateur pour la transposée. Tiré de
+  https://tex.stackexchange.com/a/217623.
+
+
+# 2019.04 (2019-04-06)
+
+## Nouveautés
+
+- Ajout au chapitre 8 d'un problème résolu portant sur l'analyse en
+  composantes principales. Cela a nécessité l'ajout de plusieurs
+  éléments de théorie. Toutes les autres nouveautés ci-dessous
+  découlent de l'ajout de cet exemple.
+- Définition 7.6 d'ensemble orthogonal et d'ensemble orthonormal. Les
+  autres numéros de définitions du chapitre 7 sont décalés en
+  conséquence.
+- Ajout d'une mention à l'exemple 7.12 que les vecteurs forment un
+  ensemble orthonormal.
+- Ajout d'une très courte section 7.5.3 sur la notion de matrice
+  orthogonale.
+- À la fin de la section 8.5, ajout d'un théorème et d'un exemple sur
+  le lien entre les matrices symétriques et les matrices
+  orthogonalement diagonalisables.
+- Ajout du code pour d'analyse en composantes principales dans le
+  fichier de script `valeurs_propres.R`.
+
+## Autres modications
+
+- Améliorations diverses au texte de la troisième partie.
+
+# 2019.03 (2019-03-05)
+
+- La chaine YouTube contient une nouvelle vidéo sur l'Astuce Ripley.
+  Un lien a été ajouté à la fin de la section 5.12.
+- Correction du lien vers la chaine YouTube dans l'introduction des
+  trois documents.
+- Toutes les vidéos de la chaines YouTube ont été révisées pour en
+  uniformiser la présentation générale. Les liens des documents ont
+  été mis à jour en conséquence.
+- Tous les blocs de remarques ont été remplacés par des blocs
+  signalétiques plus faciles à identifier dans le texte.
+
+# 2019.01 (2019-01-14)
+
+Améliorations diverses. Aucun nouveau contenu.
+
+- L'introduction de chaque document a été révisée et bonifiée pour
+  mieux présenter les fonctionnalités interactives du document,
+  expliquer l'utilisation des couleurs et présenter la signification
+  de chacun des blocs signalétiques.
+- Explication dans l'introduction que les fichiers `.Rout` livrés avec
+  le document contiennent les résultats de l'évaluation non
+  interactive du fichier `.R` correspondant.
+- Ajout d'une liste des vidéos dans les pages frontispices. De plus,
+  les liens vers des vidéos sont maintenant présentés dans des blocs
+  signalétiques plutôt que par un symbole de lecture vidéo dans la
+  marge.
+- La table des matières, la liste des tableaux, la liste des figures
+  et la (nouvelle) liste des vidéos apparaissent désormais dans la
+  table des matières. Ceci est surtout utile pour la table des
+  matières logique des documents PDF.
+- Les lignes des fichiers de script en fin de chapitre sont maintenant
+  numérotées. Les renvois vers le code informatique identifient
+  désormais clairement les lignes à étudier. Le renvoi est un
+  intralien vers le numéro de ligne dans le code informatique, et
+  vice-versa.
+- Utilisation de Fira Sans comme police sans empattements. Il est plus
+  simple de se procurer cette police libre que Myriad Pro. En plus,
+  elle convient mieux à la police Lucida du texte principal.
+- L'historique des versions se trouve maintenant dans le fichier
+  `NEWS`.
+- Les instructions de collaboration se trouvent maintenant dans le
+  fichier `CONTRIBUTING.md`.
+
+
+# 2018.07 (2018-07-24)
+
+Version motivée principalement par le déplacement du projet vers
+GitLab. Elle intègre néanmoins les modifications ci-dessous.
+
+- Suppression de références à VBA, notamment dans les exercices. Les
+  exercices 5.13 et 5.15 des versions précédentes n'apparaissent plus
+  dans la présente version du document. Quant à l'exercice 4.4 d), il
+  demeure, mais en faisant référence au C plutôt qu'à VBA.
+- Suppression du premier paragraphe de la section 7.4.
+- Ajout de «multiplication par un scalaire» après la troisième
+  propriété de la définition 7.2.
+
+
+# 2018.02 (2018-02-23)
+
+Corrections diverses. Aucun nouveau contenu.
+
+- Intégration des corrections soumises par les étudiantes et
+  étudiants, principalement dans le document de la première partie.
+- Nouveau fichier `COLLABORATEURS` contenant la liste des personnes
+  ayant contribué à l'amélioration des documents.
+- Correction du texte du paragraphe suivant l'algorithme 2.3.
+- Au chapitre 2, le renvoi vers le code informatique à la fin de
+  l'exemple 2.2 devait plutôt se trouver à la fin de l'exemple 2.5.
+- Dans `simulation.R`, le code correspondant à l'exemple 2.5 était
+  identifié à l'exemple 2.4.
+- À l'exercice 2.17, parties d) et e), le premier paramètre de la
+  distribution log-normale est changé de 7,1 à 7 pour éviter toute
+  confusion dans l'énoncé, et de log(2000) à 7 dans la solution pour
+  que la solution soit juste, quoi.
+
+
+# 2018.01-1a (2018-01-24)
+
+Corrections mineures de la version 2018.01-1. Aucun nouveau contenu.
+
+- Correction de l'url de la vidéo sur la méthode d'acceptation-rejet
+  au chapitre 2.
+- Réduction de la taille d'une police sur la page frontispice.
+
+
+# 2018.01-1 (2018-01-22)
+
+Les documents de référence sont basés sur les versions de l'hiver 2016
+des documents de référence des parties II à IV du cours ACT-2002
+encore disponibles [dans le Portail
+libre](https://libre.act.ulaval.ca/index.php?id=448) de l'École
+d'actuariat.
+
+La présente édition contient une version révisée du document sur la
+simulation stochastique. Les autres documents n'ont pas été modifiés.
+
+- Les références à VBA ont à peu près toutes été supprimées du texte.
+- Le chapitre 2 contient une nouvelle section sur la simulation de
+  modèles actuariels.
+- Le code informatique du chapitre 2 offre des exemples d'utilisation
+  des fonctions de simulation du paquetage actuar.
+- Style plus personnel utilisant le «nous» et le «vous» plutôt que le
+  «on».
+

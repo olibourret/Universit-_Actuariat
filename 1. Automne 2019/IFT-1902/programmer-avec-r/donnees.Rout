@@ -1,0 +1,2194 @@
+
+R Under development (unstable) (2019-07-23 r76873) -- "Unsuffered Consequences"
+Copyright (C) 2019 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin15.6.0 (64-bit)
+
+R est un logiciel libre livré sans AUCUNE GARANTIE.
+Vous pouvez le redistribuer sous certaines conditions.
+Tapez 'license()' ou 'licence()' pour plus de détails.
+
+R est un projet collaboratif avec de nombreux contributeurs.
+Tapez 'contributors()' pour plus d'information et
+'citation()' pour la façon de le citer dans les publications.
+
+Tapez 'demo()' pour des démonstrations, 'help()' pour l'aide
+en ligne ou 'help.start()' pour obtenir l'aide au format HTML.
+Tapez 'q()' pour quitter R.
+
+[Sauvegarde de la session précédente restaurée]
+
+> options(error=expression(NULL))
+> ## Copyright (C) 2019 Vincent Goulet
+> ##
+> ## Ce fichier fait partie du projet
+> ## «Programmer avec R»
+> ## https://gitlab.com/vigou3/programmer-avec-r
+> ##
+> ## Cette création est mise à disposition sous licence
+> ## Attribution-Partage dans les mêmes conditions 4.0
+> ## International de Creative Commons.
+> ## https://creativecommons.org/licenses/by-sa/4.0/
+> 
+> ###
+> ### OBJETS R               
+> ###
+> 
+> ## NOMS D'OBJETS
+> 
+> ## Quelques exemples de noms valides et invalides.
+> foo <- 5                   # valide
+> foo.123 <- 5               # valide
+> foo_123 <- 5               # valide
+> .foo <- 5                  # valide
+> 123foo <- 5                # invalide; commence par un chiffre
+Erreur : unexpected symbol in "123foo"
+> .123foo <- 5               # invalide; point suivi d'un chiffre
+Erreur : unexpected symbol in ".123foo"
+> 
+> ## Liste des objets dans l'espace de travail. Les objets dont
+> ## le nom commence par un point sont cachés, comme à la ligne
+> ## de commande Unix.
+> ls()                       # l'objet '.foo' n'est pas affiché
+ [1] "abs"     "dist"    "f"       "foo"     "foo_123" "foo.123" "Ginv"   
+ [8] "i"       "m"       "n"       "ocurve"  "p"       "q"       "ratio"  
+[15] "rgamma"  "scale"   "shape"   "square"  "u"       "x"       "y"      
+> ls(all.names = TRUE)       # objets cachés aussi affichés
+ [1] ".foo"         ".Random.seed" "abs"          "dist"         "f"           
+ [6] "foo"          "foo_123"      "foo.123"      "Ginv"         "i"           
+[11] "m"            "n"            "ocurve"       "p"            "q"           
+[16] "ratio"        "rgamma"       "scale"        "shape"        "square"      
+[21] "u"            "x"            "y"           
+> 
+> ## R est sensible à la casse
+> foo <- 1
+> Foo
+Erreur : objet 'Foo' introuvable
+> FOO
+Erreur : objet 'FOO' introuvable
+> 
+> ## MODES ET TYPES DE DONNÉES
+> 
+> ## Le mode d'un objet détermine ce qu'il peut contenir. Les
+> ## vecteurs simples ("atomic") contiennent des données d'un
+> ## seul type.
+> mode(c(1, 4.1, pi))        # nombres réels
+[1] "numeric"
+> mode(c(2, 1 + 5i))         # nombres complexes
+[1] "complex"
+> mode(c(TRUE, FALSE, TRUE)) # valeurs booléennes
+[1] "logical"
+> mode("foobar")             # chaînes de caractères
+[1] "character"
+> 
+> ## Par défaut, tous les nombres sont représentés en double
+> ## précision dans R. Il n'y a donc pas de différence entre
+> ## un nombre entier et un nombre réel.
+> typeof(486)                # nombre réel en double précision
+[1] "double"
+> typeof(0.3324)             # idem
+[1] "double"
+> 
+> ## Il est possible de définir des «vrais» entiers dans R en
+> ## faisant suivre la valeur immédiatement de la lettre «L»,
+> ## sans espace. Le mode de ces valeurs est toujours "numeric",
+> ## mais leur type (ou représentation interne) est "integer".
+> mode(486L)                 # nombre...
+[1] "numeric"
+> typeof(486L)               # ... entier
+[1] "integer"
+> 
+> ## La plupart des autres types d'objets sont récursifs. Voici
+> ## quelques autres modes.
+> mode(seq)                  # une fonction
+[1] "function"
+> mode(list(5, "foo", TRUE)) # une liste
+[1] "list"
+> mode(expression(x <- 5))   # une expression non évaluée
+[1] "expression"
+> 
+> ## LONGUEUR
+> 
+> ## La longueur d'un vecteur est égale au nombre d'éléments
+> ## dans le vecteur.
+> (x <- 1:4)
+[1] 1 2 3 4
+> length(x)
+[1] 4
+> 
+> ## Une chaîne de caractères ne compte que pour un seul
+> ## élément.
+> (x <- "foobar")
+[1] "foobar"
+> length(x)
+[1] 1
+> 
+> ## Pour obtenir la longueur de la chaîne, il faut utiliser
+> ## nchar().
+> nchar(x)
+[1] 6
+> 
+> ## Un objet peut néanmoins contenir plusieurs chaînes de
+> ## caractères.
+> (x <- c("f", "o", "o", "b", "a", "r"))
+[1] "f" "o" "o" "b" "a" "r"
+> length(x)
+[1] 6
+> 
+> ## La longueur peut être 0, auquel cas on a un objet vide,
+> ## mais qui existe.
+> (x <- numeric(0))          # création du contenant
+numeric(0)
+> length(x)                  # l'objet 'x' existe...
+[1] 0
+> x[1] <- 1                  # définition du permier élément
+> 
+> ## Si un objet n'existe pas au préalable, il est impossible
+> ## d'affecter directement la valeur d'un élément.
+> X[1] <- 1                  # impossible, 'X' n'existe pas
+Error in X[1] <- 1 : objet 'X' introuvable
+> 
+> ## VALEURS SPÉCIALES
+> 
+> ## Donnée manquante. 'NA' est un nom réservé pour représenter
+> ## une donnée manquante.
+> c(65, NA, 72, 88)          # traité comme une valeur
+[1] 65 NA 72 88
+> NA + 2                     # tout calcul avec 'NA' donne NA
+[1] NA
+> is.na(c(65, NA))           # test si les données sont NA
+[1] FALSE  TRUE
+> 
+> ## Il arrive souvent de vouloir indicer spécifiquement les
+> ## données manquantes d'un vecteur (pour les éliminer ou pour
+> ## les remplacer par une autre valeur, par exemple).
+> ##
+> ## Pour ce faire, on utilise la fonction 'is.na' et l'indiçage
+> ## par un vecteur booléen.
+> x <- c(NA, 12, 55, NA, 4)  # vecteur contenant des NA
+> is.na(x)                   # positions des données manquantes
+[1]  TRUE FALSE FALSE  TRUE FALSE
+> x[!is.na(x)]               # suppression des données manquantes
+[1] 12 55  4
+> x[is.na(x)] <- 0; x        # remplacement des NA par des 0
+[1]  0 12 55  0  4
+> 
+> ## Valeurs infinies et indéterminée. 'Inf', '-Inf' et 'NaN'
+> ## sont des noms réservés.
+> 1/0                        # +infini
+[1] Inf
+> -1/0                       # -infini
+[1] -Inf
+> 0/0                        # indétermination
+[1] NaN
+> x <- c(65, Inf, NaN, 88)   # s'utilisent comme des valeurs
+> is.finite(x)               # quels sont les nombres réels?
+[1]  TRUE FALSE FALSE  TRUE
+> is.nan(x)                  # lesquels sont indéterminés?
+[1] FALSE FALSE  TRUE FALSE
+> 
+> ## Valeur "néant". 'NULL' est un nom réservé pour représenter
+> ## le néant, rien.
+> mode(NULL)                 # le mode de 'NULL' est NULL
+[1] "NULL"
+> length(NULL)               # longueur nulle
+[1] 0
+> c(NULL, NULL)              # du néant ne résulte que le néant
+NULL
+> 
+> ## ATTRIBUTS
+> 
+> ## Les objets peuvent être dotés d'un ou plusieurs attributs.
+> data(cars)                 # jeu de données intégré
+> attributes(cars)           # liste de tous les attributs
+$names
+[1] "speed" "dist" 
+
+$class
+[1] "data.frame"
+
+$row.names
+ [1]  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
+[26] 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50
+
+> attr(cars, "class")        # extraction d'un seul attribut
+[1] "data.frame"
+> 
+> ## L'attribut 'names' conserve les étiquettes des éléments
+> ## d'un vecteur.
+> x <- 1:24                  # un vecteur
+> names(x) <- letters[1:24]  # attribution d'étiquettes
+> x                          # identification facilitée 
+ a  b  c  d  e  f  g  h  i  j  k  l  m  n  o  p  q  r  s  t  u  v  w  x 
+ 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 
+> 
+> ###
+> ### MATRICE ET TABLEAU  
+> ###
+> 
+> ## Une matrice est un vecteur avec un attribut 'dim' de
+> ## longueur 2 et une classe implicite "matrix". La manière
+> ## naturelle de créer une matrice est avec la fonction
+> ## 'matrix'.
+> (x <- matrix(1:12, nrow = 3, ncol = 4))
+     [,1] [,2] [,3] [,4]
+[1,]    1    4    7   10
+[2,]    2    5    8   11
+[3,]    3    6    9   12
+> length(x)                  # longueur du vecteur sous-jacent
+[1] 12
+> attributes(x)              # objet muni d'un attribut 'dim'
+$dim
+[1] 3 4
+
+> dim(x)                     # deux dimensions
+[1] 3 4
+> 
+> ## Les matrices sont remplies par colonne par défaut. L'option
+> ## 'byrow' permet de les remplir par ligne, si nécessaire.
+> (x <- matrix(1:12, nrow = 3, ncol = 4, byrow = TRUE))
+     [,1] [,2] [,3] [,4]
+[1,]    1    2    3    4
+[2,]    5    6    7    8
+[3,]    9   10   11   12
+> 
+> ## Il n'est pas nécessaire de préciser les deux dimensions de
+> ## la matrice s'il est possible d'en déduire une à partir de
+> ## l'autre et de la longueur du vecteur de données. Les
+> ## expressions ci-dessous sont toutes équivalentes.
+> matrix(1:12, nrow = 3, ncol = 4)
+     [,1] [,2] [,3] [,4]
+[1,]    1    4    7   10
+[2,]    2    5    8   11
+[3,]    3    6    9   12
+> matrix(1:12, nrow = 3)
+     [,1] [,2] [,3] [,4]
+[1,]    1    4    7   10
+[2,]    2    5    8   11
+[3,]    3    6    9   12
+> matrix(1:12, ncol = 4)
+     [,1] [,2] [,3] [,4]
+[1,]    1    4    7   10
+[2,]    2    5    8   11
+[3,]    3    6    9   12
+> 
+> ## À l'inverse, s'il n'y a pas assez de données pour remplir
+> ## les dimensions précisées, les données seront recyclées,
+> ## comme d'habitude.
+> matrix(1, nrow = 3, ncol = 4)
+     [,1] [,2] [,3] [,4]
+[1,]    1    1    1    1
+[2,]    1    1    1    1
+[3,]    1    1    1    1
+> matrix(1:3, nrow = 3, ncol = 4)
+     [,1] [,2] [,3] [,4]
+[1,]    1    1    1    1
+[2,]    2    2    2    2
+[3,]    3    3    3    3
+> matrix(1:4, nrow = 3, ncol = 4, byrow = TRUE)
+     [,1] [,2] [,3] [,4]
+[1,]    1    2    3    4
+[2,]    1    2    3    4
+[3,]    1    2    3    4
+> 
+> ## Dans l'indiçage des matrices et tableaux, l'indice de
+> ## chaque dimension obéit aux règles usuelles d'indiçage des
+> ## vecteurs.
+> x[1, 2]                    # élément en position (1, 2)
+[1] 2
+> x[1, -2]                   # 1ère rangée sans 2e colonne
+[1] 1 3 4
+> x[c(1, 3), ]               # 1ère et 3e rangées
+     [,1] [,2] [,3] [,4]
+[1,]    1    2    3    4
+[2,]    9   10   11   12
+> x[-1, ]                    # supprimer 1ère rangée
+     [,1] [,2] [,3] [,4]
+[1,]    5    6    7    8
+[2,]    9   10   11   12
+> x[, -2]                    # supprimer 2e colonne
+     [,1] [,2] [,3]
+[1,]    1    3    4
+[2,]    5    7    8
+[3,]    9   11   12
+> x[x[, 1] > 2, ]            # lignes avec 1er élément > 2
+     [,1] [,2] [,3] [,4]
+[1,]    5    6    7    8
+[2,]    9   10   11   12
+> 
+> ## Indicer la matrice ou le vecteur sous-jacent est
+> ## équivalent. Utiliser l'approche la plus simple selon le
+> ## contexte.
+> x[1, 3]                    # l'élément en position (1, 3)...
+[1] 3
+> x[7]                       # ... est le 7e élément du vecteur
+[1] 3
+> 
+> ## Détail additionnel sur l'indiçage des matrices et tableaux:
+> ## il est aussi possible de les indicer avec une matrice.
+> ## Chaque ligne de la matrice d'indiçage fournit alors la
+> ## position d'un élément à sélectionner.
+> ##
+> ## Consulter au besoin la rubrique d'aide de la fonction '['
+> ## (ou de 'Extract').
+> x[rbind(c(1, 1), c(2, 2))] # éléments x[1, 1] et x[2, 2]
+[1] 1 6
+> x[cbind(1:3, 1:3)]         # éléments x[i, i] («diagonale»)
+[1]  1  6 11
+> diag(x)                    # idem et plus explicite
+[1]  1  6 11
+> 
+> ## Quelques fonctions pour travailler avec les dimensions des
+> ## matrices.
+> nrow(x)                    # nombre de lignes
+[1] 3
+> dim(x)[1]                  # idem
+[1] 3
+> ncol(x)                    # nombre de colonnes
+[1] 4
+> dim(x)[2]                  # idem
+[1] 4
+> 
+> ## Les matrices et les tableaux étant des vecteurs, ils sont
+> ## soumis aux règles usuelles de l'arithmétique vectorielle.
+> ## Certains des opérations qui en résultent ne sont pas
+> ## définies en algèbre linéaire usuelle.
+> (x <- matrix(1:4, 2))      # matrice 2 x 2
+     [,1] [,2]
+[1,]    1    3
+[2,]    2    4
+> (y <- matrix(3:6, 2))      # autre matrice 2 x 2
+     [,1] [,2]
+[1,]    3    5
+[2,]    4    6
+> 5 * x                      # multiplication par une constante
+     [,1] [,2]
+[1,]    5   15
+[2,]   10   20
+> x + y                      # addition matricielle
+     [,1] [,2]
+[1,]    4    8
+[2,]    6   10
+> x * y                      # produit *élément par élément*
+     [,1] [,2]
+[1,]    3   15
+[2,]    8   24
+> x %*% y                    # produit matriciel
+     [,1] [,2]
+[1,]   15   23
+[2,]   22   34
+> x / y                      # division *élément par élément*
+          [,1]      [,2]
+[1,] 0.3333333 0.6000000
+[2,] 0.5000000 0.6666667
+> x * c(2, 3)                # produit par colonne
+     [,1] [,2]
+[1,]    2    6
+[2,]    6   12
+> 
+> ## La fonction 'rbind' ("row bind") permet d'«empiler» des
+> ## matrices comptant le même nombre de colonnes.
+> ##
+> ## De manière similaire, la fonction 'cbind' ("column bind")
+> ## permet de concaténer des matrices comptant le même nombre de
+> ## lignes.
+> ##
+> ## Utilisées avec un seul argument, 'rbind' et 'cbind' créent
+> ## des vecteurs ligne et colonne, respectivement. Ceux-ci sont
+> ## rarement nécessaires.
+> x <- matrix(1:12, 3, 4)    # 'x' est une matrice 3 x 4
+> y <- matrix(1:8, 2, 4)     # 'y' est une matrice 2 x 4
+> z <- matrix(1:6, 3, 2)     # 'z' est une matrice 3 x 2
+> 
+> rbind(x, 99)               # ajout d'une ligne à 'x'
+     [,1] [,2] [,3] [,4]
+[1,]    1    4    7   10
+[2,]    2    5    8   11
+[3,]    3    6    9   12
+[4,]   99   99   99   99
+> rbind(x, y)                # fusion verticale de 'x' et 'y'
+     [,1] [,2] [,3] [,4]
+[1,]    1    4    7   10
+[2,]    2    5    8   11
+[3,]    3    6    9   12
+[4,]    1    3    5    7
+[5,]    2    4    6    8
+> cbind(x, 99)               # ajout d'une colonne à 'x'
+     [,1] [,2] [,3] [,4] [,5]
+[1,]    1    4    7   10   99
+[2,]    2    5    8   11   99
+[3,]    3    6    9   12   99
+> cbind(x, z)                # concaténation de 'x' et 'z'
+     [,1] [,2] [,3] [,4] [,5] [,6]
+[1,]    1    4    7   10    1    4
+[2,]    2    5    8   11    2    5
+[3,]    3    6    9   12    3    6
+> rbind(x, z)                # dimensions incompatibles
+Error in rbind(x, z) : 
+  le nombre de colonnes des matrices doit correspondre (voir argument 2)
+> cbind(x, y)                # dimensions incompatibles
+Error in cbind(x, y) : 
+  le nombre de lignes des matrices doit correspondre (voir argument 2)
+> rbind(1:3)                 # vecteur ligne
+     [,1] [,2] [,3]
+[1,]    1    2    3
+> cbind(1:3)                 # vecteur colonne
+     [,1]
+[1,]    1
+[2,]    2
+[3,]    3
+> 
+> ## Un tableau (array) est un vecteur avec plus de deux
+> ## dimensions. Pour le reste, la manipulation des tableaux
+> ## est en tous points identique à celle des matrices. Ne pas
+> ## oublier: les tableaux sont remplis de la première dimension
+> ## à la dernière!
+> (x <- array(1:60, 3:5))    # tableau 3 x 4 x 5
+, , 1
+
+     [,1] [,2] [,3] [,4]
+[1,]    1    4    7   10
+[2,]    2    5    8   11
+[3,]    3    6    9   12
+
+, , 2
+
+     [,1] [,2] [,3] [,4]
+[1,]   13   16   19   22
+[2,]   14   17   20   23
+[3,]   15   18   21   24
+
+, , 3
+
+     [,1] [,2] [,3] [,4]
+[1,]   25   28   31   34
+[2,]   26   29   32   35
+[3,]   27   30   33   36
+
+, , 4
+
+     [,1] [,2] [,3] [,4]
+[1,]   37   40   43   46
+[2,]   38   41   44   47
+[3,]   39   42   45   48
+
+, , 5
+
+     [,1] [,2] [,3] [,4]
+[1,]   49   52   55   58
+[2,]   50   53   56   59
+[3,]   51   54   57   60
+
+> length(x)                  # longueur du vecteur sous-jacent
+[1] 60
+> dim(x)                     # trois dimensions
+[1] 3 4 5
+> x[1, 3, 2]                 # l'élément en position (1, 3, 2)...
+[1] 19
+> x[19]                      # ... est le 19e élément du vecteur
+[1] 19
+> 
+> ## Le tableau ci-dessus est un prisme rectangulaire 3 unités
+> ## de haut, 4 de large et 5 de profond. Indicer ce prisme avec
+> ## un seul indice équivaut à en extraire des «tranches», alors
+> ## qu'utiliser deux indices équivaut à en tirer des «carottes»
+> ## (au sens géologique du terme). Il est laissé en exercice de
+> ## généraliser à plus de dimensions...
+> x                          # les cinq matrices
+, , 1
+
+     [,1] [,2] [,3] [,4]
+[1,]    1    4    7   10
+[2,]    2    5    8   11
+[3,]    3    6    9   12
+
+, , 2
+
+     [,1] [,2] [,3] [,4]
+[1,]   13   16   19   22
+[2,]   14   17   20   23
+[3,]   15   18   21   24
+
+, , 3
+
+     [,1] [,2] [,3] [,4]
+[1,]   25   28   31   34
+[2,]   26   29   32   35
+[3,]   27   30   33   36
+
+, , 4
+
+     [,1] [,2] [,3] [,4]
+[1,]   37   40   43   46
+[2,]   38   41   44   47
+[3,]   39   42   45   48
+
+, , 5
+
+     [,1] [,2] [,3] [,4]
+[1,]   49   52   55   58
+[2,]   50   53   56   59
+[3,]   51   54   57   60
+
+> x[, , 1]                   # tranche transversale
+     [,1] [,2] [,3] [,4]
+[1,]    1    4    7   10
+[2,]    2    5    8   11
+[3,]    3    6    9   12
+> x[, 1, ]                   # tranche verticale
+     [,1] [,2] [,3] [,4] [,5]
+[1,]    1   13   25   37   49
+[2,]    2   14   26   38   50
+[3,]    3   15   27   39   51
+> x[1, , ]                   # tranche horizontale
+     [,1] [,2] [,3] [,4] [,5]
+[1,]    1   13   25   37   49
+[2,]    4   16   28   40   52
+[3,]    7   19   31   43   55
+[4,]   10   22   34   46   58
+> x[, 1, 1]                  # carotte de haut en bas
+[1] 1 2 3
+> x[1, 1, ]                  # carotte de devant à derrière
+[1]  1 13 25 37 49
+> x[1, , 1]                  # carotte de gauche à droite
+[1]  1  4  7 10
+> x[1, 1, 1]                 # donnée unique  
+[1] 1
+> 
+> ###
+> ### APPLICATION POUR LES MATRICES ET LES TABLEAUX  
+> ###
+> 
+> ## La fonction 'apply' applique une fonction sur une ou
+> ## plusieurs dimensions d'une matrice ou d'un tableau.
+> ##
+> ## Création d'une matrice et d'un tableau à trois dimensions
+> ## pour les exemples.
+> m <- matrix(sample(1:100, 20), nrow = 4, ncol = 5)
+> a <- array(sample(1:100, 60), dim = 3:5)
+> 
+> ## Les fonctions 'rowSums', 'colSums', 'rowMeans' et
+> ## 'colMeans' sont des raccourcis pour des utilisations
+> ## fréquentes de 'apply'.
+> apply(m, 1, sum)           # sommes par ligne
+[1] 198 229 212 310
+> rowSums(m)                 # idem, plus lisible
+[1] 198 229 212 310
+> apply(m, 2, mean)          # moyennes par colonne
+[1] 59.50 59.25 37.25 40.50 40.75
+> colMeans(m)                # idem, plus lisible
+[1] 59.50 59.25 37.25 40.50 40.75
+> 
+> ## Puisqu'il n'existe pas de fonctions comme 'rowMax' ou
+> ## 'colProds', il faut utiliser 'apply'.
+> apply(m, 1, max)           # maximums par ligne
+[1] 96 91 84 97
+> apply(m, 2, prod)          # produits par colonne
+[1] 7320600 9647136 1193010  746928  791520
+> 
+> ## L'argument '...' de 'apply' permet de passer des arguments
+> ## à la fonction FUN.
+> f <- function(x, y) x + 2 * y # fonction à deux arguments
+> apply(m, 1, f, y = 2)         # argument 'y' passé dans '...'
+     [,1] [,2] [,3] [,4]
+[1,]   25   54   88   87
+[2,]  100   61   47   45
+[3,]   27   23   46   69
+[4,]   42   95   13   28
+[5,]   24   16   38  101
+> 
+> ## Lorsque 'apply' est utilisée sur un tableau, son résultat
+> ## est de dimensions dim(X)[MARGIN], d'où le truc
+> ## mnémotechnique donné dans le texte du chapitre.
+> apply(a, c(2, 3), sum)     # le résultat est une matrice
+     [,1] [,2] [,3] [,4] [,5]
+[1,]  151  116  125  124  163
+[2,]  164  250  176  111   49
+[3,]  218  211  126  153  118
+[4,]  188  279  211   85   77
+> apply(a, 1, prod)          # le résultat est un vecteur
+[1] 9.338490e+31 4.557331e+31 1.854893e+32
+> 
+> ## L'utilisation de 'apply' avec les tableaux peut rapidement
+> ## devenir confondante si l'on ne visualise pas les calculs
+> ## qui sont réalisés.
+> ##
+> ## Reprenons ici les exemples du chapitre en montrant comment
+> ## calculer le premier élément de chaque utilisation de
+> ## 'apply'.
+> ##
+> ## Au besoin, réviser l'indiçage des tableaux au chapitre 3.
+> (x <- array(sample(0:10, 24, rep = TRUE), c(3, 4, 2)))
+, , 1
+
+     [,1] [,2] [,3] [,4]
+[1,]    9   10    6    1
+[2,]    0   10    3    0
+[3,]    6   10    4    7
+
+, , 2
+
+     [,1] [,2] [,3] [,4]
+[1,]    3    3    7    7
+[2,]    0    7    6    2
+[3,]    4    4    0    3
+
+> apply(x, 1, sum)      # sommes des 3 tranches horizontales
+[1] 46 28 38
+> sum(x[1, , ])         # équivalent pour la première somme
+[1] 46
+> 
+> apply(x, 2, sum)      # sommes des 4 tranches verticales
+[1] 22 44 26 20
+> sum(x[, 1, ])         # équivalent pour la première somme
+[1] 22
+> 
+> apply(x, 3, sum)      # sommes des 2 tranches transversales
+[1] 66 46
+> sum(x[, , 1])         # équivalent pour la première somme
+[1] 66
+> 
+> apply(x, c(1, 2), sum) # sommes des 12 carottes horizontales
+     [,1] [,2] [,3] [,4]
+[1,]   12   13   13    8
+[2,]    0   17    9    2
+[3,]   10   14    4   10
+> sum(x[1, 1, ])         # équivalent pour la première somme
+[1] 12
+> 
+> apply(x, c(2, 3), sum) # sommes des 6 carottes verticales
+     [,1] [,2]
+[1,]   15    7
+[2,]   30   14
+[3,]   13   13
+[4,]    8   12
+> sum(x[, 1, 1])         # équivalent pour la première somme
+[1] 15
+> 
+> apply(x, c(1, 3), sum) # sommes des 8 carottes transversales
+     [,1] [,2]
+[1,]   26   20
+[2,]   13   15
+[3,]   27   11
+> sum(x[1, , 1])         # équivalent pour la première somme  
+[1] 26
+> 
+> ###
+> ### LISTE  
+> ###
+> 
+> ## La liste est l'objet le plus général en R. C'est un objet
+> ## récursif qui peut contenir des objets de n'importe quel
+> ## mode (y compris la liste) et de n'importe quelle longueur.
+> (x <- list(joueur = c("V", "C", "C", "M", "A"),
++            score = c(10, 12, 11, 8, 15),
++            expert = c(FALSE, TRUE, FALSE, TRUE, TRUE),
++            niveau = 2))
+$joueur
+[1] "V" "C" "C" "M" "A"
+
+$score
+[1] 10 12 11  8 15
+
+$expert
+[1] FALSE  TRUE FALSE  TRUE  TRUE
+
+$niveau
+[1] 2
+
+> is.vector(x)               # liste est un vecteur...
+[1] TRUE
+> is.recursive(x)            # ... récursif...
+[1] TRUE
+> length(x)                  # ... de quatre éléments...
+[1] 4
+> mode(x)                    # ... de mode "list"
+[1] "list"
+> 
+> ## Comme tout autre vecteur, une liste peut être concaténée
+> ## avec un autre vecteur avec la fonction 'c'.
+> y <- list(TRUE, 1:5)       # liste de deux éléments
+> c(x, y)                    # liste de six éléments
+$joueur
+[1] "V" "C" "C" "M" "A"
+
+$score
+[1] 10 12 11  8 15
+
+$expert
+[1] FALSE  TRUE FALSE  TRUE  TRUE
+
+$niveau
+[1] 2
+
+[[5]]
+[1] TRUE
+
+[[6]]
+[1] 1 2 3 4 5
+
+> 
+> ## Pour initialiser une liste d'une longueur donnée, on
+> ## utilise la fonction 'vector'.
+> vector("list", 5)
+[[1]]
+NULL
+
+[[2]]
+NULL
+
+[[3]]
+NULL
+
+[[4]]
+NULL
+
+[[5]]
+NULL
+
+> 
+> ## Les crochets simples [ ] permettent d'extraire un ou
+> ## plusieurs éléments d'une liste. Le résultat est toujours
+> ## une liste, même si l'on extrait un seul élément.
+> x[c(1, 2)]                 # deux premiers éléments
+$joueur
+[1] "V" "C" "C" "M" "A"
+
+$score
+[1] 10 12 11  8 15
+
+> x[1]                       # premier élément: une liste
+$joueur
+[1] "V" "C" "C" "M" "A"
+
+> 
+> ## Lorsque l'on veut extraire un, et un seul, élément d'une
+> ## liste et obtenir l'objet lui-même (et non une liste
+> ## contenant l'objet), il faut utiliser les crochets doubles
+> ## [[ ]].
+> x[[1]]                     # comparer avec ci-dessus
+[1] "V" "C" "C" "M" "A"
+> 
+> ## Jolie fonctionnalité: les crochets doubles permettent
+> ## d'indicer récursivement la liste, c'est-à-dire d'extraire
+> ## un objet de la liste, puis un élément de l'objet, et ainsi
+> ## de suite.
+> x[[1]][2]                  # 2e élément du 1er élément
+[1] "C"
+> x[[c(1, 2)]]               # idem, par indiçage récursif
+[1] "C"
+> 
+> ## Les éléments d'une liste étant généralement nommés (c'est
+> ## une bonne habitude à prendre!), il est souvent plus simple
+> ## et, surtout, plus sûr d'extraire les éléments d'une liste
+> ## par leur étiquette avec l'opérateur $.
+> x$joueur                   # équivalent à x[[1]]
+[1] "V" "C" "C" "M" "A"
+> x$joueur[2]                # équivalent à x[[c(1, 2)]]
+[1] "C"
+> x[["expert"]]              # aussi valide, mais peu usité
+[1] FALSE  TRUE FALSE  TRUE  TRUE
+> x$level <- 1               # aussi pour l'affectation
+> 
+> ## Une liste peut contenir n'importe quoi...
+> x[[5]] <- matrix(1, 2, 2)  # ... une matrice...
+> x[[6]] <- list(0:5, TRUE)  # ... une autre liste...
+> x[[7]] <- seq              # ... même le code d'une fonction!
+> x                          # eh ben!
+$joueur
+[1] "V" "C" "C" "M" "A"
+
+$score
+[1] 10 12 11  8 15
+
+$expert
+[1] FALSE  TRUE FALSE  TRUE  TRUE
+
+$niveau
+[1] 2
+
+$level
+     [,1] [,2]
+[1,]    1    1
+[2,]    1    1
+
+[[6]]
+[[6]][[1]]
+[1] 0 1 2 3 4 5
+
+[[6]][[2]]
+[1] TRUE
+
+
+[[7]]
+function (...) 
+UseMethod("seq")
+<bytecode: 0x7fce71a17120>
+<environment: namespace:base>
+
+> x[[c(6, 1, 3)]]            # de quel élément s'agit-il?
+[1] 2
+> 
+> ## Il est possible de supprimer un élément d'une liste en lui
+> ## affectant la valeur 'NULL'.
+> x[[7]] <- NULL; length(x)  # suppression du 7e élément
+[1] 6
+> 
+> ## Il est parfois utile de convertir une liste en un simple
+> ## vecteur. Les éléments de la liste sont alors «déroulés», y
+> ## compris la matrice en position 5 dans notre exemple (qui
+> ## n'est rien d'autre qu'un vecteur, on s'en souviendra).
+> unlist(x)                    # remarquer la conversion
+joueur1 joueur2 joueur3 joueur4 joueur5  score1  score2  score3  score4  score5 
+    "V"     "C"     "C"     "M"     "A"    "10"    "12"    "11"     "8"    "15" 
+expert1 expert2 expert3 expert4 expert5  niveau  level1  level2  level3  level4 
+"FALSE"  "TRUE" "FALSE"  "TRUE"  "TRUE"     "2"     "1"     "1"     "1"     "1" 
+                                                        
+    "0"     "1"     "2"     "3"     "4"     "5"  "TRUE" 
+> unlist(x, recursive = FALSE) # ne pas appliquer aux sous-listes
+$joueur1
+[1] "V"
+
+$joueur2
+[1] "C"
+
+$joueur3
+[1] "C"
+
+$joueur4
+[1] "M"
+
+$joueur5
+[1] "A"
+
+$score1
+[1] 10
+
+$score2
+[1] 12
+
+$score3
+[1] 11
+
+$score4
+[1] 8
+
+$score5
+[1] 15
+
+$expert1
+[1] FALSE
+
+$expert2
+[1] TRUE
+
+$expert3
+[1] FALSE
+
+$expert4
+[1] TRUE
+
+$expert5
+[1] TRUE
+
+$niveau
+[1] 2
+
+$level1
+[1] 1
+
+$level2
+[1] 1
+
+$level3
+[1] 1
+
+$level4
+[1] 1
+
+[[21]]
+[1] 0 1 2 3 4 5
+
+[[22]]
+[1] TRUE
+
+> unlist(x, use.names = FALSE) # éliminer les étiquettes  
+ [1] "V"     "C"     "C"     "M"     "A"     "10"    "12"    "11"    "8"    
+[10] "15"    "FALSE" "TRUE"  "FALSE" "TRUE"  "TRUE"  "2"     "1"     "1"    
+[19] "1"     "1"     "0"     "1"     "2"     "3"     "4"     "5"     "TRUE" 
+> 
+> ###
+> ### APPLICATION POUR LES LISTES ET LES VECTEURS  
+> ###
+> 
+> ## FONCTIONS 'lapply' ET 'sapply'
+> 
+> ## La fonction 'lapply' applique une fonction à tous les
+> ## éléments d'un vecteur ou d'une liste et retourne une liste,
+> ## peu importe les dimensions des résultats.
+> ##
+> ## La fonction 'sapply' retourne un vecteur ou une matrice, si
+> ## possible.
+> ##
+> ## Somme «interne» des éléments d'une liste.
+> (x <- list(1:10, c(-2, 5, 6), matrix(3, 4, 5)))
+[[1]]
+ [1]  1  2  3  4  5  6  7  8  9 10
+
+[[2]]
+[1] -2  5  6
+
+[[3]]
+     [,1] [,2] [,3] [,4] [,5]
+[1,]    3    3    3    3    3
+[2,]    3    3    3    3    3
+[3,]    3    3    3    3    3
+[4,]    3    3    3    3    3
+
+> sum(x)                     # erreur
+Error in sum(x) : 'type' (list) de l'argument incorrect
+> lapply(x, sum)             # sommes internes (liste)
+[[1]]
+[1] 55
+
+[[2]]
+[1] 9
+
+[[3]]
+[1] 60
+
+> sapply(x, sum)             # sommes internes (vecteur)
+[1] 55  9 60
+> 
+> ## Création de la suite 1, 1, 2, 1, 2, 3, 1, 2, 3, 4, ..., 1,
+> ## 2, ..., 9, 10.
+> lapply(1:10, seq)          # résultat sous forme de liste
+[[1]]
+[1] 1
+
+[[2]]
+[1] 1 2
+
+[[3]]
+[1] 1 2 3
+
+[[4]]
+[1] 1 2 3 4
+
+[[5]]
+[1] 1 2 3 4 5
+
+[[6]]
+[1] 1 2 3 4 5 6
+
+[[7]]
+[1] 1 2 3 4 5 6 7
+
+[[8]]
+[1] 1 2 3 4 5 6 7 8
+
+[[9]]
+[1] 1 2 3 4 5 6 7 8 9
+
+[[10]]
+ [1]  1  2  3  4  5  6  7  8  9 10
+
+> unlist(lapply(1:10, seq))  # résultat sous forme de vecteur
+ [1]  1  1  2  1  2  3  1  2  3  4  1  2  3  4  5  1  2  3  4  5  6  1  2  3  4
+[26]  5  6  7  1  2  3  4  5  6  7  8  1  2  3  4  5  6  7  8  9  1  2  3  4  5
+[51]  6  7  8  9 10
+> 
+> ## Soit une fonction calculant la moyenne pondérée d'un
+> ## vecteur. Cette fonction prend en argument une liste de deux
+> ## éléments: 'donnees' et 'poids'.
+> fun <- function(x)
++     sum(x$donnees * x$poids)/sum(x$poids)
+> 
+> ## Nous pouvons maintenant calculer la moyenne pondérée de
+> ## plusieurs ensembles de données réunis dans une liste
+> ## itérée.
+> (x <- list(list(donnees = 1:7,
++                 poids = (5:11)/56),
++            list(donnees = sample(1:100, 12),
++                 poids = 1:12),
++            list(donnees = c(1, 4, 0, 2, 2),
++                 poids = c(12, 3, 17, 6, 2))))
+[[1]]
+[[1]]$donnees
+[1] 1 2 3 4 5 6 7
+
+[[1]]$poids
+[1] 0.08928571 0.10714286 0.12500000 0.14285714 0.16071429 0.17857143 0.19642857
+
+
+[[2]]
+[[2]]$donnees
+ [1] 84 14  7 89  3 36 57 60 96 72 44 20
+
+[[2]]$poids
+ [1]  1  2  3  4  5  6  7  8  9 10 11 12
+
+
+[[3]]
+[[3]]$donnees
+[1] 1 4 0 2 2
+
+[[3]]$poids
+[1] 12  3 17  6  2
+
+
+> sapply(x, fun)             # aucune boucle explicite!
+[1]  4.50000 50.08974  1.00000
+> 
+> ## EXEMPLES ADDITIONNELS SUR L'UTILISATION DE L'ARGUMENT
+> ## '...' AVEC 'lapply' ET 'sapply'
+> 
+> ## Aux fins des exemples ci-dessous, créons d'abord une liste
+> ## formée de nombres aléatoires.
+> ##
+> ## L'expression ci-dessous fait usage de l'argument '...' de
+> ## 'lapply'. Pouvez-vous la décoder? Nous y reviendrons plus
+> ## loin, ce qui compte pour le moment c'est simplement de
+> ## l'exécuter.
+> x <- lapply(c(8, 12, 10, 9), sample, x = 1:10, replace = TRUE)
+> 
+> ## Soit maintenant une fonction qui calcule la moyenne
+> ## arithmétique des données d'un vecteur 'x' supérieures à une
+> ## valeur 'y'.
+> ##
+> ## Vous remarquerez que cette fonction n'est pas vectorielle
+> ## pour 'y', c'est-à-dire qu'elle n'est valide que lorsque 'y'
+> ## est un vecteur de longueur 1.
+> fun <- function(x, y) mean(x[x > y])
+> 
+> ## Pour effectuer ce calcul sur chaque élément de la liste
+> ## 'x', nous pouvons utiliser 'sapply' plutôt que 'lapply',
+> ## car chaque résultat est de longueur 1.
+> ##
+> ## Cependant, il faut passer la valeur de 'y' à la fonction
+> ## 'fun'. C'est là qu'entre en jeu l'argument '...' de
+> ## 'sapply'.
+> sapply(x, fun, 7)          # moyennes des données > 7
+[1] 10.00  9.75  8.75  9.00
+> 
+> ## Les fonctions 'lapply' et 'sapply' passent tour à tour les
+> ## éléments de leur premier argument comme *premier* argument
+> ## à la fonction, sans le nommer explicitement. L'expression
+> ## ci-dessus est donc équivalente à
+> ##
+> ##   c(fun(x[[1]], 7), ..., fun(x[[4]], 7)
+> ##
+> ## Que se passe-t-il si l'on souhaite passer les valeurs à un
+> ## argument de la fonction autre que le premier? Par exemple,
+> ## supposons que l'ordre des arguments de la fonction 'fun'
+> ## ci-dessus est inversé.
+> fun <- function(y, x) mean(x[x > y])
+> 
+> ## Les règles de pairage des arguments des fonctions en R font
+> ## en sorte que lorsque les arguments sont nommés dans l'appel
+> ## de fonction, leur ordre n'a pas d'importance. Par
+> ## conséquent, un appel de la forme
+> ##
+> ##   fun(x, y = 7)
+> ##
+> ## est tout à fait équivalent à fun(7, x). Pour effectuer les
+> ## calculs
+> ##
+> ##   c(fun(x[[1]], y = 7), ..., fun(x[[4]], y = 7)
+> ##
+> ## avec la liste définie plus haut, il s'agit de nommer
+> ## l'argument 'y' dans '...' de 'sapply'.
+> sapply(x, fun, y = 7)
+[1] 10.00  9.75  8.75  9.00
+> 
+> ## Décodons maintenant l'expression
+> ##
+> ##   lapply(c(8, 12, 10, 9), sample, x = 1:10, replace = TRUE)
+> ##
+> ## qui a servi à créer la liste. La définition de la fonction
+> ## 'sample' est la suivante:
+> ##
+> ##   sample(x, size, replace = FALSE, prob = NULL)
+> ##
+> ## L'appel à 'lapply' est équivalent à
+> ##
+> ##   list(sample(8, x = 1:10, replace = TRUE),
+> ##        ...,
+> ##        sample(9, x = 1:10, replace = TRUE))
+> ##
+> ## Toujours selon les règles d'appariement des arguments, vous
+> ## constaterez que les valeurs 8, 12, 10, 9 seront attribuées
+> ## à l'argument 'size', soit la taille de l'échantillon.
+> ##
+> ## L'expression crée donc une liste comprenant quatre
+> ## échantillons aléatoires de tailles différentes des nombres
+> ## de 1 à 10 pigés avec remise.
+> ##
+> ## Une expression équivalente, quoique moins élégante, aurait
+> ## recours à une fonction anonyme pour replacer les arguments
+> ## de 'sample' dans l'ordre voulu.
+> lapply(c(8, 12, 10, 9),
++        function(x) sample(1:10, x, replace = TRUE))
+[[1]]
+[1] 4 8 2 8 5 4 4 2
+
+[[2]]
+ [1] 6 5 5 2 4 4 6 6 4 4 1 5
+
+[[3]]
+ [1]  3  9  3  3 10  2  3  3  9  2
+
+[[4]]
+[1]  4  4  9  5 10  9  7  8  8
+
+> 
+> ## La fonction 'sapply' est aussi très utile pour vectoriser
+> ## une fonction qui n'est pas vectorielle. Supposons que l'on
+> ## veut généraliser la fonction 'fun' pour qu'elle accepte un
+> ## vecteur de seuils 'y'.
+> fun <- function(x, y)
++     sapply(y, function(y) mean(x[x > y]))
+> 
+> ## Utilisation sur la liste 'x' avec trois seuils.
+> sapply(x, fun, y = c(3, 5, 7))
+          [,1]  [,2]     [,3]  [,4]
+[1,]  6.166667 7.200 7.666667 6.625
+[2,]  7.250000 7.875 8.400000 8.000
+[3,] 10.000000 9.750 8.750000 9.000
+> 
+> ## FONCTION 'mapply'
+> 
+> ## Application de la fonction 'fun' sur les échantillons de la
+> ## liste 'x' avec un seuil différent pour chacun.
+> mapply(fun, x, c(3, 5, 7, 7))
+[1] 6.166667 7.875000 8.750000 9.000000
+> 
+> ## Création de quatre échantillons aléatoires de taille 12.
+> x <- lapply(rep(12, 4), sample, x = 1:100)
+> 
+> ## Moyennes tronquées à 0, 10, 20 et 30 %, respectivement, de
+> ## ces quatre échantillons aléatoires.
+> mapply(mean, x, 0:3/10)
+[1] 48.00000 52.70000 49.12500 57.66667
+> 
+> ###
+> ### TABLEAU DE DONNÉES  
+> ###
+> 
+> ## Un tableau de données (data frame) est une liste dont les
+> ## éléments sont tous de la même longueur. Il comporte un
+> ## attribut 'dim', ce qui fait qu'il est représenté comme une
+> ## matrice. Cependant, les colonnes peuvent être de modes
+> ## différents.
+> ##
+> ## Nous créons ici le même data frame que dans l'exemple du
+> ## chapitre, mais avec l'option 'stringsAsFactors = FALSE'
+> ## pour éviter la conversion automatique de la colonne 'Nom'
+> ## en facteur.
+> data.frame(Nom = c("Pierre", "Jean", "Jacques"),
++            Age = c(42, 34, 19),
++            Fumeur = c(TRUE, TRUE, FALSE),
++            stringsAsFactors = FALSE)
+      Nom Age Fumeur
+1  Pierre  42   TRUE
+2    Jean  34   TRUE
+3 Jacques  19  FALSE
+> 
+> ## R est livré avec plusieurs jeux de données, la plupart sous
+> ## forme de data frames.
+> data()                     # liste complète
+Data sets in package ‘datasets’:
+
+AirPassengers           Monthly Airline Passenger Numbers 1949-1960
+BJsales                 Sales Data with Leading Indicator
+BJsales.lead (BJsales)
+                        Sales Data with Leading Indicator
+BOD                     Biochemical Oxygen Demand
+CO2                     Carbon Dioxide Uptake in Grass Plants
+ChickWeight             Weight versus age of chicks on different diets
+DNase                   Elisa assay of DNase
+EuStockMarkets          Daily Closing Prices of Major European Stock
+                        Indices, 1991-1998
+Formaldehyde            Determination of Formaldehyde
+HairEyeColor            Hair and Eye Color of Statistics Students
+Harman23.cor            Harman Example 2.3
+Harman74.cor            Harman Example 7.4
+Indometh                Pharmacokinetics of Indomethacin
+InsectSprays            Effectiveness of Insect Sprays
+JohnsonJohnson          Quarterly Earnings per Johnson & Johnson Share
+LakeHuron               Level of Lake Huron 1875-1972
+LifeCycleSavings        Intercountry Life-Cycle Savings Data
+Loblolly                Growth of Loblolly pine trees
+Nile                    Flow of the River Nile
+Orange                  Growth of Orange Trees
+OrchardSprays           Potency of Orchard Sprays
+PlantGrowth             Results from an Experiment on Plant Growth
+Puromycin               Reaction Velocity of an Enzymatic Reaction
+Seatbelts               Road Casualties in Great Britain 1969-84
+Theoph                  Pharmacokinetics of Theophylline
+Titanic                 Survival of passengers on the Titanic
+ToothGrowth             The Effect of Vitamin C on Tooth Growth in
+                        Guinea Pigs
+UCBAdmissions           Student Admissions at UC Berkeley
+UKDriverDeaths          Road Casualties in Great Britain 1969-84
+UKgas                   UK Quarterly Gas Consumption
+USAccDeaths             Accidental Deaths in the US 1973-1978
+USArrests               Violent Crime Rates by US State
+USJudgeRatings          Lawyers' Ratings of State Judges in the US
+                        Superior Court
+USPersonalExpenditure   Personal Expenditure Data
+UScitiesD               Distances Between European Cities and Between
+                        US Cities
+VADeaths                Death Rates in Virginia (1940)
+WWWusage                Internet Usage per Minute
+WorldPhones             The World's Telephones
+ability.cov             Ability and Intelligence Tests
+airmiles                Passenger Miles on Commercial US Airlines,
+                        1937-1960
+airquality              New York Air Quality Measurements
+anscombe                Anscombe's Quartet of 'Identical' Simple Linear
+                        Regressions
+attenu                  The Joyner-Boore Attenuation Data
+attitude                The Chatterjee-Price Attitude Data
+austres                 Quarterly Time Series of the Number of
+                        Australian Residents
+beaver1 (beavers)       Body Temperature Series of Two Beavers
+beaver2 (beavers)       Body Temperature Series of Two Beavers
+cars                    Speed and Stopping Distances of Cars
+chickwts                Chicken Weights by Feed Type
+co2                     Mauna Loa Atmospheric CO2 Concentration
+crimtab                 Student's 3000 Criminals Data
+discoveries             Yearly Numbers of Important Discoveries
+esoph                   Smoking, Alcohol and (O)esophageal Cancer
+euro                    Conversion Rates of Euro Currencies
+euro.cross (euro)       Conversion Rates of Euro Currencies
+eurodist                Distances Between European Cities and Between
+                        US Cities
+faithful                Old Faithful Geyser Data
+fdeaths (UKLungDeaths)
+                        Monthly Deaths from Lung Diseases in the UK
+freeny                  Freeny's Revenue Data
+freeny.x (freeny)       Freeny's Revenue Data
+freeny.y (freeny)       Freeny's Revenue Data
+infert                  Infertility after Spontaneous and Induced
+                        Abortion
+iris                    Edgar Anderson's Iris Data
+iris3                   Edgar Anderson's Iris Data
+islands                 Areas of the World's Major Landmasses
+ldeaths (UKLungDeaths)
+                        Monthly Deaths from Lung Diseases in the UK
+lh                      Luteinizing Hormone in Blood Samples
+longley                 Longley's Economic Regression Data
+lynx                    Annual Canadian Lynx trappings 1821-1934
+mdeaths (UKLungDeaths)
+                        Monthly Deaths from Lung Diseases in the UK
+morley                  Michelson Speed of Light Data
+mtcars                  Motor Trend Car Road Tests
+nhtemp                  Average Yearly Temperatures in New Haven
+nottem                  Average Monthly Temperatures at Nottingham,
+                        1920-1939
+npk                     Classical N, P, K Factorial Experiment
+occupationalStatus      Occupational Status of Fathers and their Sons
+precip                  Annual Precipitation in US Cities
+presidents              Quarterly Approval Ratings of US Presidents
+pressure                Vapor Pressure of Mercury as a Function of
+                        Temperature
+quakes                  Locations of Earthquakes off Fiji
+randu                   Random Numbers from Congruential Generator
+                        RANDU
+rivers                  Lengths of Major North American Rivers
+rock                    Measurements on Petroleum Rock Samples
+sleep                   Student's Sleep Data
+stack.loss (stackloss)
+                        Brownlee's Stack Loss Plant Data
+stack.x (stackloss)     Brownlee's Stack Loss Plant Data
+stackloss               Brownlee's Stack Loss Plant Data
+state.abb (state)       US State Facts and Figures
+state.area (state)      US State Facts and Figures
+state.center (state)    US State Facts and Figures
+state.division (state)
+                        US State Facts and Figures
+state.name (state)      US State Facts and Figures
+state.region (state)    US State Facts and Figures
+state.x77 (state)       US State Facts and Figures
+sunspot.month           Monthly Sunspot Data, from 1749 to "Present"
+sunspot.year            Yearly Sunspot Data, 1700-1988
+sunspots                Monthly Sunspot Numbers, 1749-1983
+swiss                   Swiss Fertility and Socioeconomic Indicators
+                        (1888) Data
+treering                Yearly Treering Data, -6000-1979
+trees                   Diameter, Height and Volume for Black Cherry
+                        Trees
+uspop                   Populations Recorded by the US Census
+volcano                 Topographic Information on Auckland's Maunga
+                        Whau Volcano
+warpbreaks              The Number of Breaks in Yarn during Weaving
+women                   Average Heights and Weights for American Women
+
+
+Use ‘data(package = .packages(all.available = TRUE))’
+to list the data sets in all *available* packages.
+
+> 
+> ## Nous allons illustrer certaines manipulations des data
+> ## frames avec le jeu de données 'USArrests'.
+> USArrests                  # jeu de données
+               Murder Assault UrbanPop Rape
+Alabama          13.2     236       58 21.2
+Alaska           10.0     263       48 44.5
+Arizona           8.1     294       80 31.0
+Arkansas          8.8     190       50 19.5
+California        9.0     276       91 40.6
+Colorado          7.9     204       78 38.7
+Connecticut       3.3     110       77 11.1
+Delaware          5.9     238       72 15.8
+Florida          15.4     335       80 31.9
+Georgia          17.4     211       60 25.8
+Hawaii            5.3      46       83 20.2
+Idaho             2.6     120       54 14.2
+Illinois         10.4     249       83 24.0
+Indiana           7.2     113       65 21.0
+Iowa              2.2      56       57 11.3
+Kansas            6.0     115       66 18.0
+Kentucky          9.7     109       52 16.3
+Louisiana        15.4     249       66 22.2
+Maine             2.1      83       51  7.8
+Maryland         11.3     300       67 27.8
+Massachusetts     4.4     149       85 16.3
+Michigan         12.1     255       74 35.1
+Minnesota         2.7      72       66 14.9
+Mississippi      16.1     259       44 17.1
+Missouri          9.0     178       70 28.2
+Montana           6.0     109       53 16.4
+Nebraska          4.3     102       62 16.5
+Nevada           12.2     252       81 46.0
+New Hampshire     2.1      57       56  9.5
+New Jersey        7.4     159       89 18.8
+New Mexico       11.4     285       70 32.1
+New York         11.1     254       86 26.1
+North Carolina   13.0     337       45 16.1
+North Dakota      0.8      45       44  7.3
+Ohio              7.3     120       75 21.4
+Oklahoma          6.6     151       68 20.0
+Oregon            4.9     159       67 29.3
+Pennsylvania      6.3     106       72 14.9
+Rhode Island      3.4     174       87  8.3
+South Carolina   14.4     279       48 22.5
+South Dakota      3.8      86       45 12.8
+Tennessee        13.2     188       59 26.9
+Texas            12.7     201       80 25.5
+Utah              3.2     120       80 22.9
+Vermont           2.2      48       32 11.2
+Virginia          8.5     156       63 20.7
+Washington        4.0     145       73 26.2
+West Virginia     5.7      81       39  9.3
+Wisconsin         2.6      53       66 10.8
+Wyoming           6.8     161       60 15.6
+> 
+> ## Analyse succincte de l'objet.
+> mode(USArrests)            # un data frame est une liste...
+[1] "list"
+> length(USArrests)          # ... de quatre éléments...
+[1] 4
+> class(USArrests)           # ... de classe 'data.frame'
+[1] "data.frame"
+> dim(USArrests)             # dimensions implicites
+[1] 50  4
+> names(USArrests)           # titres des colonnes
+[1] "Murder"   "Assault"  "UrbanPop" "Rape"    
+> row.names(USArrests)       # titres des lignes
+ [1] "Alabama"        "Alaska"         "Arizona"        "Arkansas"      
+ [5] "California"     "Colorado"       "Connecticut"    "Delaware"      
+ [9] "Florida"        "Georgia"        "Hawaii"         "Idaho"         
+[13] "Illinois"       "Indiana"        "Iowa"           "Kansas"        
+[17] "Kentucky"       "Louisiana"      "Maine"          "Maryland"      
+[21] "Massachusetts"  "Michigan"       "Minnesota"      "Mississippi"   
+[25] "Missouri"       "Montana"        "Nebraska"       "Nevada"        
+[29] "New Hampshire"  "New Jersey"     "New Mexico"     "New York"      
+[33] "North Carolina" "North Dakota"   "Ohio"           "Oklahoma"      
+[37] "Oregon"         "Pennsylvania"   "Rhode Island"   "South Carolina"
+[41] "South Dakota"   "Tennessee"      "Texas"          "Utah"          
+[45] "Vermont"        "Virginia"       "Washington"     "West Virginia" 
+[49] "Wisconsin"      "Wyoming"       
+> USArrests[, 1]             # première colonne
+ [1] 13.2 10.0  8.1  8.8  9.0  7.9  3.3  5.9 15.4 17.4  5.3  2.6 10.4  7.2  2.2
+[16]  6.0  9.7 15.4  2.1 11.3  4.4 12.1  2.7 16.1  9.0  6.0  4.3 12.2  2.1  7.4
+[31] 11.4 11.1 13.0  0.8  7.3  6.6  4.9  6.3  3.4 14.4  3.8 13.2 12.7  3.2  2.2
+[46]  8.5  4.0  5.7  2.6  6.8
+> USArrests$Murder           # idem, plus simple
+ [1] 13.2 10.0  8.1  8.8  9.0  7.9  3.3  5.9 15.4 17.4  5.3  2.6 10.4  7.2  2.2
+[16]  6.0  9.7 15.4  2.1 11.3  4.4 12.1  2.7 16.1  9.0  6.0  4.3 12.2  2.1  7.4
+[31] 11.4 11.1 13.0  0.8  7.3  6.6  4.9  6.3  3.4 14.4  3.8 13.2 12.7  3.2  2.2
+[46]  8.5  4.0  5.7  2.6  6.8
+> USArrests[1, ]             # première ligne
+        Murder Assault UrbanPop Rape
+Alabama   13.2     236       58 21.2
+> 
+> ## La fonction 'subset' permet d'extraire des lignes et des
+> ## colonnes d'un data frame de manière très intuitive.
+> ##
+> ## Par exemple, nous pouvons extraire ainsi le nombre
+> ## d'assauts dans les états comptant un taux de meurtre
+> ## supérieur à 10.
+> subset(USArrests, Murder > 10, select = Assault)
+               Assault
+Alabama            236
+Florida            335
+Georgia            211
+Illinois           249
+Louisiana          249
+Maryland           300
+Michigan           255
+Mississippi        259
+Nevada             252
+New Mexico         285
+New York           254
+North Carolina     337
+South Carolina     279
+Tennessee          188
+Texas              201
+> 
+> ###
+> ### FACTEUR  
+> ###
+> 
+> ## Les facteurs jouent un rôle important en analyse de
+> ## données, surtout pour classer des données en diverses
+> ## catégories. Les données d'un facteur devraient normalement
+> ## afficher un fort taux de redondance.
+> ##
+> ## Reprenons l'exemple du chapitre.
+> (grandeurs <-
++      factor(c("S", "S", "L", "XL", "M", "M", "L", "L")))
+[1] S  S  L  XL M  M  L  L 
+Levels: L M S XL
+> levels(grandeurs)          # catégories
+[1] "L"  "M"  "S"  "XL"
+> as.integer(grandeurs)      # représentation interne
+[1] 3 3 1 4 2 2 1 1
+> 
+> ## Dans le présent exemple, nous pourrions souhaiter que R
+> ## reconnaisse le fait que S < M < L < XL. C'est possible avec
+> ## les facteurs *ordonnés*.
+> factor(c("S", "S", "L", "XL", "M", "M", "L", "L"),
++        levels = c("S", "M", "L", "XL"),
++        ordered = TRUE)
+[1] S  S  L  XL M  M  L  L 
+Levels: S < M < L < XL
+> 
+> ###
+> ### APPLICATION POUR LES GROUPES DE DONNÉES
+> ###
+> 
+> ## Le jeu de données 'airquality' livré avec R contient les
+> ## mesures quotidiennes de la qualité de l'air à New York
+> ## entre mai et septembre 1973.
+> ?airquality                # rubrique d'aide du jeu de données
+airquality              package:datasets               R Documentation
+
+_N_e_w _Y_o_r_k _A_i_r _Q_u_a_l_i_t_y _M_e_a_s_u_r_e_m_e_n_t_s
+
+_D_e_s_c_r_i_p_t_i_o_n:
+
+     Daily air quality measurements in New York, May to September 1973.
+
+_U_s_a_g_e:
+
+     airquality
+     
+_F_o_r_m_a_t:
+
+     A data frame with 153 observations on 6 variables.
+
+       ‘[,1]’  ‘Ozone’    numeric  Ozone (ppb)             
+       ‘[,2]’  ‘Solar.R’  numeric  Solar R (lang)          
+       ‘[,3]’  ‘Wind’     numeric  Wind (mph)              
+       ‘[,4]’  ‘Temp’     numeric  Temperature (degrees F) 
+       ‘[,5]’  ‘Month’    numeric  Month (1-12)            
+       ‘[,6]’  ‘Day’      numeric  Day of month (1-31)     
+      
+_D_e_t_a_i_l_s:
+
+     Daily readings of the following air quality values for May 1, 1973
+     (a Tuesday) to September 30, 1973.
+
+        • ‘Ozone’: Mean ozone in parts per billion from 1300 to 1500
+          hours at Roosevelt Island
+
+        • ‘Solar.R’: Solar radiation in Langleys in the frequency band
+          4000-7700 Angstroms from 0800 to 1200 hours at Central Park
+
+        • ‘Wind’: Average wind speed in miles per hour at 0700 and 1000
+          hours at LaGuardia Airport
+
+        • ‘Temp’: Maximum daily temperature in degrees Fahrenheit at La
+          Guardia Airport.
+
+_S_o_u_r_c_e:
+
+     The data were obtained from the New York State Department of
+     Conservation (ozone data) and the National Weather Service
+     (meteorological data).
+
+_R_e_f_e_r_e_n_c_e_s:
+
+     Chambers, J. M., Cleveland, W. S., Kleiner, B. and Tukey, P. A.
+     (1983) _Graphical Methods for Data Analysis_.  Belmont, CA:
+     Wadsworth.
+
+_E_x_a_m_p_l_e_s:
+
+     require(graphics)
+     pairs(airquality, panel = panel.smooth, main = "airquality data")
+     
+
+> 
+> ## La colonne 'Temp' contient la température du jour et la
+> ## colonne 'Month', le mois (sous forme d'entier de 5 à 9).
+> ##
+> ## La fonction 'tapply' permet de calculer facilement la
+> ## température moyenne par mois.
+> tapply(airquality$Temp, airquality$Month, mean)
+       5        6        7        8        9 
+65.54839 79.10000 83.90323 83.96774 76.90000 
+> 
+> ## Équivalent (sauf pour la présentation des résultats).
+> by(airquality$Temp, airquality$Month, mean)
+airquality$Month: 5
+[1] 65.54839
+------------------------------------------------------------ 
+airquality$Month: 6
+[1] 79.1
+------------------------------------------------------------ 
+airquality$Month: 7
+[1] 83.90323
+------------------------------------------------------------ 
+airquality$Month: 8
+[1] 83.96774
+------------------------------------------------------------ 
+airquality$Month: 9
+[1] 76.9
+> 
+> ###
+> ### DATE  
+> ###
+> 
+> ## Votre premier réflexe pour représenter une date pourrait
+> ## être d'utiliser simplement une chaine de caractères. Ça
+> ## suffit si les dates sont à intervalles égaux et pour
+> ## identifier les points sur un graphique. Dès lors que vous
+> ## devez tenir compte de l'écart entre les dates ou effectuer
+> ## des calculs avec les dates, il vous faut une solution plus
+> ## robuste.
+> ##
+> ## R utilise la représentation standard des systèmes Unix
+> ## consignée dans la norme POSIX. En simplifiant, le temps y
+> ## est compté (en jours pour une date seule, en secondes pour
+> ## une date et une heure) à partir du 1er janvier 1970.
+> ##
+> ## Une date n'est donc rien d'autre qu'un entier à l'interne
+> ## pour R. C'est ce qui permet d'effectuer facilement des
+> ## calculs et des comparaisons. Cependant, l'objet est muni
+> ## d'un attribut "class" qui fait en sorte de modifier
+> ## l'affichage et l'interaction avec certaines fonctions.
+> ##
+> ## Pour les dates seules, la classe de base est "Date".
+> d <- "2000-02-29"          # chaine de caractères
+> d + 1                      # opération invalide
+Error in d + 1 : argument non numérique pour un opérateur binaire
+> d <- as.Date(d)            # conversion en date
+> d + 1                      # opération valide; jour suivant
+[1] "2000-03-01"
+> d - 1                      # jour précédent
+[1] "2000-02-28"
+> as.numeric(d)              # nombre de jours depuis 1970-01-01
+[1] 11016
+> d - as.Date("1970-01-01")  # vérification
+Time difference of 11016 days
+> (auj <- Sys.Date())        # date du jour
+[1] "2019-09-03"
+> auj >= d                   # après le 2000-02-29?
+[1] TRUE
+> 
+> ## Chose particulièrement utile, la fonction 'seq' est munie
+> ## d'une méthode pour la classe "Date", ce qui permet de
+> ## générer des suites de dates.
+> ##
+> ## Exemple: générer les dates des 10 prochaines semaines à
+> ## partir d'aujourd'hui.
+> (dixsem <- seq(Sys.Date(), length.out = 10, by = "1 week"))
+ [1] "2019-09-03" "2019-09-10" "2019-09-17" "2019-09-24" "2019-10-01"
+ [6] "2019-10-08" "2019-10-15" "2019-10-22" "2019-10-29" "2019-11-05"
+> ?seq.Date                  # voir les autres possibilités
+seq.Date                 package:base                  R Documentation
+
+_G_e_n_e_r_a_t_e _R_e_g_u_l_a_r _S_e_q_u_e_n_c_e_s _o_f _D_a_t_e_s
+
+_D_e_s_c_r_i_p_t_i_o_n:
+
+     The method for ‘seq’ for objects of class class ‘"Date"’
+     representing calendar dates.
+
+_U_s_a_g_e:
+
+     ## S3 method for class 'Date'
+     seq(from, to, by, length.out = NULL, along.with = NULL, ...)
+     
+_A_r_g_u_m_e_n_t_s:
+
+    from: starting date.  Required
+
+      to: end date.  Optional.
+
+      by: increment of the sequence.  Optional.  See ‘Details’.
+
+length.out: integer, optional.  Desired length of the sequence.
+
+along.with: take the length from the length of this argument.
+
+     ...: arguments passed to or from other methods.
+
+_D_e_t_a_i_l_s:
+
+     ‘by’ can be specified in several ways.
+
+        • A number, taken to be in days.
+
+        • A object of class ‘difftime’
+
+        • A character string, containing one of ‘"day"’, ‘"week"’,
+          ‘"month"’, ‘"quarter"’ or ‘"year"’.  This can optionally be
+          preceded by a (positive or negative) integer and a space, or
+          followed by ‘"s"’.
+
+          See ‘seq.POSIXt’ for the details of ‘"month"’.
+
+_V_a_l_u_e:
+
+     A vector of class ‘"Date"’.
+
+_S_e_e _A_l_s_o:
+
+     ‘Date’
+
+_E_x_a_m_p_l_e_s:
+
+     ## first days of years
+     seq(as.Date("1910/1/1"), as.Date("1999/1/1"), "years")
+     ## by month
+     seq(as.Date("2000/1/1"), by = "month", length.out = 12)
+     ## quarters
+     seq(as.Date("2000/1/1"), as.Date("2003/1/1"), by = "quarter")
+     
+     ## find all 7th of the month between two dates, the last being a 7th.
+     st <- as.Date("1998-12-17")
+     en <- as.Date("2000-1-7")
+     ll <- seq(en, st, by = "-1 month")
+     rev(ll[ll > st & ll < en])
+     
+
+> 
+> ## Quelques fonctions d'extraction utiles.
+> weekdays(dixsem)           # jours de la semaine
+ [1] "Mardi" "Mardi" "Mardi" "Mardi" "Mardi" "Mardi" "Mardi" "Mardi" "Mardi"
+[10] "Mardi"
+> months(dixsem)             # mois
+ [1] "septembre" "septembre" "septembre" "septembre" "octobre"   "octobre"  
+ [7] "octobre"   "octobre"   "octobre"   "novembre" 
+> quarters(dixsem)           # trimestres
+ [1] "Q3" "Q3" "Q3" "Q3" "Q4" "Q4" "Q4" "Q4" "Q4" "Q4"
+> 
+> ## Pour enregistrer non seulement une date, mais aussi une
+> ## heure, vous devez utiliser les représentations POSIXct et
+> ## POSIXlt. Il s'agit de classes d'objets très puissantes qui
+> ## permettent d'enregistrer une heure jusqu'à la fraction de
+> ## seconde, le fuseau horaire, s'il s'agit de l'heure d'été ou
+> ## non, etc.
+> ?DateTimeClasses           # *tous* les détails
+DateTimeClasses              package:base              R Documentation
+
+_D_a_t_e-_T_i_m_e _C_l_a_s_s_e_s
+
+_D_e_s_c_r_i_p_t_i_o_n:
+
+     Description of the classes ‘"POSIXlt"’ and ‘"POSIXct"’
+     representing calendar dates and times.
+
+_U_s_a_g_e:
+
+     ## S3 method for class 'POSIXct'
+     print(x, tz = "", usetz = TRUE, max = NULL, ...)
+     
+     ## S3 method for class 'POSIXct'
+     summary(object, digits = 15, ...)
+     
+     time + z
+     z + time
+     time - z
+     time1 lop time2
+     
+_A_r_g_u_m_e_n_t_s:
+
+x, object: an object to be printed or summarized from one of the
+          date-time classes.
+
+tz, usetz: for timezone formatting, passed to ‘format.POSIXct’.
+
+     max: numeric or ‘NULL’, specifying the maximal number of entries
+          to be printed.  By default, when ‘NULL’,
+          ‘getOption("max.print")’ used.
+
+  digits: number of significant digits for the computations: should be
+          high enough to represent the least important time unit
+          exactly.
+
+     ...: further arguments to be passed from or to other methods.
+
+    time: date-time objects
+
+time1, time2: date-time objects or character vectors.  (Character
+          vectors are converted by ‘as.POSIXct’.)
+
+       z: a numeric vector (in seconds)
+
+     lop: one of ‘==’, ‘!=’, ‘<’, ‘<=’, ‘>’ or ‘>=’.
+
+_D_e_t_a_i_l_s:
+
+     There are two basic classes of date/times.  Class ‘"POSIXct"’
+     represents the (signed) number of seconds since the beginning of
+     1970 (in the UTC time zone) as a numeric vector.  Class
+     ‘"POSIXlt"’ is a named list of vectors representing
+
+     ‘sec’ 0-61: seconds.
+
+     ‘min’ 0-59: minutes.
+
+     ‘hour’ 0-23: hours.
+
+     ‘mday’ 1-31: day of the month
+
+     ‘mon’ 0-11: months after the first of the year.
+
+     ‘year’ years since 1900.
+
+     ‘wday’ 0-6 day of the week, starting on Sunday.
+
+     ‘yday’ 0-365: day of the year.
+
+     ‘isdst’ Daylight Saving Time flag.  Positive if in force, zero if
+          not, negative if unknown.
+
+     ‘zone’ (Optional.) The abbreviation for the time zone in force at
+          that time: ‘""’ if unknown (but ‘""’ might also be used for
+          UTC).
+
+     ‘gmtoff’ (Optional.) The offset in seconds from GMT: positive
+          values are East of the meridian.  Usually ‘NA’ if unknown,
+          but ‘0’ could mean unknown.
+
+     (The last two components are not present for times in UTC and are
+     platform-dependent: they are supported on platforms based on BSD
+     or ‘glibc’ (including Linux and macOS) and those using the
+     ‘tzcode’ implementation shipped with R (including Windows). But
+     they are not necessarily set.).  Note that the internal list
+     structure is somewhat hidden, as many methods (including
+     ‘length(x)’, ‘print()’ and ‘str’) apply to the abstract date-time
+     vector, as for ‘"POSIXct"’.  As from R 3.5.0, one can extract and
+     replace _single_ components via ‘[’ indexing with two indices (see
+     the examples).  The classes correspond to the POSIX/C99 constructs
+     of ‘calendar time’ (the ‘time_t’ data type) and ‘local time’ (or
+     broken-down time, the ‘struct tm’ data type), from which they also
+     inherit their names.  The components of ‘"POSIXlt"’ are integer
+     vectors, except ‘sec’ and ‘zone’.
+
+     ‘"POSIXct"’ is more convenient for including in data frames, and
+     ‘"POSIXlt"’ is closer to human-readable forms.  A virtual class
+     ‘"POSIXt"’ exists from which both of the classes inherit: it is
+     used to allow operations such as subtraction to mix the two
+     classes.
+
+     Components ‘wday’ and ‘yday’ of ‘"POSIXlt"’ are for information,
+     and are not used in the conversion to calendar time.  However,
+     ‘isdst’ is needed to distinguish times at the end of DST:
+     typically 1am to 2am occurs twice, first in DST and then in
+     standard time.  At all other times ‘isdst’ can be deduced from the
+     first six values, but the behaviour if it is set incorrectly is
+     platform-dependent.
+
+     Logical comparisons and some arithmetic operations are available
+     for both classes.  One can add or subtract a number of seconds
+     from a date-time object, but not add two date-time objects.
+     Subtraction of two date-time objects is equivalent to using
+     ‘difftime’.  Be aware that ‘"POSIXlt"’ objects will be interpreted
+     as being in the current time zone for these operations unless a
+     time zone has been specified.
+
+     ‘"POSIXlt"’ objects will often have an attribute ‘"tzone"’, a
+     character vector of length 3 giving the time zone name from the
+     ‘TZ’ environment variable and the names of the base time zone and
+     the alternate (daylight-saving) time zone.  Sometimes this may
+     just be of length one, giving the time zone name.
+
+     ‘"POSIXct"’ objects may also have an attribute ‘"tzone"’, a
+     character vector of length one.  If set to a non-empty value, it
+     will determine how the object is converted to class ‘"POSIXlt"’
+     and in particular how it is printed.  This is usually desirable,
+     but if you want to specify an object in a particular time zone but
+     to be printed in the current time zone you may want to remove the
+     ‘"tzone"’ attribute (e.g., by ‘c(x)’).
+
+     Unfortunately, the conversion is complicated by the operation of
+     time zones and leap seconds (according to this version of R's
+     data, 27 days have been 86401 seconds long so far, the last being
+     on (actually, immediately before) 2017-01-01: the times of the
+     extra seconds are in the object ‘.leap.seconds’).  The details of
+     this are entrusted to the OS services where possible.  It seems
+     that some rare systems used to use leap seconds, but all known
+     current platforms ignore them (as required by POSIX).  This is
+     detected and corrected for at build time, so ‘"POSIXct"’ times
+     used by R do not include leap seconds on any platform.
+
+     Using ‘c’ on ‘"POSIXlt"’ objects converts them to the current time
+     zone, and on ‘"POSIXct"’ objects drops any ‘"tzone"’ attributes
+     (even if they are all marked with the same time zone).
+
+     A few times have specific issues.  First, the leap seconds are
+     ignored, and real times such as ‘"2005-12-31 23:59:60"’ are
+     (probably) treated as the next second.  However, they will never
+     be generated by R, and are unlikely to arise as input.  Second, on
+     some OSes there is a problem in the POSIX/C99 standard with
+     ‘"1969-12-31 23:59:59 UTC"’, which is ‘-1’ in calendar time and
+     that value is on those OSes also used as an error code.  Thus
+     ‘as.POSIXct("1969-12-31 23:59:59", format = "%Y-%m-%d %H:%M:%S",
+     tz = "UTC")’ may give ‘NA’, and hence ‘as.POSIXct("1969-12-31
+     23:59:59", tz = "UTC")’ will give ‘"1969-12-31 23:59:00"’.  Other
+     OSes (including the code used by R on Windows) report errors
+     separately and so are able to handle that time as valid.
+
+     The print methods respect ‘options("max.print")’.
+
+_S_u_b-_s_e_c_o_n_d _A_c_c_u_r_a_c_y:
+
+     Classes ‘"POSIXct"’ and ‘"POSIXlt"’ are able to express fractions
+     of a second.  (Conversion of fractions between the two forms may
+     not be exact, but will have better than microsecond accuracy.)
+
+     Fractional seconds are printed only if ‘options("digits.secs")’ is
+     set: see ‘strftime’.
+
+_V_a_l_i_d _r_a_n_g_e_s _f_o_r _t_i_m_e_s:
+
+     The ‘"POSIXlt"’ class can represent a very wide range of times (up
+     to billions of years), but such times can only be interpreted with
+     reference to a time zone.
+
+     The concept of time zones was first adopted in the nineteenth
+     century, and the Gregorian calendar was introduced in 1582 but not
+     universally adopted until 1927.  OS services almost invariably
+     assume the Gregorian calendar and may assume that the time zone
+     that was first enacted for the location was in force before that
+     date.  (The earliest legislated time zone seems to have been
+     London on 1847-12-01.)  Some OSes assume the previous use of
+     ‘local time’ based on the longitude of a location within the time
+     zone.
+
+     Most operating systems represent ‘POSIXct’ times as C type ‘long’.
+     This means that on 32-bit OSes this covers the period 1902 to
+     2037.  On all known 64-bit platforms and for the code we use on
+     32-bit Windows, the range of representable times is billions of
+     years: however, not all can convert correctly times before 1902 or
+     after 2037.  A few benighted OSes used a unsigned type and so
+     cannot represent times before 1970.
+
+     Where possible the platform limits are detected, and outside the
+     limits we use our own C code.  This uses the offset from GMT in
+     use either for 1902 (when there was no DST) or that predicted for
+     one of 2030 to 2037 (chosen so that the likely DST transition days
+     are Sundays), and uses the alternate (daylight-saving) time zone
+     only if ‘isdst’ is positive or (if ‘-1’) if DST was predicted to
+     be in operation in the 2030s on that day.
+
+     Note that there are places (e.g., Rome) whose offset from UTC
+     varied in the years prior to 1902, and these will be handled
+     correctly only where there is OS support.
+
+     There is no reason to suppose that the DST rules will remain the
+     same in the future, and indeed the US legislated in 2005 to change
+     its rules as from 2007, with a possible future reversion.  So
+     conversions for times more than a year or two ahead are
+     speculative.
+
+_W_a_r_n_i_n_g_s:
+
+     Some Unix-like systems (especially Linux ones) do not have
+     environment variable ‘TZ’ set, yet have internal code that expects
+     it (as does POSIX).  We have tried to work around this, but if you
+     get unexpected results try setting ‘TZ’.  See ‘Sys.timezone’ for
+     valid settings.
+
+     Great care is needed when comparing objects of class ‘"POSIXlt"’.
+     Not only are components and attributes optional; several
+     components may have values meaning ‘not yet determined’ and the
+     same time represented in different time zones will look quite
+     different.
+
+     Currently the _order_ of the list components of ‘"POSIXlt"’
+     objects must not be changed, as several C-based conversion methods
+     rely on the order for efficiency.
+
+_R_e_f_e_r_e_n_c_e_s:
+
+     Ripley, B. D. and Hornik, K. (2001) Date-time classes. _R News_,
+     *1/2*, 8-11.  <URL:
+     https://www.r-project.org/doc/Rnews/Rnews_2001-2.pdf>
+
+_S_e_e _A_l_s_o:
+
+     Dates for dates without times.
+
+     ‘as.POSIXct’ and ‘as.POSIXlt’ for conversion between the classes.
+
+     ‘strptime’ for conversion to and from character representations.
+
+     ‘Sys.time’ for clock time as a ‘"POSIXct"’ object.
+
+     ‘difftime’ for time intervals.
+
+     ‘cut.POSIXt’, ‘seq.POSIXt’, ‘round.POSIXt’ and ‘trunc.POSIXt’ for
+     methods for these classes.
+
+     ‘weekdays’ for convenience extraction functions.
+
+_E_x_a_m_p_l_e_s:
+
+     (z <- Sys.time())             # the current date, as class "POSIXct"
+     
+     Sys.time() - 3600             # an hour ago
+     
+     as.POSIXlt(Sys.time(), "GMT") # the current time in GMT
+     format(.leap.seconds)         # the leap seconds in your time zone
+     print(.leap.seconds, tz = "PST8PDT")  # and in Seattle's
+     
+     
+     ## look at *internal* representation of "POSIXlt" :
+     leapS <- as.POSIXlt(.leap.seconds)
+     names(leapS) ; is.list(leapS)
+     ## str() "too smart" -->  need unclass(.):
+     utils::str(unclass(leapS), vec.len = 7)
+     ## Extracting *single* components of POSIXlt objects:
+     leapS[1 : 5, "year"]
+     
+     ##  length(.) <- n   now works for "POSIXct" and "POSIXlt" :
+     for(lpS in list(.leap.seconds, leapS)) {
+         ls <- lpS; length(ls) <- 12
+         l2 <- lpS; length(l2) <- 5 + length(lpS)
+         stopifnot(exprs = {
+           ## length(.) <- * is compatible to subsetting/indexing:
+           identical(ls, lpS[seq_along(ls)])
+           identical(l2, lpS[seq_along(l2)])
+           ## has filled with NA's
+           is.na(l2[(length(lpS)+1):length(l2)])
+         })
+     }
+     
+
+> 
+> ## Les objets POSIXct et POSIXlt représentent un nombre de
+> ## secondes depuis le 1er janvier 1970.
+> (auj <- Sys.time())        # date et heure courante
+[1] "2019-09-03 02:09:42 EDT"
+> auj + 3600                 # une heure plus tard
+[1] "2019-09-03 03:09:42 EDT"
+> auj - 24 * 3600            # hier, même heure
+[1] "2019-09-02 02:09:42 EDT"
+> auj - as.POSIXct("2000-02-29") # écart entre deux dates
+Time difference of 7126.048 days
+> difftime(auj, as.POSIXct("2000-02-29")) # idem
+Time difference of 7126.048 days
+> 
+> ## La classe POSIXlt est un représentation sous forme de liste
+> ## des informations contenues dans un objet POSIXct. Elle est
+> ## surtout utile pour extraire facilement des informations
+> ## d'une date sous forme numérique, ce qui permet ensuite
+> ## d'effectuer des calculs.
+> ##
+> ## N'hésitez pas à convertir d'un type vers un autre.
+> class(auj)                 # objet POSIXct
+[1] "POSIXct" "POSIXt" 
+> auj <- as.POSIXlt(auj)     # conversion en POSIXlt
+> unclass(auj)               # c'est une liste
+$sec
+[1] 42.60976
+
+$min
+[1] 9
+
+$hour
+[1] 2
+
+$mday
+[1] 3
+
+$mon
+[1] 8
+
+$year
+[1] 119
+
+$wday
+[1] 2
+
+$yday
+[1] 245
+
+$isdst
+[1] 1
+
+$zone
+[1] "EDT"
+
+$gmtoff
+[1] -14400
+
+attr(,"tzone")
+[1] ""    "EST" "EDT"
+> auj$hour                   # extraction de l'heure
+[1] 2
+> (m <- auj$mon)             # nombre de mois après janvier
+[1] 8
+> 11 - m                     # nombre de mois fin d'année
+[1] 3
+> (y <- auj$year)            # nombre d'année depuis 1900 (!)
+[1] 119
+> y - (2000 - 1900)          # nombre d'années depuis 2000
+[1] 19
+> 
+> ## La conversion de la classe POSIXct ou POSIXlt vers la
+> ## classe Date laisse tomber l'heure.
+> d <- as.POSIXct("2000-02-29 10:51:27") # objet POSIXct
+> as.Date(d)                 # conversion en date seule 
+[1] "2000-02-29"
+> 
+> ###
+> ### FONCTIONS INTERNES UTILES  
+> ###
+> 
+> ## On se donne un vecteur de 16 éléments.
+> (A <- sample(1:10, 16, replace = TRUE))
+ [1]  4  6 10  9  9  1  8  6  7  2  7  5  8  6 10  2
+> 
+> ## Opérations sur les matrices.
+> dim(A) <- c(4, 4)          # conversion en une matrice 4 x 4
+> b <- c(10, 5, 3, 1)        # vecteur quelconque
+> A                          # matrice 'A'
+     [,1] [,2] [,3] [,4]
+[1,]    4    9    7    8
+[2,]    6    1    2    6
+[3,]   10    8    7   10
+[4,]    9    6    5    2
+> t(A)                       # transposée
+     [,1] [,2] [,3] [,4]
+[1,]    4    6   10    9
+[2,]    9    1    8    6
+[3,]    7    2    7    5
+[4,]    8    6   10    2
+> solve(A)                   # inverse
+           [,1]       [,2]       [,3]        [,4]
+[1,] -0.3030303 -0.2424242  0.3939394 -0.03030303
+[2,] -1.1666667 -1.8333333  2.1666667 -0.66666667
+[3,]  2.0151515  2.7121212 -3.4696970  1.15151515
+[4,] -0.1742424 -0.1893939  0.4015152 -0.24242424
+> solve(A, b)                # solution de Ax = b
+[1]  -3.090909 -15.000000  24.454545  -1.727273
+> A %*% solve(A, b)          # vérification de la réponse
+     [,1]
+[1,]   10
+[2,]    5
+[3,]    3
+[4,]    1
+> diag(A)                    # extraction de la diagonale de 'A'
+[1] 4 1 7 2
+> diag(b)                    # matrice diagonale formée avec 'b'
+     [,1] [,2] [,3] [,4]
+[1,]   10    0    0    0
+[2,]    0    5    0    0
+[3,]    0    0    3    0
+[4,]    0    0    0    1
+> diag(4)                    # matrice identité 4 x 4
+     [,1] [,2] [,3] [,4]
+[1,]    1    0    0    0
+[2,]    0    1    0    0
+[3,]    0    0    1    0
+[4,]    0    0    0    1
+> (A <- cbind(A, b))         # matrice 4 x 5
+                b
+[1,]  4 9 7  8 10
+[2,]  6 1 2  6  5
+[3,] 10 8 7 10  3
+[4,]  9 6 5  2  1
+> nrow(A)                    # nombre de lignes de 'A'
+[1] 4
+> ncol(A)                    # nombre de colonnes de 'A'
+[1] 5
+> rowSums(A)                 # sommes par ligne
+[1] 38 20 38 23
+> colSums(A)                 # sommes par colonne  
+             b 
+29 24 21 26 19 
+> 
+> ###
+> ### FONCTION 'outer'  
+> ###
+> 
+> ## La fonction 'outer' applique une fonction (le produit par
+> ## défaut, d'où le nom de la fonction, dérivé de «produit
+> ## extérieur») à toutes les combinaisons des éléments de ses
+> ## deux premiers arguments.
+> x <- c(1, 2, 4, 7, 10, 12)
+> y <- c(2, 3, 6, 7, 9, 11)
+> outer(x, y)                # produit extérieur
+     [,1] [,2] [,3] [,4] [,5] [,6]
+[1,]    2    3    6    7    9   11
+[2,]    4    6   12   14   18   22
+[3,]    8   12   24   28   36   44
+[4,]   14   21   42   49   63   77
+[5,]   20   30   60   70   90  110
+[6,]   24   36   72   84  108  132
+> x %o% y                    # équivalent plus court
+     [,1] [,2] [,3] [,4] [,5] [,6]
+[1,]    2    3    6    7    9   11
+[2,]    4    6   12   14   18   22
+[3,]    8   12   24   28   36   44
+[4,]   14   21   42   49   63   77
+[5,]   20   30   60   70   90  110
+[6,]   24   36   72   84  108  132
+> 
+> ## Pour effectuer un calcul autre que le produit, on spécifie
+> ## la fonction à appliquer en troisième argument. Si la
+> ## fonction est un des opérateurs arithmétiques de base, il
+> ## faut placer le symbole entre guillemets " ".
+> outer(x, y, "+")           # «somme extérieure»
+     [,1] [,2] [,3] [,4] [,5] [,6]
+[1,]    3    4    7    8   10   12
+[2,]    4    5    8    9   11   13
+[3,]    6    7   10   11   13   15
+[4,]    9   10   13   14   16   18
+[5,]   12   13   16   17   19   21
+[6,]   14   15   18   19   21   23
+> outer(x, y, "<=")          # toutes les comparaisons possibles
+      [,1]  [,2]  [,3]  [,4]  [,5]  [,6]
+[1,]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+[2,]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+[3,] FALSE FALSE  TRUE  TRUE  TRUE  TRUE
+[4,] FALSE FALSE FALSE  TRUE  TRUE  TRUE
+[5,] FALSE FALSE FALSE FALSE FALSE  TRUE
+[6,] FALSE FALSE FALSE FALSE FALSE FALSE
+> outer(x, y, function(x, y) x + 2 * y) # fonction quelconque  
+     [,1] [,2] [,3] [,4] [,5] [,6]
+[1,]    5    7   13   15   19   23
+[2,]    6    8   14   16   20   24
+[3,]    8   10   16   18   22   26
+[4,]   11   13   19   21   25   29
+[5,]   14   16   22   24   28   32
+[6,]   16   18   24   26   30   34
+> 

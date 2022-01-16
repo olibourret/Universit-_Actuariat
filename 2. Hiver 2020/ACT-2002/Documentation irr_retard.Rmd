@@ -1,0 +1,92 @@
+---
+title: "Documentation - Fonction irr en R"
+author: '*William Perron*, *Simon Veilleux*, *Félix Laflamme*, *Olivier Bourret*'
+date: '*28/02/2020*'
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r echo = TRUE, eval = TRUE}
+
+irr <- function(x)
+{
+    if(all(x >= 0) | all(x <=0))
+    stop('Tous les flux financiers sont du même signe')
+    
+    if(sum(abs(Im(polyroot(x))) < .Machine$double.eps^0.5) > 1)
+        warning("Plus d'un changement de signe dans les flux nets, le taux de rendement peut ne pas être unique")
+   
+    i <- (Re(polyroot(x))[abs(Im(polyroot(x))) < .Machine$double.eps^0.5])^(-1) - 1
+    
+   i[i > -1]
+}
+
+```
+
+
+
+
+```{r echo = FALSE, eval = TRUE} 
+flux <- c(-7, 3, 2, -4, 0, 3, 1)
+x <- irr(flux)
+```
+
+Signature
+```
+irr(flux)
+```
+Description
+La fonction $irr$ calcule le taux (ou un des taux possibles) d'intérêt satisfaisant une équation de valeur de flux financiers à des temps différents.
+
+Arguments
+$flux$ : vecteur de tous les flux financiers des temps $0$ à $n$.
+
+Valeur
+nombre réel supérieur à $-1$
+
+Format des flux financiers
+
+
+Considérons l'exemple précédent des flux financiers tel que
+
+```
+-7+4v^3=3v+2v^2+3v^5+v^6, où v=(1+i)^(-1)
+```
+En évaluant la fonction $irr$ avec lesdits flux financiers, le résultat affiché est `r x`.
+
+###########################################################################################
+### Correction
+## Commentaires: Avertissement pour le changement de signes mal défini, espaces pas constants, documentation difficile à lire, document produit est mal organisé
+# R : 8/10
+# A : 5/5
+# S : 4/5
+# D : 4/5
+# C : 3/5
+
+## Solution : 
+
+# Je ne fournis que la solution pour la fonction irr.
+
+# La solution ci-dessous est donnée à titre indicatif. Il peut exister d’autres
+# solutions tout aussi valables.
+#
+# Pour le test sur les changements de signe, on supprime les 0 du vecteur
+# des flux pour contourner les cas où la série passerait par 0 avant de changer
+# de signe (par exemple : −5, 0, 3). Un tel cas est difficile à distinguer d’un
+# passage par 0 sans changement de signe (par exemple : −5, 0, −2).
+
+irr <- function(x)
+{
+  if (all(x >= 0) || all(x <= 0))
+    stop("tous les flux financiers sont du même signe")
+  if (sum(diff(sign(x[x != 0])) != 0) > 1)
+    warning("plus d'un changement de signe dans les flux nets\n le taux de rendement peut ne pas être unique")
+  r <- polyroot(x)
+  i <- 1/Re(r)[abs(Im(r)) < .Machine$double.eps^0.5] - 1
+  i[i > -1]
+}

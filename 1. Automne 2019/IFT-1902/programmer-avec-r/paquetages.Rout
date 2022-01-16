@@ -1,0 +1,428 @@
+
+R Under development (unstable) (2019-07-23 r76873) -- "Unsuffered Consequences"
+Copyright (C) 2019 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin15.6.0 (64-bit)
+
+R est un logiciel libre livré sans AUCUNE GARANTIE.
+Vous pouvez le redistribuer sous certaines conditions.
+Tapez 'license()' ou 'licence()' pour plus de détails.
+
+R est un projet collaboratif avec de nombreux contributeurs.
+Tapez 'contributors()' pour plus d'information et
+'citation()' pour la façon de le citer dans les publications.
+
+Tapez 'demo()' pour des démonstrations, 'help()' pour l'aide
+en ligne ou 'help.start()' pour obtenir l'aide au format HTML.
+Tapez 'q()' pour quitter R.
+
+[Sauvegarde de la session précédente restaurée]
+
+> options(error=expression(NULL))
+> ## Copyright (C) 2019 Vincent Goulet
+> ##
+> ## Ce fichier fait partie du projet
+> ## «Programmer avec R»
+> ## https://gitlab.com/vigou3/programmer-avec-r
+> ##
+> ## Cette création est mise à disposition sous licence
+> ## Attribution-Partage dans les mêmes conditions 4.0
+> ## International de Creative Commons.
+> ## https://creativecommons.org/licenses/by-sa/4.0/
+> 
+> ###
+> ### SYSTÈME DE BASE
+> ###
+> 
+> ## La fonction 'search' retourne la liste des environnements
+> ## dans lesquels R va chercher un objet (en particulier une
+> ## fonction). '.GlobalEnv' est l'environnement de travail.
+> search()
+[1] ".GlobalEnv"        "package:stats"     "package:graphics" 
+[4] "package:grDevices" "package:utils"     "package:datasets" 
+[7] "package:methods"   "Autoloads"         "package:base"     
+> 
+> ## Liste de tous les packages installés sur votre système.
+> ## Noter que MASS en fait partie. C'est un paquetage livré
+> ## avec R, mais qui n'est pas chargé par défaut.
+> library()
+Packages dans la bibliothèque ‘/Users/vincent/Library/R/library’ :
+
+abind                   Combine Multidimensional Arrays
+actuar                  Actuarial Functions and Heavy Tailed
+                        Distributions
+askpass                 Safe Password Entry for R, Git, and SSH
+assertthat              Easy Pre and Post Assertions
+backports               Reimplementations of Functions Introduced Since
+                        R-3.0.0
+base64enc               Tools for base64 encoding
+BH                      Boost C++ Header Files
+biglm                   bounded memory linear and generalized linear
+                        models
+bitops                  Bitwise Operations
+bmp                     Read Windows Bitmap (BMP) Images
+Cairo                   R Graphics Device using Cairo Graphics Library
+                        for Creating High-Quality Bitmap (PNG, JPEG,
+                        TIFF), Vector (PDF, SVG, PostScript) and
+                        Display (X11 and Win32) Output
+callr                   Call R from R
+car                     Companion to Applied Regression
+carData                 Companion to Applied Regression Data Sets
+caTools                 Tools: moving window statistics, GIF, Base64,
+                        ROC AUC, etc.
+cellranger              Translate Spreadsheet Cell Ranges to Rows and
+                        Columns
+ChainLadder             Statistical Methods and Models for Claims
+                        Reserving in General Insurance
+cli                     Helpers for Developing Command Line Interfaces
+clipr                   Read and Write from the System Clipboard
+clisymbols              Unicode Symbols at the R Prompt
+coda                    Output Analysis and Diagnostics for MCMC
+colorspace              A Toolbox for Manipulating and Assessing Colors
+                        and Palettes
+config                  Manage Environment Specific Configuration
+                        Values
+cplm                    Compound Poisson Linear Models
+crayon                  Colored Terminal Output
+crosstalk               Inter-Widget Interactivity for HTML Widgets
+curl                    A Modern and Flexible Web Client for R
+data.table              Extension of `data.frame`
+DBI                     R Database Interface
+desc                    Manipulate DESCRIPTION Files
+devtools                Tools to Make Developing R Packages Easier
+dichromat               Color Schemes for Dichromats
+digest                  Create Compact Hash Digests of R Objects
+downloader              Download Files over HTTP and HTTPS
+e1071                   Misc Functions of the Department of Statistics,
+                        Probability Theory Group (Formerly: E1071), TU
+                        Wien
+ellipsis                Tools for Working with ...
+envDocument             Document the R Working Environment
+evaluate                Parsing and Evaluation Tools that Provide More
+                        Details than the Default
+expint                  Exponential Integral and Incomplete Gamma
+                        Function
+fansi                   ANSI Control Sequence Aware String Functions
+flexclust               Flexible Cluster Algorithms
+forcats                 Tools for Working with Categorical Variables
+                        (Factors)
+fortunes                R Fortunes
+fs                      Cross-Platform File System Operations Based on
+                        'libuv'
+generics                Common S3 Generics not Provided by Base R
+                        Methods Related to Model Fitting
+ggplot2                 Create Elegant Data Visualisations Using the
+                        Grammar of Graphics
+gh                      'GitHub' 'API'
+git2r                   Provides Access to Git Repositories
+glue                    Interpreted String Literals
+gtable                  Arrange 'Grobs' in Tables
+haven                   Import and Export 'SPSS', 'Stata' and 'SAS'
+                        Files
+highr                   Syntax Highlighting for R Source Code
+hms                     Pretty Time of Day
+htmltools               Tools for HTML
+htmlwidgets             HTML Widgets for R
+httpuv                  HTTP and WebSocket Server Library
+httr                    Tools for Working with URLs and HTTP
+igraph                  Network Analysis and Visualization
+imager                  Image Processing Library Based on 'CImg'
+ini                     Read and Write '.ini' Files
+jpeg                    Read and write JPEG images
+jsonlite                A Robust, High Performance JSON Parser and
+                        Generator for R
+keras                   R Interface to 'Keras'
+knitr                   A General-Purpose Package for Dynamic Report
+                        Generation in R
+labeling                Axis Labeling
+later                   Utilities for Delaying Function Execution
+lazyeval                Lazy (Non-Standard) Evaluation
+lme4                    Linear Mixed-Effects Models using 'Eigen' and
+                        S4
+lmtest                  Testing Linear Regression Models
+lubridate               Make Dealing with Dates a Little Easier
+magick                  Advanced Graphics and Image-Processing in R
+magrittr                A Forward-Pipe Operator for R
+manipulateWidget        Add Even More Interactivity to Interactive
+                        Charts
+maptools                Tools for Handling Spatial Objects
+markdown                'Markdown' Rendering for R
+MatrixModels            Modelling with Sparse And Dense Matrices
+memoise                 Memoisation of Functions
+mime                    Map Filenames to MIME Types
+miniUI                  Shiny UI Widgets for Small Screens
+minqa                   Derivative-free optimization algorithms by
+                        quadratic approximation
+mockery                 Mocking Library for R
+modeltools              Tools and Classes for Statistical Models
+munsell                 Utilities for Using Munsell Colours
+nloptr                  R Interface to NLopt
+openssl                 Toolkit for Encryption, Signatures and
+                        Certificates Based on OpenSSL
+openxlsx                Read, Write and Edit XLSX Files
+packrat                 A Dependency Management System for Projects and
+                        their R Package Dependencies
+pbkrtest                Parametric Bootstrap and Kenward Roger Based
+                        Methods for Mixed Model Comparison
+pillar                  Coloured Formatting for Columns
+pkgbuild                Find Tools Needed to Build R Packages
+pkgconfig               Private Configuration for 'R' Packages
+pkgload                 Simulate Package Installation and Attach
+plyr                    Tools for Splitting, Applying and Combining
+                        Data
+png                     Read and write PNG images
+polynom                 A Collection of Functions to Implement a Class
+                        for Univariate Polynomial Manipulations
+praise                  Praise Users
+prettyunits             Pretty, Human Readable Formatting of Quantities
+processx                Execute and Control System Processes
+progress                Terminal Progress Bars
+promises                Abstractions for Promise-Based Asynchronous
+                        Programming
+ps                      List, Query, Manipulate System Processes
+purrr                   Functional Programming Tools
+quantreg                Quantile Regression
+R6                      Encapsulated Classes with Reference Semantics
+rbenchmark              Benchmarking routine for R
+rcmdcheck               Run 'R CMD check' from 'R' and Capture Results
+RColorBrewer            ColorBrewer Palettes
+Rcpp                    Seamless R and C++ Integration
+RcppEigen               'Rcpp' Integration for the 'Eigen' Templated
+                        Linear Algebra Library
+RCurl                   General Network (HTTP/FTP/...) Client Interface
+                        for R
+readbitmap              Simple Unified Interface to Read Bitmap Images
+                        (BMP,JPEG,PNG,TIFF)
+readr                   Read Rectangular Text Data
+readxl                  Read Excel Files
+rematch                 Match Regular Expressions with a Nicer 'API'
+remotes                 R Package Installation from Remote
+                        Repositories, Including 'GitHub'
+reshape2                Flexibly Reshape Data: A Reboot of the Reshape
+                        Package
+reticulate              Interface to 'Python'
+rgl                     3D Visualization Using OpenGL
+rio                     A Swiss-Army Knife for Data I/O
+rlang                   Functions for Base Types and Core R and
+                        'Tidyverse' Features
+rmarkdown               Dynamic Documents for R
+rprojroot               Finding Files in Project Subdirectories
+rsconnect               Deployment Interface for R Markdown Documents
+                        and Shiny Applications
+RSKC                    Robust Sparse K-Means
+rstudioapi              Safely Access the RStudio API
+RUnit                   R Unit Test Framework
+sandwich                Robust Covariance Matrix Estimators
+scales                  Scale Functions for Visualization
+sessioninfo             R Session Information
+shiny                   Web Application Framework for R
+shinythemes             Themes for Shiny
+sourcetools             Tools for Reading, Tokenizing and Parsing R
+                        Code
+sp                      Classes and Methods for Spatial Data
+SparseM                 Sparse Linear Algebra
+statmod                 Statistical Modeling
+stringi                 Character String Processing Facilities
+stringr                 Simple, Consistent Wrappers for Common String
+                        Operations
+sys                     Powerful and Reliable Tools for Running System
+                        Commands in R
+systemfit               Estimating Systems of Simultaneous Equations
+tensorflow              R Interface to 'TensorFlow'
+testthat                Unit Testing for R
+tfruns                  Training Run Tools for 'TensorFlow'
+tibble                  Simple Data Frames
+tidyselect              Select from a Set of Strings
+tiff                    Read and write TIFF images
+tinytex                 Helper Functions to Install and Maintain 'TeX
+                        Live', and Compile 'LaTeX' Documents
+tweedie                 Evaluation of Tweedie Exponential Family Models
+usethis                 Automate Package and Project Setup
+utf8                    Unicode Text Processing
+viridisLite             Default Color Maps from 'matplotlib' (Lite
+                        Version)
+webshot                 Take Screenshots of Web Pages
+whisker                 {{mustache}} for R, logicless templating
+withr                   Run Code 'With' Temporarily Modified Global
+                        State
+xfun                    Miscellaneous Functions by 'Yihui Xie'
+xopen                   Open System Files, 'URLs', Anything
+xtable                  Export Tables to LaTeX or HTML
+yaml                    Methods to Convert R Data to YAML and Back
+zeallot                 Multiple, Unpacking, and Destructuring
+                        Assignment
+zip                     Cross-Platform 'zip' Compression
+zoo                     S3 Infrastructure for Regular and Irregular
+                        Time Series (Z's Ordered Observations)
+
+Packages dans la bibliothèque ‘/Library/Frameworks/R.framework/Versions/3.7/Resources/library’ :
+
+base                    The R Base Package
+boot                    Bootstrap Functions (Originally by Angelo Canty
+                        for S)
+class                   Functions for Classification
+cluster                 "Finding Groups in Data": Cluster Analysis
+                        Extended Rousseeuw et al.
+codetools               Code Analysis Tools for R
+compiler                The R Compiler Package
+datasets                The R Datasets Package
+foreign                 Read Data Stored by 'Minitab', 'S', 'SAS',
+                        'SPSS', 'Stata', 'Systat', 'Weka', 'dBase', ...
+graphics                The R Graphics Package
+grDevices               The R Graphics Devices and Support for Colours
+                        and Fonts
+grid                    The Grid Graphics Package
+KernSmooth              Functions for Kernel Smoothing Supporting Wand
+                        & Jones (1995)
+lattice                 Trellis Graphics for R
+MASS                    Support Functions and Datasets for Venables and
+                        Ripley's MASS
+Matrix                  Sparse and Dense Matrix Classes and Methods
+methods                 Formal Methods and Classes
+mgcv                    Mixed GAM Computation Vehicle with Automatic
+                        Smoothness Estimation
+nlme                    Linear and Nonlinear Mixed Effects Models
+nnet                    Feed-Forward Neural Networks and Multinomial
+                        Log-Linear Models
+parallel                Support for Parallel computation in R
+rpart                   Recursive Partitioning and Regression Trees
+spatial                 Functions for Kriging and Point Pattern
+                        Analysis
+splines                 Regression Spline Functions and Classes
+stats                   The R Stats Package
+stats4                  Statistical Functions using S4 Classes
+survival                Survival Analysis
+tcltk                   Tcl/Tk Interface
+tools                   Tools for Package Development
+utils                   The R Utils Package
+
+> 
+> ###
+> ### UTILISATION D'UN PAQUETAGE
+> ###
+> 
+> ## Chargement du package MASS qui contient plusieurs
+> ## fonctions statistiques très utiles.
+> library("MASS")
+> 
+> ###
+> ### CRÉATION D'UNE BIBLIOTHÈQUE PERSONNELLE
+> ###
+> 
+> ## Liste des bibliothèques consultées par R. Votre
+> ## bibliothèque personnelle devrait y apparaitre si vous avez
+> ## suivi la procédure expliquée dans le chapitre.
+> .libPaths()
+[1] "/Users/vincent/Library/R/library"                              
+[2] "/Library/Frameworks/R.framework/Versions/3.7/Resources/library"
+> 
+> ###
+> ### INSTALLATION DE PAQUETAGES ADDITIONNELS
+> ###
+> 
+> ## Installation du paquetage actuar depuis le miroir canadien
+> ## de CRAN.
+> ##
+> ## Si vous avez configuré une bibliothèque personnelle et
+> ## qu'elle apparait dans le résultat de '.libPaths()',
+> ## ci-dessus, le paquetage sera automatiquement installé dans
+> ## celle-ci.
+> install.packages("actuar", repos = "https://cloud.r-project.org")
+Installation du package dans ‘/Users/vincent/Library/R/library’
+(car ‘lib’ n'est pas spécifié)
+Warning: impossible d'accéder à l'index de l'entrepôt https://cloud.r-project.org/bin/macosx/el-capitan/contrib/3.7:
+  impossible d'ouvrir l'URL 'https://cloud.r-project.org/bin/macosx/el-capitan/contrib/3.7/PACKAGES'
+Package which is only available in source form, and may need
+  compilation of C/C++/Fortran: ‘actuar’
+installation du package source ‘actuar’
+
+essai de l'URL 'https://cloud.r-project.org/src/contrib/actuar_2.3-2.tar.gz'
+Content type 'application/x-gzip' length 1479983 bytes (1.4 MB)
+==================================================
+downloaded 1.4 MB
+
+* installing *source* package ‘actuar’ ...
+** package ‘actuar’ correctement décompressé et sommes MD5 vérifiées
+** using staged installation
+** libs
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c beta.c -o beta.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c betaint.c -o betaint.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c burr.c -o burr.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c chisq.c -o chisq.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c dpq.c -o dpq.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c dpqphtype.c -o dpqphtype.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c exp.c -o exp.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c gamma.c -o gamma.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c genbeta.c -o genbeta.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c genpareto.c -o genpareto.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c gumbel.c -o gumbel.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c hierarc.c -o hierarc.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c init.c -o init.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c invburr.c -o invburr.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c invexp.c -o invexp.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c invgamma.c -o invgamma.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c invgauss.c -o invgauss.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c invparalogis.c -o invparalogis.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c invpareto.c -o invpareto.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c invtrgamma.c -o invtrgamma.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c invweibull.c -o invweibull.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c lgamma.c -o lgamma.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c llogis.c -o llogis.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c lnorm.c -o lnorm.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c logarithmic.c -o logarithmic.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c names.c -o names.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c norm.c -o norm.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c panjer.c -o panjer.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c paralogis.c -o paralogis.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c pareto.c -o pareto.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c pareto1.c -o pareto1.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c phtype.c -o phtype.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c poisinvgauss.c -o poisinvgauss.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c random.c -o random.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c randomphtype.c -o randomphtype.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c trbeta.c -o trbeta.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c trgamma.c -o trgamma.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c unif.c -o unif.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c util.c -o util.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c weibull.c -o weibull.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c zmbinom.c -o zmbinom.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c zmgeom.c -o zmgeom.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c zmlogarithmic.c -o zmlogarithmic.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c zmnbinom.c -o zmnbinom.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c zmpois.c -o zmpois.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c ztbinom.c -o ztbinom.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c ztgeom.c -o ztgeom.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c ztnbinom.c -o ztnbinom.o
+clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG  -I"/Users/vincent/Library/R/library/expint/include" -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include   -fPIC  -Wall -pedantic -c ztpois.c -o ztpois.o
+clang -dynamiclib -Wl,-headerpad_max_install_names -undefined dynamic_lookup -single_module -multiply_defined suppress -L/Library/Frameworks/R.framework/Resources/lib -L/usr/local/lib -o actuar.so beta.o betaint.o burr.o chisq.o dpq.o dpqphtype.o exp.o gamma.o genbeta.o genpareto.o gumbel.o hierarc.o init.o invburr.o invexp.o invgamma.o invgauss.o invparalogis.o invpareto.o invtrgamma.o invweibull.o lgamma.o llogis.o lnorm.o logarithmic.o names.o norm.o panjer.o paralogis.o pareto.o pareto1.o phtype.o poisinvgauss.o random.o randomphtype.o trbeta.o trgamma.o unif.o util.o weibull.o zmbinom.o zmgeom.o zmlogarithmic.o zmnbinom.o zmpois.o ztbinom.o ztgeom.o ztnbinom.o ztpois.o -L/Library/Frameworks/R.framework/Resources/lib -lRlapack -L/Library/Frameworks/R.framework/Resources/lib -lRblas -L/usr/local/gfortran/lib/gcc/x86_64-apple-darwin15/6.1.0 -L/usr/local/gfortran/lib -lgfortran -lquadmath -lm -F/Library/Frameworks/R.framework/.. -framework R -Wl,-framework -Wl,CoreFoundation
+installing to /Users/vincent/Library/R/library/00LOCK-actuar/00new/actuar/libs
+** R
+** data
+*** moving datasets to lazyload DB
+** demo
+** inst
+** byte-compile and prepare package for lazy loading
+** help
+*** installing help indices
+** building package indices
+** installing vignettes
+** testing if installed package can be loaded from temporary location
+** checking absolute paths in shared objects and dynamic libraries
+** testing if installed package can be loaded from final location
+** testing if installed package keeps a record of temporary installation path
+* DONE (actuar)
+
+Les packages source téléchargés sont dans
+	‘/private/var/folders/yw/mzfqf1qx4dlfkg7dd4fjrs4m0000gr/T/RtmpZu4awD/downloaded_packages’
+> 
+> ## Chargement du paquetage dans la session de travail. R
+> ## recherche le paquetage dans toutes les bibliothèques de
+> ## '.libPaths()'.
+> library("actuar")
+
+Attachement du package : ‘actuar’
+
+The following object is masked from ‘package:grDevices’:
+
+    cm
+
+> 

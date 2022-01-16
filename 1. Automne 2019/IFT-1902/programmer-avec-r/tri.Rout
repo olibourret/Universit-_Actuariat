@@ -1,0 +1,206 @@
+
+R Under development (unstable) (2019-07-23 r76873) -- "Unsuffered Consequences"
+Copyright (C) 2019 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin15.6.0 (64-bit)
+
+R est un logiciel libre livré sans AUCUNE GARANTIE.
+Vous pouvez le redistribuer sous certaines conditions.
+Tapez 'license()' ou 'licence()' pour plus de détails.
+
+R est un projet collaboratif avec de nombreux contributeurs.
+Tapez 'contributors()' pour plus d'information et
+'citation()' pour la façon de le citer dans les publications.
+
+Tapez 'demo()' pour des démonstrations, 'help()' pour l'aide
+en ligne ou 'help.start()' pour obtenir l'aide au format HTML.
+Tapez 'q()' pour quitter R.
+
+[Sauvegarde de la session précédente restaurée]
+
+> options(error=expression(NULL))
+> ## Copyright (C) 2019 Vincent Goulet
+> ##
+> ## Ce fichier fait partie du projet
+> ## «Programmer avec R»
+> ## https://gitlab.com/vigou3/programmer-avec-r
+> ##
+> ## Cette création est mise à disposition sous licence
+> ## Attribution-Partage dans les mêmes conditions 4.0
+> ## International de Creative Commons.
+> ## https://creativecommons.org/licenses/by-sa/4.0/
+> 
+> ###
+> ### BOUCLES ITÉRATIVES  
+> ###
+> 
+> ## Nous allons illustrer l'utilisation des boucles avec la
+> ## méthode du point fixe. On dit qu'une valeur x est un «point
+> ## fixe» d'une fonction f si cette valeur satisfait l'équation
+> ##
+> ##   x = f(x).
+> ##
+> ## La méthode numérique de recherche du point fixe d'une
+> ## fonction f est simple et puissante: elle consiste à choisir
+> ## une valeur de départ, puis à évaluer successivement f(x),
+> ## f(f(x)), f(f(f(x))), ... jusqu'à ce que la valeur change
+> ## «peu».
+> ##
+> ## L'algorithme est donc très simple:
+> ##
+> ## 1. Choisir une valeur de départ y.
+> ## 2. Calculer x = f(y)
+> ## 3. Si |x - y|/|x| >= e, poser y <- x et retourner à
+> ##    l'étape 2.
+> ## 4. Retourner x.
+> ##
+> ## Avant de poursuivre votre lecture, tentez d'identifier le
+> ## meilleur type de boucle ('for', 'while' ou 'repeat') à
+> ## utiliser pour programmer cet algorithme.
+> 
+> ## La méthode de Newton du calcul de la racine carrée par
+> ## approximations successives est un cas spécial de la méthode
+> ## du point fixe. En effet, la racine carrée d'un nombre est
+> ## la valeur positive de y satisfaisant l'équation y^2 = x.
+> ## Cette équation peut se réécrire sous forme de point fixe
+> ## ainsi:
+> ##
+> ##   y = (y + x/y)/2.
+> ##
+> ## Voici une nouvelle mise en oeuvre de la fonction 'sqrt' qui
+> ## utilise la méthode du point fixe. Le critère d'arrêt y est
+> ## exprimé non plus en fonction de l'écart entre 'y'^2 et 'x',
+> ## mais plutôt en fonction de l'écart entre deux
+> ## approximations successives. De plus, la valeur de départ et
+> ## l'erreur d'approximation sont passés en argument à la
+> ## fonction.
+> ##
+> ## Puisqu'il faut au minimum vérifier si la valeur initiale
+> ## est un point fixe, nous utilisons une boucle 'repeat'.
+> sqrt <- function(x, start = 1, TOL = 1E-10)
++ {
++     repeat
++     {
++         y <- (start + x/start)/2
++         if (abs(y - start)/y < TOL)
++             break
++         start <- y
++     }
++     y
++ }
+> 
+> ## Vérifions la validité de la fonction.
+> sqrt(9, 1)
+[1] 3
+> sqrt(225, 1)
+[1] 15
+> sqrt(3047, 50)
+[1] 55.19964
+> 
+> ## Formidable. Toutefois, si nous voulions utiliser la méthode
+> ## du point fixe pour résoudre une autre équation, il faudrait
+> ## écrire une nouvelle fonction qui serait pour l'essentiel
+> ## identique, sinon pour le calcul de la fonction
+> ## (mathématique) f(x) pour laquelle nous cherchons le point
+> ## fixe.
+> ##
+> ## Créons donc une fonction de point fixe générale qui prendra
+> ## la fonction mathématique f(x) en argument.
+> fixed_point <- function(FUN, start, TOL = 1E-10)
++ {
++     repeat
++     {
++         x <- FUN(start)
++         if (abs(x - start)/x < TOL)
++             break
++         start <- x
++     }
++     x
++ }
+> 
+> ## Nous pouvons ensuite écrire une nouvelle fonction 'sqrt'
+> ## qui utilise 'fixed_point'. Nous y ajoutons un test de
+> ## validité de l'argument, pour faire bonne mesure.
+> sqrt <- function(x)
++ {
++     if (x < 0)
++         stop("cannot compute square root of negative value")
++ 
++     fixed_point(function(y) (y + x/y)/2, start = 1)
++ }
+> 
+> ## Validation. Nous obtenons les mêmes résultats que
+> ## précédemment.
+> sqrt(9)
+[1] 3
+> sqrt(25)
+[1] 5
+> sqrt(3047)
+[1] 55.19964
+> 
+> ## Suppression de la fonction pour éviter qu'elle n'entre en
+> ## conflit avec celle de R.
+> rm("sqrt")
+> 
+> ## SYNDROME DE LA PLAQUE À BISCUITS
+> 
+> ## La fonction ci-dessous calcule les 'nterm' premiers termes
+> ## de la suite de Fibonacci. Elle souffre toutefois du
+> ## Syndrome de la plaque à biscuits. (Identifiez pourquoi.)
+> fibonacci0 <- function(nterm)
++ {
++     if (nterm < 1)
++         stop("'nterm' doit être supérieur ou égal à 1")
++     if (nterm == 1)
++         return(0)
++     x <- c(0, 1)
++     for (i in seq_len(nterm - 2))
++         x[i + 2] <- x[i + 1] + x[i]
++     x
++ }
+> 
+> ## Validation de la fonction
+> fibonacci0(1)
+[1] 0
+> fibonacci0(2)
+[1] 0 1
+> fibonacci0(5)
+[1] 0 1 1 2 3
+> 
+> ## Une seconde version de la fonction prend garde de d'abord
+> ## créer un vecteur de la bonne longueur pour stocker tous les
+> ## résultats, puis de le remplir graduellemen. (Le premier
+> ## terme du vecteur est déjà 0 suite à l'initialisation avec
+> ## 'numeric'.)
+> fibonacci <- function(nterm)
++ {
++     if (nterm < 1)
++         stop("'nterm' doit être supérieur ou égal à 1")
++     if (nterm == 1)
++         return(0)
++     x <- numeric(nterm)
++     x[2] <- 1
++     for (i in seq_len(nterm - 2))
++         x[i + 2] <- x[i + 1] + x[i]
++     x
++ }
+> 
+> ## Validation de la fonction
+> fibonacci(1)
+[1] 0
+> fibonacci(2)
+[1] 0 1
+> fibonacci(5)
+[1] 0 1 1 2 3
+> 
+> ## Avons-nous vraiment gagné en efficacité? En comparant le
+> ## temps requis pour calculer plusieurs valeurs de la suite de
+> ## Fibonacci pour chaque fonction, vous pourrez constater que
+> ## la seconde version est entre trois et quatre fois plus
+> ## rapide!
+> system.time(fibonacci0(1e6))
+utilisateur     système      écoulé 
+      0.308       0.058       0.369 
+> system.time(fibonacci(1e6))
+utilisateur     système      écoulé 
+      0.095       0.000       0.097 
+> 

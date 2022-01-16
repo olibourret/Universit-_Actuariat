@@ -1,0 +1,803 @@
+---
+title: "Travail pratique ACT-2011"
+author: "Olivier Bourret, Ellie Lapointe, Marianne Chouinard (Équipe 6)"
+date: "13 avril 2021"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+header-includes: \usepackage{tikz} \usepackage{tikz-qtree} \usetikzlibrary{trees} \usetikzlibrary{matrix} \usetikzlibrary{matrix,shapes} \usetikzlibrary{positioning} \usetikzlibrary{positioning,fit,backgrounds} \usetikzlibrary{automata}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question 1
+
+On veut estimer les paramètres à utiliser dans un arbre binomial à terme. Le prix à terme est obtenu selon la formule suivante :
+
+$$F_{t,t+h} = S_t e^{(r^*-\delta)h}$$
+
+où $r^*$ est le taux sans risque composé continûment et $\delta$ est le taux de dividende. Dans notre cas, $\delta = 0$.
+
+Dans un arbre binomial à terme, les valeurs $S_u$ et $S_d$ sont obtenues selon les formules suivante, étant donné que le prix forward prend déjà en compte le taux sans risque, tel que décrit ci-haut.
+
+$$uS_t = F_{t,t+h}e^{ \sigma \sqrt h}$$
+
+$$dS_t = F_{t,t+h}e^{ -\sigma \sqrt h}$$
+
+, où h est la longueur de chaque période et $\sigma$ est la volatilité du sous-jacent.
+
+\vspace{5mm}
+
+* **Estimateur de la volatilité**
+
+Comme nous avons des rendements de l'indice boursier composé mensuellement, $h = \{\frac{1}{52},\frac{1}{4}\}$. Les paramètres que nous voulons estimer sont donc $\sigma$ et r, qui nous permetteront de trouver u et d.
+Avec l'absence de dividendes, on obtient l'estimateur de la volatilité avec la formule suivante :
+
+$$
+\hat \sigma = \frac{s.d (ln(\frac{S_{t+h}}{S_t}))}{\sqrt h}
+$$
+
+```{r echo = FALSE, include = FALSE}
+
+# Importation des indices boursiers
+
+library(readxl)
+DATAACT2011 <- read_excel("DATAACT2011.xlsm")
+ind_boursier <- DATAACT2011$`8`
+```
+
+
+
+```{r echo = FALSE}
+
+# Calcul des rendements boursiers
+
+rend_S <- 0
+
+for (i in 1:517) {
+  
+rend_i <- (ind_boursier[i+1]/ind_boursier[i])
+  
+  rend_S <- cbind(rend_S, rend_i) 
+}
+
+Rendement_S <- rend_S[2:517]
+
+```
+
+
+```{r echo = FALSE}
+
+# Calcul de l'écart-type des rendements
+
+sigma <- sd(log(Rendement_S))
+sigma_1_52 <- sd(log(Rendement_S))/sqrt(1/52)
+sigma_1_4 <- sd(log(Rendement_S))/sqrt(1/4)
+
+```
+
+
+
+Premièrement, on calcule les rendements à partir des valeurs historiques, ce qui nous permet d'estimer la volatilité des rendements. Nous pouvons obtenir une valeur de $\hat\sigma_{période\ 4} =$ `r sigma_1_4` et de $\hat\sigma_{période\ 52} =$ `r sigma_1_52`.
+
+\vspace{5mm}
+
+* **Estimateur du taux sans risque**
+
+Pour estimer le taux sans risque, on utilise les taux du bon du trésor des 5 dernières années. Pour être cohérent avec l'indice bousier, on utilise les taux de rendement de février 2014 à février 2019.
+
+```{r echo = TRUE, include = FALSE}
+
+# Importation des données du bon du trésors
+
+library(readxl)
+tauxbonstresor <- read_excel("tauxbonstresor.xlsx")
+taux_r <- tauxbonstresor$Rendement
+
+```
+
+Pour approximer le taux sans risque r, on fait la moyenne arithmétique des rendements historiques des 5 dernières années (en pourcentage). Notre estimation du taux sans risque est donc obtenue à partir d'une simple formule de la moyenne. 
+
+
+```{r echo = FALSE}
+
+# Calcul des taux moyens
+
+moyenne_r <- mean(taux_r)
+```
+
+$$
+\hat r_f = \frac{1}{60} \sum_{i = 1}^{60} {r_i}
+$$
+où $r_i$ est le taux effectif d'un bon du trésor d'échance 1 an au mois $i$, selon les données historiques fournies par la banque du Canada. Donc, on obtient comme valeur de $\hat r_f$ (en pourcentage) de `r moyenne_r - 1`.
+
+
+
+Il suffit par la suite de convertit le taux d'intérêt approximé en force d'intérêt. **NOTE :** *Puisque r est parfois utilisé comme taux d'intérêt et à d'autre moment comme force d'intérêt, pour éviter la confusion, * $r_f$ *représentera le taux d'intérêt et* $r$ *sera la force d'intérêt.*
+
+```{r echo = FALSE}
+
+# Conversion du taux effectif en force d'intérêt
+
+force_r <- log(1 + (moyenne_r)/100)
+```
+
+
+$$
+\hat r = ln(1 + \hat r_f)
+$$
+
+Alors, $\hat r =$ `r force_r`
+
+Finalement, avec ces valeurs, on peut trouver les valeurs de $u$, $d$ et $\hat p$
+
+$$u = e^{\hat rh + \hat\sigma \sqrt h} $$
+
+
+
+$$d = e^{\hat rh - \hat\sigma \sqrt h} $$
+
+
+
+$$\hat p = \frac{e^{\hat rh} -d}{u -d} $$
+```{r echo = FALSE}
+
+# Calcul des valeurs u, d, et p pour l'arbre binomial
+u_1_4 <- exp(force_r + sigma_1_4*sqrt(1/4))
+u_1_52 <- exp(force_r + sigma_1_52*sqrt(1/52))
+d_1_4 <- exp(force_r - sigma_1_4*sqrt(1/4))
+d_1_52 <- exp(force_r - sigma_1_52*sqrt(1/52))
+p <- c((exp(force_r/4) - d_1_4)/(u_1_4 - d_1_4),(exp(force_r/52) - d_1_52)/(u_1_52-d_1_52))
+```
+
+Pour faire plus simple, voici un tableau regroupant les valeurs que nous avons trouvées qui nous permettrons de compléter les numéros suivants.
+
+```{r echo=FALSE, results='asis'}
+
+
+library(knitr)
+library(xtable)
+
+### Table des valeurs
+
+Valeurs <- data.frame("période" = c(4,52),
+                      "sigma" = c(sigma_1_4,sigma_1_52),
+                      "r"= c(force_r/4,force_r/52),
+                      "u"= c(u_1_4,u_1_52),
+                      "d"= c(d_1_4,d_1_52),
+                      "p"= p)
+
+
+
+kable(Valeurs, caption = "Paramètres utilisés dans l'arbre binomial", escape = FALSE, align = "c",
+      col.names = c("Période","$\\hat\\sigma$","$\\hat r$", "$u$", "$d$", "$\\hat p$"))
+
+
+
+```
+
+
+\newpage
+
+## Question 2
+
+* **Options d'achat et de vente européennes**
+
+À partir des résultats précédents, nous pouvons créer une fonction qui calcule la valeur du sous-jacent, la valeur de l'option ainsi que les caractéristiques du portefeuille réplicatif à chaque embranchement. Voici un algorithme de la fonction qui est utilisée pour calculer les éléments désirés. Le code est annexé afin de voir les détails de la fonction.
+
+**Algorithme**
+
+1. Calcul de la valeur de chaque noeud ($U^iD^j$) en multipliant la valeur du sous-jacant initial avec le nombre de $u$ et de $d$ rencontrés ($S_0*u^i*d^j$, où $i$ et $j$ sont le nombre de fois que le sous-jacent a augmenté et diminué de valeur dans l'arbre binomial, soit la position des noeuds.)
+
+2. Calcul des valeurs $C_{u^id^{n-i}}$ à l'extémité l'arbre en appliquant le $max(0, S_{u^id^{n-i}} - K)$. Si c'est le cas d'une option de vente, on calcule les valeurs $P_{u^id^{n-i}}$ à l'extémité l'arbre en appliquant le $max(0, K - S_{u^id^{n-i}})$.
+
+3. Calul de la valeur des options à chaque embranchement. $C_{u^id^j} = [p\, C_{u^{i+1}d^j} + (1-p)\, C_{u^id^{j+1}}] e^{-r}$ (Le calul pour l'option de vente est le même.)
+
+4. Calcul de la valeur de $\Delta$ pour chaque embranchement. $\Delta_{u^id^j} = \left(\frac{C_{u^{i+1}d^j} - C_{u^id^{j+1}}}{U^{i+1}D^j - U^iD^{j+1}}\right)$
+
+5. Calcul de la valeur de B pour chaque embranchement. $B_{u^id^j} = e^{-rh}\left(\frac{U^{i+1}D^j \cdot C_{u^id^{j+1}} - U^iD^{j+1} \cdot C_{u^{i+1}d^j}}{U^{i+1}D^j - U^iD^{j+1}}\right)$
+
+6. Retourne toutes les valeurs dans un tableau.
+
+Voici un bref aperçu de la poistion des noeuds dans l'arbre qui a aidé à coder la fonction
+
+\vspace{5mm}
+
+\begin{tikzpicture}[mynode/.style={draw,ellipse, minimum width=1.5cm, minimum height=.8mm}]
+\matrix (A) [matrix of math nodes, nodes={mynode}, column sep=3mm, row sep=1mm]
+{
+&&&&{...}\\
+&&&{5:S_0u^3d^0}&\\
+&&{3:S_0u^2d^0}&&{...}&\\
+&{1:S_0u^1d^0}&&{6:S_0u^2d^1}&\\
+{0:S_0u^0d^0 = S_0},&&{3:S_0u^1d^1}&&{...}\\
+&{2:S_0u^0d^1}&&{7:S_0u^1d^2}&\\
+&&{4:S_0u^0d^2}&&{...}\\
+&&&{8:S_0u^0d^3}&\\
+&&&&{...}\\
+};
+\draw[->] (A-5-1)--(A-4-2);
+\draw[->] (A-5-1)--(A-6-2);
+
+\draw[->] (A-4-2)--(A-3-3);
+\draw[->] (A-4-2)--(A-5-3);
+
+\draw[->] (A-3-3)--(A-2-4);
+\draw[->] (A-3-3)--(A-4-4);
+
+\draw[->] (A-2-4)--(A-1-5);
+\draw[->] (A-2-4)--(A-3-5);
+
+\draw[->] (A-6-2)--(A-5-3);
+\draw[->] (A-6-2)--(A-7-3);
+
+\draw[->] (A-5-3)--(A-4-4);
+\draw[->] (A-5-3)--(A-6-4);
+
+\draw[->] (A-4-4)--(A-3-5);
+\draw[->] (A-4-4)--(A-5-5);
+
+\draw[->] (A-7-3)--(A-6-4);
+\draw[->] (A-7-3)--(A-8-4);
+
+\draw[->] (A-6-4)--(A-5-5);
+\draw[->] (A-6-4)--(A-7-5);
+
+\draw[->] (A-8-4)--(A-7-5);
+\draw[->] (A-8-4)--(A-9-5);
+\end{tikzpicture}
+
+
+En appliquant la fonction, nous avons trouver la valeur du sous-jacent, la valeur de l'option et les caractéristiques du portefeuille réplicatif à chaque embranchement. Voici nos résultats illustrés dans des arbres binomials pour les modéles à 4 états. 
+
+**NOTE:** *Le code utilisé pour créer les arbres binomiaux ferait probablement saigner les yeux à Vincent Goulet. En espérant qu'il ne mette jamais la main sur ce document.*
+
+
+```{r echo = FALSE}
+## Arbre binomial
+
+Arbre <- function(S_0, n, K, r, sigma,Option){
+    
+    u <- exp(r/n + sigma*(1/n)^{0.5})
+    d <- exp(r/n - sigma*sqrt(1/n))
+    p <- (exp(r/n) - d)/(u - d)
+    ## Calcul de la valeur à chaque noeud
+    
+    i <- 1
+    noeuds <- S_0
+    for(i in 1:n){
+        j <- 0
+        for(j in 0:i){
+            noeuds <- cbind(noeuds, S_0*u^(i-j)*d^(j))    ##Calcul de toutes les combinaisons Sud
+            j <- j+1
+        }
+        i+1
+    }
+    
+    ## Cas de l'option d'achat
+    
+    # Calcul de la valeur de l'option d'achat. Par de la fin pour trouver les valeurs du max(0, S_n - K)
+    # pour chaque valeur de fin de l'arbre
+    if(Option == "C"){
+        i <- length(noeuds)
+        Call <- rep(0, length(noeuds))
+        for(i in ((n*(n+1)/2)+1):((n+1)*(n+2)/2)){
+            Call[i] <- max(noeuds[i]-K,0)
+            i <- i-1
+        }
+        
+        #Permet de trouver la valeur de C_i en fonction des autres C_j
+        
+        i <- (n*(n+1)/2)
+        j <- rep(1:n, 1:n)
+        for(i in (n*(n+1)/2):1){
+            Call[i] <- (p*Call[i+j[i]] + (1-p)*Call[1+i+j[i]])*exp(-r/n)
+            i <- i-1
+        } 
+        resultat <- rbind(noeuds, Call)
+        
+        # Calcul des delta et des B pour répliquer le portefeuille
+        i <- 1
+        delta <- rep(NA, length(noeuds))
+        B <- rep(NA, length(noeuds))  ### BESOIN DU H DANS LE B???
+        for(i in 1:(n*(n+1)/2)){
+            delta[i] <- (Call[i+j[i]] - Call[1+i+j[i]])/(noeuds[i+j[i]] - noeuds[1+i+j[i]])
+            B[i] <- exp(-r/n)*(noeuds[i+j[i]] * Call[1+i+j[i]] - noeuds[1+i+j[i]] * Call[i+j[i]])/(noeuds[i+j[i]] - noeuds[1+i+j[i]])
+            i <- i+1
+        }
+        resultat <- rbind(resultat, delta)
+        resultat <- rbind(resultat, B)
+    }
+    
+    ## Cas de l'option de vente
+    
+    # Les étapes sont semblables à celle de l'option d'achat
+    
+    if(Option == "P"){
+        i <- length(noeuds)
+        Put <- rep(0, length(noeuds))
+        for(i in ((n*(n+1)/2)+1):((n+1)*(n+2)/2)){
+            Put[i] <- max(K - noeuds[i],0)
+            i <- i-1
+        }
+        
+        i <- (n*(n+1)/2)
+        j <- rep(1:n, 1:n)
+        for(i in (n*(n+1)/2):1){
+            Put[i] <- (p*Put[i+j[i]] + (1-p)*Put[1+i+j[i]])*exp(-r/n)
+            i <- i-1
+        } 
+        resultat <- rbind(noeuds, Put)
+        
+        i <- 1
+        delta <- rep(NA, length(noeuds))
+        B <- rep(NA, length(noeuds))  ### BESOIN DU H DANS LE B???
+        for(i in 1:(n*(n+1)/2)){
+            delta[i] <- (Put[i+j[i]] - Put[1+i+j[i]])/(noeuds[i+j[i]] - noeuds[1+i+j[i]])
+            B[i] <- exp(-r/n)*(noeuds[i+j[i]] * Put[1+i+j[i]] - noeuds[1+i+j[i]] * Put[i+j[i]])/(noeuds[i+j[i]] - noeuds[1+i+j[i]])
+            i <- i+1
+        }
+        resultat <- rbind(resultat, delta)
+        resultat <- rbind(resultat, B)
+    }
+    resultat
+}
+
+
+Option_Achat <- Arbre(100, 4,K = 110, force_r, sigma, Option = "C")
+Option_Vente <- Arbre(100, 4,K = 95, force_r, sigma, Option = "P")
+
+```
+
+\newpage
+
+* **Résultats de l'arbre à 4 états pour l'option de vente avec un prix d'exercice de $95\,\$$**
+
+\vspace{5mm}
+
+\begin{tikzpicture}[level distance=1.5in,sibling distance=.4in,scale=.8]
+\tikzset{grow'=right}
+\Tree 
+    [.\node(1) [rectangle, draw, align=center] {$S_0 =$ `r Option_Vente[1,1]` \\
+      $P =$ `r Option_Vente[2,1]` \\
+      $\Delta =$ `r Option_Vente[3,1]` \\
+      $B =$ `r Option_Vente[4,1]`}; 
+      \edge [white]; [.\node(2) {};
+        \edge [white]; [.\node(3)  {};
+          \edge [white]; [.\node(4) {};
+            \edge [white]; [.\node(5) [rectangle, draw, align=center] {$S_{uuuu} =$ `r Option_Vente[1,11]` \\
+      $P_{uuuu} =$ `r Option_Vente[2,11]` \\
+      $\Delta_{uuuu} =$ `r Option_Vente[3,11]` \\
+      $B_{uuuu} =$ `r Option_Vente[4,11]`};]
+          ]
+        ]
+      ]
+      \edge [white]; [.\node(6) {};
+        \edge [white]; [.\node(7) {};
+          \edge [white]; [.\node(8) [rectangle, draw, align=center] {$S_{uuu} =$ `r Option_Vente[1,7]` \\
+      $P_{uuu} =$ `r Option_Vente[2,7]` \\
+      $\Delta_{uuu} =$ `r Option_Vente[3,7]` \\
+      $B_{uuu} =$ `r Option_Vente[4,7]`};
+            \edge [white]; [.\node(9) {};]
+          ]
+        ]
+      ]
+      \edge [white]; [.\node(10) {};
+        \edge [white]; [.\node(11) [rectangle, draw, align=center] {$S_{uu} =$ `r Option_Vente[1,4]` \\
+      $P_{uu} =$ `r Option_Vente[2,4]` \\
+      $\Delta_{uu} =$ `r Option_Vente[3,4]` \\
+      $B_{uu} =$ `r Option_Vente[4,4]`};
+          \edge [white]; [.\node(12) {};
+            \edge [white]; [.\node(13) [rectangle, draw, align=center] {$S_{uuud} =$ `r Option_Vente[1,12]` \\
+      $P_{uuud} =$ `r Option_Vente[2,12]` \\
+      $\Delta_{uuud} =$ `r Option_Vente[3,12]` \\
+      $B_{uuud} =$ `r Option_Vente[4,12]`};]
+          ]
+        ]
+      ]
+      \edge [line width=0.3mm, black!60!red] ; [.\node(14) [rectangle, draw, align=center] {$S_u =$ `r Option_Vente[1,2]` \\
+      $P_u =$ `r Option_Vente[2,2]` \\
+      $\Delta_u =$ `r Option_Vente[3,2]` \\
+      $B_u =$ `r Option_Vente[4,2]`};
+        \edge [white]; [.\node(15) {};
+          \edge [white]; [.\node(16) [rectangle, draw, align=center] {$S_{uud} =$ `r Option_Vente[1,8]` \\
+      $P_{uud} =$ `r Option_Vente[2,8]` \\
+      $\Delta_{uud} =$ `r Option_Vente[3,8]` \\
+      $B_{uud} =$ `r Option_Vente[4,8]`};
+            \edge [white]; [.\node(17) {};]
+          ]
+        ]
+      ]
+      \edge [white]; [.\node(18) {};
+        \edge [white]; [.\node(19) [rectangle, draw, align=center] {$S_{ud} =$ `r Option_Vente[1,5]` \\
+      $P_{ud} =$ `r Option_Vente[2,5]` \\
+      $\Delta_{ud} =$ `r Option_Vente[3,5]` \\
+      $B_{ud} =$ `r Option_Vente[4,5]`};
+          \edge [white]; [.\node(20) {};
+            \edge [white]; [.\node(21) [rectangle, draw, align=center] {$S_{uudd} =$ `r Option_Vente[1,13]` \\
+      $P_{uudd} =$ `r Option_Vente[2,13]` \\
+      $\Delta_{uudd} =$ `r Option_Vente[3,13]` \\
+      $B_{uudd} =$ `r Option_Vente[4,13]`};]
+          ]
+        ]
+      ]
+      \edge [line width=0.3mm, black!60!green] ; [.\node(22) [rectangle, draw, align=center] {$S_d =$ `r Option_Vente[1,3]` \\
+      $P_d =$ `r Option_Vente[2,3]` \\
+      $\Delta_d =$ `r Option_Vente[3,3]` \\
+      $B_d =$ `r Option_Vente[4,3]`};
+        \edge [white]; [.\node(23) {};
+          \edge [white]; [.\node(24) [rectangle, draw, align=center] {$S_{udd} =$ `r Option_Vente[1,9]` \\
+      $P_{udd} =$ `r Option_Vente[2,9]` \\
+      $\Delta_{udd} =$ `r Option_Vente[3,9]` \\
+      $B_{udd} =$ `r Option_Vente[4,9]`};
+            \edge [white]; [.\node(25) {};]
+          ]
+        ]
+      ]
+      \edge [white]; [.\node(26) {};
+        \edge [white]; [.\node(27) [rectangle, draw, align=center] {$S_{dd} =$ `r Option_Vente[1,6]` \\
+      $P_{dd} =$ `r Option_Vente[2,6]` \\
+      $\Delta_{dd} =$ `r Option_Vente[3,6]` \\
+      $B_{dd} =$ `r Option_Vente[4,6]`};
+          \edge [white]; [.\node(28) {};
+            \edge [white]; [.\node(29) [rectangle, draw, align=center] {$S_{uddd} =$ `r Option_Vente[1,14]` \\
+      $P_{uddd} =$ `r Option_Vente[2,14]` \\
+      $\Delta_{uddd} =$ `r Option_Vente[3,14]` \\
+      $B_{uddd} =$ `r Option_Vente[4,14]`};]
+          ]
+        ]
+      ]
+      \edge [white]; [.\node(30) {};
+        \edge [white]; [.\node(31) {};
+          \edge [white]; [.\node(32) [rectangle, draw, align=center] {$S_{ddd} =$ `r Option_Vente[1,10]` \\
+      $P_{ddd} =$ `r Option_Vente[2,10]` \\
+      $\Delta_{ddd} =$ `r Option_Vente[3,10]` \\
+      $B_{ddd} =$ `r Option_Vente[4,10]`};
+            \edge [white]; [.\node(33) {};]
+          ]
+        ]
+      ]
+      \edge [white]; [.\node(34) {};
+        \edge [white]; [.\node(35) {};
+          \edge [white]; [.\node(36) {};
+            \edge [white]; [.\node(37) [rectangle, draw, align=center] {$S_{dddd} =$ `r Option_Vente[1,15]` \\
+      $P_{dddd} =$ `r Option_Vente[2,15]` \\
+      $\Delta_{dddd} =$ `r Option_Vente[3,15]` \\
+      $B_{dddd} =$ `r Option_Vente[4,15]`};]
+          ]
+        ]
+      ]
+    ]
+\draw [line width=0.3mm, black!60!red] (8.east) -- (5.west);
+\draw [line width=0.3mm, black!60!green] (8.east) -- (13.west);
+\draw [line width=0.3mm, black!60!red] (11.east) -- (8.west);
+\draw [line width=0.3mm, black!60!green] (11.east) -- (16.west);
+\draw [line width=0.3mm, black!60!red] (14.east) -- (11.west);
+\draw [line width=0.3mm, black!60!green] (14.east) -- (19.west);
+\draw [line width=0.3mm, black!60!red] (16.east) -- (13.west);
+\draw [line width=0.3mm, black!60!green] (16.east) -- (21.west);
+\draw [line width=0.3mm, black!60!red] (19.east) -- (16.west);
+\draw [line width=0.3mm, black!60!green] (19.east) -- (24.west);
+\draw [line width=0.3mm, black!60!red] (22.east) -- (19.west);
+\draw [line width=0.3mm, black!60!green] (22.east) -- (27.west);
+\draw [line width=0.3mm, black!60!red] (24.east) -- (21.west);
+\draw [line width=0.3mm, black!60!green] (24.east) -- (29.west);
+\draw [line width=0.3mm, black!60!red] (27.east) -- (24.west);
+\draw [line width=0.3mm, black!60!green] (27.east) -- (32.west);
+\draw [line width=0.3mm, black!60!red] (32.east) -- (29.west);
+\draw [line width=0.3mm, black!60!green] (32.east) -- (37.west);
+\end{tikzpicture}
+
+\newpage
+
+* **Résultats de l'arbre à 4 états pour l'option d'achat avec un prix d'exercice de $110\,\$$**
+
+\vspace{5mm}
+
+
+\begin{tikzpicture}[level distance=1.5in,sibling distance=.4in,scale=.8]
+\tikzset{grow'=right}
+\Tree 
+    [.\node(1) [rectangle, draw, align=center] {$S_0 =$ `r Option_Achat[1,1]` \\
+      $C =$ `r Option_Achat[2,1]` \\
+      $\Delta =$ `r Option_Achat[3,1]` \\
+      $B =$ `r Option_Achat[4,1]`}; 
+      \edge [white]; [.\node(2) {};
+        \edge [white]; [.\node(3)  {};
+          \edge [white]; [.\node(4) {};
+            \edge [white]; [.\node(5) [rectangle, draw, align=center] {$S_{uuuu} =$ `r Option_Achat[1,11]` \\
+      $C_{uuuu} =$ `r Option_Achat[2,11]` \\
+      $\Delta_{uuuu} =$ `r Option_Achat[3,11]` \\
+      $B_{uuuu} =$ `r Option_Achat[4,11]`};]
+          ]
+        ]
+      ]
+      \edge [white]; [.\node(6) {};
+        \edge [white]; [.\node(7) {};
+          \edge [white]; [.\node(8) [rectangle, draw, align=center] {$S_{uuu} =$ `r Option_Achat[1,7]` \\
+      $C_{uuu} =$ `r Option_Achat[2,7]` \\
+      $\Delta_{uuu} =$ `r Option_Achat[3,7]` \\
+      $B_{uuu} =$ `r Option_Achat[4,7]`};
+            \edge [white]; [.\node(9) {};]
+          ]
+        ]
+      ]
+      \edge [white]; [.\node(10) {};
+        \edge [white]; [.\node(11) [rectangle, draw, align=center] {$S_{uu} =$ `r Option_Achat[1,4]` \\
+      $C_{uu} =$ `r Option_Achat[2,4]` \\
+      $\Delta_{uu} =$ `r Option_Achat[3,4]` \\
+      $B_{uu} =$ `r Option_Achat[4,4]`};
+          \edge [white]; [.\node(12) {};
+            \edge [white]; [.\node(13) [rectangle, draw, align=center] {$S_{uuud} =$ `r Option_Achat[1,12]` \\
+      $C_{uuud} =$ `r Option_Achat[2,12]` \\
+      $\Delta_{uuud} =$ `r Option_Achat[3,12]` \\
+      $B_{uuud} =$ `r Option_Achat[4,12]`};]
+          ]
+        ]
+      ]
+      \edge [line width=0.3mm, black!60!green] ; [.\node(14) [rectangle, draw, align=center] {$S_u =$ `r Option_Achat[1,2]` \\
+      $C_u =$ `r Option_Achat[2,2]` \\
+      $\Delta_u =$ `r Option_Achat[3,2]` \\
+      $B_u =$ `r Option_Achat[4,2]`};
+        \edge [white]; [.\node(15) {};
+          \edge [white]; [.\node(16) [rectangle, draw, align=center] {$S_{uud} =$ `r Option_Achat[1,8]` \\
+      $C_{uud} =$ `r Option_Achat[2,8]` \\
+      $\Delta_{uud} =$ `r Option_Achat[3,8]` \\
+      $B_{uud} =$ `r Option_Achat[4,8]`};
+            \edge [white]; [.\node(17) {};]
+          ]
+        ]
+      ]
+      \edge [white]; [.\node(18) {};
+        \edge [white]; [.\node(19) [rectangle, draw, align=center] {$S_{ud} =$ `r Option_Achat[1,5]` \\
+      $C_{ud} =$ `r Option_Achat[2,5]` \\
+      $\Delta_{ud} =$ `r Option_Achat[3,5]` \\
+      $B_{ud} =$ `r Option_Achat[4,5]`};
+          \edge [white]; [.\node(20) {};
+            \edge [white]; [.\node(21) [rectangle, draw, align=center] {$S_{uudd} =$ `r Option_Achat[1,13]` \\
+      $C_{uudd} =$ `r Option_Achat[2,13]` \\
+      $\Delta_{uudd} =$ `r Option_Achat[3,13]` \\
+      $B_{uudd} =$ `r Option_Achat[4,13]`};]
+          ]
+        ]
+      ]
+      \edge [line width=0.3mm, black!60!red] ; [.\node(22) [rectangle, draw, align=center] {$S_d =$ `r Option_Achat[1,3]` \\
+      $C_d =$ `r Option_Achat[2,3]` \\
+      $\Delta_d =$ `r Option_Achat[3,3]` \\
+      $B_d =$ `r Option_Achat[4,3]`};
+        \edge [white]; [.\node(23) {};
+          \edge [white]; [.\node(24) [rectangle, draw, align=center] {$S_{udd} =$ `r Option_Achat[1,9]` \\
+      $C_{udd} =$ `r Option_Achat[2,9]` \\
+      $\Delta_{udd} =$ `r Option_Achat[3,9]` \\
+      $B_{udd} =$ `r Option_Achat[4,9]`};
+            \edge [white]; [.\node(25) {};]
+          ]
+        ]
+      ]
+      \edge [white]; [.\node(26) {};
+        \edge [white]; [.\node(27) [rectangle, draw, align=center] {$S_{dd} =$ `r Option_Achat[1,6]` \\
+      $C_{dd} =$ `r Option_Achat[2,6]` \\
+      $\Delta_{dd} =$ `r Option_Achat[3,6]` \\
+      $B_{dd} =$ `r Option_Achat[4,6]`};
+          \edge [white]; [.\node(28) {};
+            \edge [white]; [.\node(29) [rectangle, draw, align=center] {$S_{uddd} =$ `r Option_Achat[1,14]` \\
+      $C_{uddd} =$ `r Option_Achat[2,14]` \\
+      $\Delta_{uddd} =$ `r Option_Achat[3,14]` \\
+      $B_{uddd} =$ `r Option_Achat[4,14]`};]
+          ]
+        ]
+      ]
+      \edge [white]; [.\node(30) {};
+        \edge [white]; [.\node(31) {};
+          \edge [white]; [.\node(32) [rectangle, draw, align=center] {$S_{ddd} =$ `r Option_Achat[1,10]` \\
+      $C_{ddd} =$ `r Option_Achat[2,10]` \\
+      $\Delta_{ddd} =$ `r Option_Achat[3,10]` \\
+      $B_{ddd} =$ `r Option_Achat[4,10]`};
+            \edge [white]; [.\node(33) {};]
+          ]
+        ]
+      ]
+      \edge [white]; [.\node(34) {};
+        \edge [white]; [.\node(35) {};
+          \edge [white]; [.\node(36) {};
+            \edge [white]; [.\node(37) [rectangle, draw, align=center] {$S_{dddd} =$ `r Option_Achat[1,15]` \\
+      $C_{dddd} =$ `r Option_Achat[2,15]` \\
+      $\Delta_{dddd} =$ `r Option_Achat[3,15]` \\
+      $B_{dddd} =$ `r Option_Achat[4,15]`};]
+          ]
+        ]
+      ]
+    ]
+\draw [line width=0.3mm, black!60!green] (8.east) -- (5.west);
+\draw [line width=0.3mm, black!60!red] (8.east) -- (13.west);
+\draw [line width=0.3mm, black!60!green] (11.east) -- (8.west);
+\draw [line width=0.3mm, black!60!red] (11.east) -- (16.west);
+\draw [line width=0.3mm, black!60!green] (14.east) -- (11.west);
+\draw [line width=0.3mm, black!60!red] (14.east) -- (19.west);
+\draw [line width=0.3mm, black!60!green] (16.east) -- (13.west);
+\draw [line width=0.3mm, black!60!red] (16.east) -- (21.west);
+\draw [line width=0.3mm, black!60!green] (19.east) -- (16.west);
+\draw [line width=0.3mm, black!60!red] (19.east) -- (24.west);
+\draw [line width=0.3mm, black!60!green] (22.east) -- (19.west);
+\draw [line width=0.3mm, black!60!red] (22.east) -- (27.west);
+\draw [line width=0.3mm, black!60!green] (24.east) -- (21.west);
+\draw [line width=0.3mm, black!60!red] (24.east) -- (29.west);
+\draw [line width=0.3mm, black!60!green] (27.east) -- (24.west);
+\draw [line width=0.3mm, black!60!red] (27.east) -- (32.west);
+\draw [line width=0.3mm, black!60!green] (32.east) -- (29.west);
+\draw [line width=0.3mm, black!60!red] (32.east) -- (37.west);
+\end{tikzpicture}
+
+\newpage
+
+* **Résultat pour les modèles à 52 périodes**
+
+Pour les modèles à 52 périodes, on désire calculer la valeur d'une option d'achat à un prix d'exercice à $110\,\$$ et celle de l'option de vente à un prix d'exercice à $95\,\$$. Voici ce que nous avons obtenu en appliquant la fonction que nous avons créé.
+
+```{r echo=FALSE, results='asis'}
+
+### Tableau des valeurs des options à 52 périodes
+
+Valeurs_opt <- data.frame("Option d'achat avec K=110" = Arbre(100, 52,K = 110,force_r, sigma, Option = "C")[2,1],
+                      "Option de vente avec K=95"= Arbre(100, 52,K = 95, force_r, sigma, Option = "P")[2,1])
+
+
+
+kable(Valeurs_opt, caption = "Valeur actuelle des options européennes", escape = FALSE, align = "c",
+      col.names = c("Option d'achat avec $K=110$", "Option de vente avec $K=95$"))
+
+```
+
+
+* **Options asiatiques**
+
+
+
+
+\newpage
+ 
+## Question 3
+
+\vspace{5mm}
+
+```{r echo = FALSE}
+
+# Fonction pour trouver la valeur du prix de l'option d'achat selon le prix d'exercice
+Valeur_Call <- function(K){
+    Resultat <- Arbre(S_0=100, n=52,K,force_r, sigma, Option = "C")[2,1]  
+    Resultat
+} 
+
+# Fonction pour trouver la valeur du prix de l'option de vente selon le prix d'exercice
+Valeur_Put <- function(K){
+    Resultat <- Arbre(S_0=100, n=52,K,force_r, sigma, Option = "P")[2,1]  
+    Resultat
+} 
+
+# Générer des valeurs des options en fonction de différents K (Pour faire le graphique)
+Prix_exercice <- c(5*(15:25))
+Prix_Call <- sapply(Prix_exercice, FUN = Valeur_Call)
+Prix_Put <- sapply(Prix_exercice, FUN = Valeur_Put)
+```
+
+
+Pour cette question, nous avons pris la fonction que nous avions utilisée auparavant afin de calculer le prix d'un option sur une période de 52 semaines avec différents prix d'exercices. Nous avons conservé les mêmes valeurs de $S_0$, $u$, $d$, $p$ et $r$ que dans les numéros précédents. Les valeurs de $K$ choisies pour calculer prix des options sont les suivantes: $K=\{75,80,85,...,125\}$. Nous avons par la suite relié ces valeurs par une courbe afin de nous donner une idée de l'évolution du prix des option en fonction du prix d'exercice. 
+
+\vspace{5mm}
+
+```{r echo = FALSE}
+
+## Graphique du prix de l'option en fonction du prix d'exercice
+
+plot(Prix_exercice,Prix_Call, main="Relation entre le prix d'exercice et le prix de l'option",
+     xlab="Prix d'exercice ", ylab="Prix de l'option", ylim = range(c(0,30)),pch = 20, col = "blue4")
+par(new = TRUE)
+plot(Prix_exercice,Prix_Put, ylim= range(c(0,30)), xlab = "", ylab = "", pch = 20, col = "green3")
+lines(Prix_exercice,Prix_Put, ylim= range(c(0,30)), col = "green3")
+lines(Prix_exercice,Prix_Call, ylim= range(c(0,30)), col = "blue4")
+legend("topright", legend=c("Option d'achat", "Option de vente"),
+       col=c("blue4", "green3"), lty=c(1,1), lwd = c(2,2), cex=0.8, bg="white")
+
+```
+
+\vspace{5mm}
+
+Nous remarquons que le prix de l'option d'achat varie de manière opposée au prix de l'option de vente. En effet, plus le plus d'exercice est élevé plus le prix de l'option d'achat diminue et le prix de l'option de vente augmente. Cela est tout à fait logique, puisque plus le prix d'exercice est élevé, moins grandre sera la probabilité d'exécuter son pouvoir d'achat. Le prix de l'option devra ainsi être plus petit. Également, lorsque nous observons dans les grandes valeurs du prix d'exercice pour l'option d'achat, le prix de cette option ne varie que très peu. À des valeurs très grandes, la variation de la probabilité d'exercer l'option demeure très faible, ce qui explique la petite différence entre les prix des options d'achat dans ce cas. La même logique est observée pour l'option de vente, mais à l'inverse de l'option d'achat.
+
+
+
+## Question 4
+
+```{r echo = FALSE}
+
+## Arbre binomial Américain
+
+Arbre_Ame <- function(S_0, n, K, r, sigma){
+    
+    u <- exp(r/n + sigma*(1/n)^{0.5})
+    d <- exp(r/n - sigma*sqrt(1/n))
+    p <- (exp(r/n) - d)/(u - d)
+    ## Calcul de la valeur à chaque noeud
+    
+    i <- 1
+    noeuds <- S_0
+    for(i in 1:n){
+        j <- 0
+        for(j in 0:i){
+            noeuds <- cbind(noeuds, S_0*u^(i-j)*d^(j))
+            j <- j+1
+        }
+        i+1
+    }
+    
+        i <- length(noeuds)
+        Put <- rep(0, length(noeuds))
+        for(i in ((n*(n+1)/2)+1):((n+1)*(n+2)/2)){
+            Put[i] <- max(K - noeuds[i],0)
+            i <- i-1
+        }
+        
+        i <- (n*(n+1)/2)
+        j <- rep(1:n, 1:n)
+        for(i in (n*(n+1)/2):1){
+            Put[i] <- max((p*Put[i+j[i]] + (1-p)*Put[1+i+j[i]])*exp(-r/n), K-noeuds[i])
+            i <- i-1
+        } 
+        resultat <- rbind(noeuds, Put)
+        
+        i <- 1
+        delta <- rep(NA, length(noeuds))
+        B <- rep(NA, length(noeuds))
+        for(i in 1:(n*(n+1)/2)){
+            delta[i] <- (Put[i+j[i]] - Put[1+i+j[i]])/(noeuds[i+j[i]] - noeuds[1+i+j[i]])
+            B[i] <- exp(-r/n)*(noeuds[i+j[i]] * Put[1+i+j[i]] - noeuds[1+i+j[i]] * Put[i+j[i]])/(noeuds[i+j[i]] - noeuds[1+i+j[i]])
+            i <- i+1
+        }
+        resultat <- rbind(resultat, delta)
+        resultat <- rbind(resultat, B)
+    resultat
+}
+
+Put_Ame <- Arbre_Ame(100, 4, 95, force_r, sigma)
+
+```
+
+
+
+```{r echo=FALSE, results='asis'}
+
+
+
+
+### Table des valeurs
+
+Put_diff <- data.frame("période" = c("$S_0$","$S_u$","$S_d$","$S_{uu}$","$S_{ud}$","$S_{dd}$",
+                                     "$S_{uuu}$","$S_{uud}$","$S_{udd}$","$S_{ddd}$","$S_{uuuu}$",
+                                     "$S_{uuud}$","$S_{uudd}$","$S_{uddd}$","$S_{dddd}$"),
+                      "Noeud" = round(Option_Vente[1,],2),
+                      "P_euro"= round(Option_Vente[2,],2),
+                      "P_ame"= round(Put_Ame[2,],2),
+                      "Diff" = abs(round(Option_Vente[2,],2)-round(Put_Ame[2,],2)),
+                      "delta_euro"= round(Option_Vente[3,],2),
+                      "delta_ame"= round(Put_Ame[3,],2),
+                      "Diff" = abs(round(Option_Vente[3,],2)-round(Put_Ame[3,],2)),
+                      "B_euro" = round(Option_Vente[4,],2),
+                      "B_ame" = round(Put_Ame[4,],2),
+                      "Diff" = abs(round(Option_Vente[4,],2)-round(Put_Ame[4,],2)))
+
+
+
+kable(Put_diff, caption = "Comparaison de l'option européenne avec l'américaine", escape = FALSE, align = "c",
+      col.names = c("Sous-jacent","Valeur du S-J","$P_{euro}$", "$P_{ame}$", "Diff", "$\\delta_{euro}$", "$\\delta_{ame}$", "diff", "$B_{euro}$", "$B_{ame}$", "$|$Diff$|$"))
+
+
+
+```
+
+
+## Question 5
+
+## Question 6

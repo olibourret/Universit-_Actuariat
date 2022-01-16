@@ -1,0 +1,71 @@
+===
+=== Programmation lettrée et R Markdown
+===
+
+# 2020.02 (2020-02-05)
+
+## Nouveautés
+
+- Le matériel de la formations est maintenant distribué sous forme
+  d'une archive `.zip` contenant les diapositives en format PDF, les
+  fichiers des exercices et quelques autres fichiers. Il n'y a plus de
+  version HTML des diapositives. Celles-ci sont dorénavant préparées
+  avec LaTeX plutôt qu'avec R Markdown.
+- Diapositives additionnelles d'introduction à la programmation
+  lettrée.
+- Le projet a une véritable page web dans GitLab plutôt que simplement
+  les diapositives de la formation.
+
+## Changements
+
+- Plusieurs changements de disposition suite à la conversion vers
+  LaTeX.
+- Exercice sur l'utilisation des options de blocs de code supprimé.
+- Fichier `exercice-personnalisation.Rmd` renommé
+  `exercice-configuration.Rmd`.
+- Énoncé de l'évaluation supprimé des diapositives.
+
+# 2019.02b (2019-02-21)
+
+- Diapositives *Anatomie d'un fichier* et *Formats R Markdown*
+  devancées.
+- Ajout de l'option `encoding = "UTF-8"` dans `render` sous Windows.
+- Ajout d'une astuce sur l'utilisation du bouton **Knit** dans
+  RStudio.
+- Suppression de l'exemple sur la publication d'un *data frame*.
+
+# 2019.02a (2019-02-07)
+
+- Suppression des exemples d'utilisation de Markdown dans
+  Stack[Overflow|Exchange].
+- Ajout de détails dans le fichier `exemple-markdown.md`.
+
+# 2019.02 (2019-02-05)
+
+- Changements très mineurs au texte.
+- Suite au déplacement du projet vers GitLab: modification de divers
+  liens dans les diapositives et réorganisation des fichiers du code
+  source.
+
+# 2018.02b (2018-02-22)
+
+- Titre mieux coupé sur la couverture.
+- Ajout d'un lien vers les formations «R & Markdown» et «Outils de
+  travail collaboratif» dans la page de notices.
+- Texte du lien vers le matériel pédagogique modifié.
+- Fichiers des exercices (de nouveau) placés dans un répertoire
+  `exercices` à l'intérieur de l'archive.
+
+# 2018.02a (2018-02-19)
+
+Modifications mineures.
+
+- Numéro de version ajouté à la page des notices.
+- Lien vers code source dans la page de notices.
+- Sommaire complet.
+- Suppression d'une commande LaTeX non nécessaire dans un exemple de
+  mathématiques.
+
+# 2018.02 (2018-02-16)
+
+Version initiale.

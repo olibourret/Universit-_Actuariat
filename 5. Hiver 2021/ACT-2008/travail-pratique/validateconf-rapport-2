@@ -1,0 +1,33 @@
+## Copyright (C) 2020 Vincent Goulet
+##
+## Ce fichier fait partie du cours
+## IFT-1902 Programmation avec R pour l'analyse de données
+##
+## Ce programme est un logiciel libre: vous pouvez le redistribuer ou
+## le modifier suivant les termes de la GNU General Public License
+## telle que publiée par la Free Software Foundation, soit la version
+## 3 de la licence, soit (à votre gré) toute version ultérieure.
+##
+## Ce programme est distribué dans l'espoir qu'il sera utile, mais
+## SANS AUCUNE GARANTIE; sans même la garantie tacite de QUALITÉ
+## MARCHANDE ou d'ADÉQUATION À UN BUT PARTICULIER. Consultez la GNU
+## General Public License pour plus de détails.
+##
+## Vous devriez avoir reçu une copie de la GNU General Public License
+## en avec ce programme. Si ce n'est pas le cas, consultez
+## <https://www.gnu.org/licenses>.
+
+__global
+  repository
+    check_repos: true
+    pattern_name: [Ee]quipe[0-9]{1,2}
+    branch
+      check_branch_other_main: true
+    tag
+      checkout_by_tag: true
+      tag_name: rapport-etape-2
+  encoding
+    check_encoding: true
+
+rapport-etape-2.Rmd
+  code: true

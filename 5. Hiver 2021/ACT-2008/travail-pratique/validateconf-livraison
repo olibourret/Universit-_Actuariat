@@ -1,0 +1,46 @@
+## Copyright (C) 2020 Vincent Goulet
+##
+## Ce fichier fait partie du cours
+## IFT-1902 Programmation avec R pour l'analyse de données
+##
+## Ce programme est un logiciel libre: vous pouvez le redistribuer ou
+## le modifier suivant les termes de la GNU General Public License
+## telle que publiée par la Free Software Foundation, soit la version
+## 3 de la licence, soit (à votre gré) toute version ultérieure.
+##
+## Ce programme est distribué dans l'espoir qu'il sera utile, mais
+## SANS AUCUNE GARANTIE; sans même la garantie tacite de QUALITÉ
+## MARCHANDE ou d'ADÉQUATION À UN BUT PARTICULIER. Consultez la GNU
+## General Public License pour plus de détails.
+##
+## Vous devriez avoir reçu une copie de la GNU General Public License
+## en avec ce programme. Si ce n'est pas le cas, consultez
+## <https://www.gnu.org/licenses>.
+
+__global
+  repository
+    check_repos: true
+    pattern_name: [Ee]quipe[0-9]{1,2}
+    omit_authors: Vincent Goulet|Marc-André Devost|Inconnu|unknown
+    branch
+      check_branch_other_main: true
+    merged
+      check_merged: true
+      nb_merged_min: 1
+    commits
+      check_commits: true
+      nb_commits_min: 5
+    tag
+      checkout_by_tag: true
+      tag_name: livraison
+  encoding
+    check_encoding: true
+
+1-rapport-final.Rmd
+  code: true
+2-resultats-partiels.csv
+  code: false
+3-prototype
+  shinyapp: true
+4-README.md
+  code: false

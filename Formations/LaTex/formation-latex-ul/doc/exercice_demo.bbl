@@ -1,0 +1,66 @@
+\begin{thebibliography}{10}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[{ANSI}()]{ASCII}
+{ANSI}.
+\newblock \emph{ANSI X3.4-1986: Coded Character Set. 7-Bit {A}merican
+  {S}tandard {C}ode for {I}nformation {I}nterchange}.
+\newblock {A}merican {N}ational {S}tandards {I}nstitute, New York, 1986.
+
+\bibitem[Burden and Faires(2011)]{Burden:numerical:2011}
+R.~L. Burden and J.~D. Faires.
+\newblock \emph{Numerical Analysis}.
+\newblock Brooks/Cole, 9 edition, 2011.
+\newblock ISBN 978-053873351-9.
+
+\bibitem[{IEEE}()]{IEEE:754}
+{IEEE}.
+\newblock \emph{754-1985 {IEEE} Standard for Binary Floating-Point Arithmetic}.
+\newblock {IEEE}, Piscataway, NJ, 2003.
+
+\bibitem[{ISO}()]{ISO:8859-1}
+{ISO}.
+\newblock \emph{{ISO/IEC} 8859-1:1998. Information Technology -- 8-bit
+  Single-Byte Coded Graphic Character Sets -- {P}art 1: Latin Alphabet No. 1}.
+\newblock {I}nternational {O}rganization for {S}tandardization, Geneva, 1998.
+
+\bibitem[Kernighan and Plauger(1978)]{Kernighan:style:1978}
+B.~W. Kernighan and P.~J. Plauger.
+\newblock \emph{The Elements of Programming Style}.
+\newblock McGraw-Hill, 2 edition, 1978.
+\newblock ISBN 0-07034207-5.
+
+\bibitem[Knuth(1997)]{Knuth:ACP:vol2:1997}
+D.~E. Knuth.
+\newblock \emph{The Art of Computer Programming}, volume 2, Seminumerical
+  Algorithms.
+\newblock Addison-Wesley, Reading, MA, 1997.
+
+\bibitem[Monahan(2001)]{Monahan:numstat:2001}
+J.~F. Monahan.
+\newblock \emph{Numerical Methods of Statistics}.
+\newblock Cambridge {U}niversity {P}ress, Cambridge, UK, 2001.
+\newblock ISBN 0-52179168-5.
+
+\bibitem[Ripley(2005)]{Ripley:Rnews:2005a}
+Brian~D. Ripley.
+\newblock Internationalization features of {R} 2.1.0.
+\newblock \emph{R News}, 5\penalty0 (1):\penalty0 2--7, May 2005.
+\newblock URL \url{https://cran.r-project.org/doc/Rnews/}.
+
+\bibitem[{U}nicode {C}onsortium(2007)]{Unicode:5.0}
+The {U}nicode {C}onsortium.
+\newblock \emph{The Unicode Standard, Version 5.0.0}.
+\newblock Addison-Wesley, Boston, 2007.
+\newblock ISBN 0-32148091-0.
+
+\bibitem[Wikipedia(2012)]{Wikipedia:IEEE754}
+Wikipedia.
+\newblock {IEEE} 754-2008 --- {W}ikipedia{,} the free encyclopedia, 2012.
+\newblock URL \url{https://en.wikipedia.org/wiki/IEEE_floating-point_standard}.
+
+\end{thebibliography}

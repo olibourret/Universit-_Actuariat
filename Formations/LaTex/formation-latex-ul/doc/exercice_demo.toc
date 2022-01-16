@@ -1,0 +1,17 @@
+\babel@toc {french}{}
+\babel@toc {french}{}
+\contentsline {chapter}{Table des mati\`eres}{i}{section*.1}% 
+\contentsline {chapter}{\chapternumberline {1}Arithm\IeC {\'e}tique des ordinateurs}{1}{chapter.1}% 
+\contentsline {section}{\numberline {1.1}Les ordinateurs ne savent pas compter}{1}{section.1.1}% 
+\contentsline {section}{\numberline {1.2}Conversion de base}{2}{section.1.2}% 
+\contentsline {subsection}{\numberline {1.2.1}Notation et d\IeC {\'e}finitions}{2}{subsection.1.2.1}% 
+\contentsline {subsection}{\numberline {1.2.2}Conversion vers une base quelconque}{4}{subsection.1.2.2}% 
+\contentsline {subsection}{\numberline {1.2.3}Conversion en d\IeC {\'e}cimal}{6}{subsection.1.2.3}% 
+\contentsline {subsection}{\numberline {1.2.4}Conversion avec des bases g\IeC {\'e}n\IeC {\'e}rales}{7}{subsection.1.2.4}% 
+\contentsline {section}{\numberline {1.3}Unit\IeC {\'e}s de mesure}{9}{section.1.3}% 
+\contentsline {section}{\numberline {1.4}Repr\IeC {\'e}sentation en virgule flottante}{10}{section.1.4}% 
+\contentsline {section}{\numberline {1.5}\IeC {\'E}l\IeC {\'e}ments d'arithm\IeC {\'e}tique en virgule flottante}{16}{section.1.5}% 
+\contentsline {subsection}{\numberline {1.5.1}Erreurs d'arrondi ou de troncature}{16}{subsection.1.5.1}% 
+\contentsline {subsection}{\numberline {1.5.2}Cout des op\IeC {\'e}rations}{20}{subsection.1.5.2}% 
+\contentsline {section}{\numberline {1.6}Codage de caract\IeC {\`e}res}{21}{section.1.6}% 
+\contentsline {chapter}{Bibliographie}{23}{chapter*.2}% 

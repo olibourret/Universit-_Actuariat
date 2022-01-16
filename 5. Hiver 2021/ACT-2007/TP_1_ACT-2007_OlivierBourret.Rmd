@@ -1,0 +1,507 @@
+---
+title: "Travail pratique 1 ACT-2007"
+author: "Olivier Bourret"
+output: pdf_document
+header-includes:  \usepackage{xcolor} \usepackage[makeroom]{cancel} \usepackage{bm}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Numéro 1
+
+
+Dans ce numéro, on demande d'estimer la réserve au temps 15 et 20 à l'aide de la méthode d'Euler. Tout d'abord, j'ai créé une fonction qui permet de calculer la force de mortalité peu importe l'âge de l'assuré. Cette fonction est utilisée dans une autre fonction afin de calculer la réserve de manière récursive. Pour ce faire, j'ai utilisé l'équation de Thiele que j'ai modifié afin de simplifier la fonction.
+
+\begin{align*}
+_{t+h}V -  _tV &= h [\delta_t \cdot _tV + G_t - e_t - (b_t +E_t - _tV) \mu_{[x]+t}] \\[10pt]
+\Rightarrow _tV &= \frac{_{t+h}V -h(G_t - e_t - (b_t + E_t) \mu_{[x]+t})}{1+h(\delta_t + \mu_{[x]+t})}
+\end{align*}
+
+La fonction *reserve_Euler* calcule donc la réserve de manière rétrospective en partant de la réserve finale en revenant vers la réserve que l'on désire estimer. Elle permet de calculer la réserve avec des incrémentations de la longueur désirée. Voici les fonctions utilisées. Elles sont disponibles dans le fichier joint au travail. 
+
+```{r echo=TRUE}
+# Fonction pour calculer la force de mortalité lorsque s > 2
+
+f_Mort <- function(x){
+    0.00022+(2.7)*10^(-6)*1.124^x
+}
+
+# Fonction récursive pour calculer la valeur de la réserve à t
+
+reserve_Euler <- function(h, reserve, t){
+    i <- 1
+    nb_iter <- (30-t)/h
+    for(i in 1:nb_iter){
+        reserve <- (reserve - h*(2500 - 100000*f_Mort(60 - (i)*h)))/
+          (1 + h*(0.04 + f_Mort(60 - (i)*h)))
+        i <- i+1
+    }
+    reserve
+}
+```
+
+### Résultats
+
+```{r echo=FALSE, results='asis'}
+
+
+r1<- reserve_Euler(0.1, 100000, 15)   ### Pour 15_V, h = 0.1   
+r2 <- reserve_Euler(0.1, 100000, 20)   ### Pour 20_V, h = 0.1
+r3 <- reserve_Euler(0.01, 100000, 15)   ### Pour 15_V, h = 0.01   
+r4 <- reserve_Euler(0.01, 100000, 20)   ### Pour 20_V, h = 0.01    
+
+### Table 1
+param_ab <- data.frame("h" = c(0.1, 0.01),
+                       "_{15}V"= c(r1,r3),
+                       "_{20}V"= c(r2,r4))
+
+library(knitr)
+library(xtable)
+
+kable(param_ab, caption = "Estimation des réserves", escape = FALSE, align = "c",
+      col.names = c("$h$", "$_{15}V$", "$_{20}V$"))
+
+```
+
+
+
+# Numéro 2
+
+
+Pour ce numéro, il est demandé de trouver $q_{x+10}$. Voici la démarche qui m'a permi d'arriver au résultat.
+
+\begin{align*}
+(_hV + G_h - e_h)(1+i_h) &= (b_{h+1} + E_{h+1}) \: q_{x+h} + \: _{h+1}V \cdot p_{x+h} \\[5pt]
+(_{10}V + G_{10} - e_{10})(1+i_{10}) &= (b_{11} + E_{11}) \: q_{x+10} + \: _{11}V \cdot p_{x+10} \\[5pt]
+(2\,750 + 1\,098.90 - 68.956)(1+0.05) &= (50\,000+100)\: q_{x+10} + (3\,550)(1 - q_{x+10}) \\[5pt]
+3\,968.9412 &= 3\,550 + 46\,550 \: q_{x+10} \\[5pt]
+\Rightarrow  \bm{\textcolor{red}{q_{x+10}}} &\bm{\textcolor{red}{\,= 0.008\,999\,811}}
+\end{align*}
+
+
+
+# Numéro 3 
+
+## a) Calculer la prime $\pi$ selon le principe d'équivalence
+
+\begin{align*}
+VPA_{@0}(\text{Prestation à payer}) &= VPA_{@0}(\text{Primes futures à recevoir})\\[5pt]
+20\,000 \cdot _{20|}\overline{a}_{45} &= \pi \overline{a}_{45:\overline{20|}}\\
+\end{align*}
+
+Pour résoudre ce problème, il suffit de trouver $_{20|}\overline{a}_{45}$.
+
+\begin{align*}
+_{20|}\overline{a}_{45} &= \overline{a}_{45} - \overline{a}_{45:\overline{20|}} \\
+&= \frac{1 - \overline{A}_{45}}{\delta} - \overline{a}_{45:\overline{20|}} \\
+&= 13.1099 - 11.0158 \\
+&= 2.0941
+\end{align*}
+
+
+
+Il est donc possible de continuer le calcul initial.
+
+\begin{align*}
+20\,000 \cdot _{20|}\overline{a}_{45} &= \pi \overline{a}_{45:\overline{20|}}\\
+20\,000 (2.0941) &= \pi (11.0158)\\
+\Rightarrow \bm{\textcolor{red}{\pi}} & \bm{\textcolor{red}{\,= 3802.090\,742}}
+\end{align*}
+
+Ainsi, la prime sera $\pi = 3802.09\$$.
+
+
+## b) Définir la variable aléatoire $_{10}V$
+
+Pour $T_{45}$, il y a trois situations possible, soit celle qui est déjà passée $(T_{45} < 10)$, celle où l'assuré paye ses primes, mais ne reçoit aucune prestation $(10 \le T_{45} < 20 )$ et celle où l'assuré à payé toutes ses prestations et reçoit sa rente $(T \ge 20)$. On obtient donc le résultat suivant.
+
+\begin{gather*}
+_{10}L = 
+\begin{cases}
+  \: \: \quad \quad \text{n'existe pas} &, \quad T_{45} < 10\\[5pt]
+  \quad \quad -\pi \: \overline{a}_{45:\overline{T_{45}-10|}} &, \quad 10 \le T_{45} < 20 \\[5pt]
+  20\,000 \: v^{10} \: \overline{a}_{45:\overline{T_{45}-20|}} - \pi \: \overline{a}_{10|} &, \quad T \ge 20\\[5pt]
+\end{cases}
+\end{gather*}
+
+Voici la représentation graphique de $_{10}L$ pour $T_{45}$. La partie en bleu représente la perte pour $10 \le T_{45} < 20$ et celle en vert pour $T_{45} \ge 20$. Le pointillé orange est placé à $-10\,000$ qui permet de visualiser la $Pr(_{10}L \le -10\,000)$ qui sera évaluée au numéro 3 e).
+
+\vspace{1cm}
+
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+
+# Graphique de la perte à _10L
+
+library(tidyverse)
+ggplot(data.frame(x = c(0,50)), aes(x = x)) +
+           stat_function(fun = function(x){
+               -3802.09 * ((1-exp(-0.06*(x-10)))/0.06)
+               },
+               color = "blue3",
+               lwd = 1, 
+               xlim = c(10,20)) +
+           stat_function(fun = function(x){
+               20000 * exp(-0.6) * ((1-exp(-0.06 *(x-20)))/0.06) - 3802.09 * ((1-exp(-0.06*10))/0.06)
+               },
+               color = "green4",
+               lwd = 1,
+               xlim = c(20,60)) +
+            stat_function(fun = function(x){-10000},
+                          color = "orange1",
+                          lwd = 1,
+                          lty = 2,
+                          xlim = c(0,60)) + ggtitle("Pertes _10L") +
+    xlab("T45") +
+    ylab("Perte ($)") +
+    theme(axis.line = element_line(colour = "black", size = 1, linetype = "solid"))
+
+
+```
+
+
+\vspace{1cm}
+
+
+## c) Calculer $_{10}L$ pour $T_{45} = \{14.6, 21.8\}$
+
+\vspace{1cm}
+
+* \textbf{\underline{Pour $T_{45} = 14.6$}}
+
+\begin{align*}
+\left._{10}L\right\vert_{{T_{45}=14.6}} &= -\pi \: \overline{a}_{45:\overline{14.6 - 10|}}\\
+&= -3\,802.090\,742 \left(\frac{1-e^{-\delta (4.6)}}{\delta}\right)\\
+&= -3\,802.090\,742 \left(\frac{1-e^{-0.06 (4.6)}}{0.06}\right)\\
+&\bm{\textcolor{red}{= -15\,283.58538}}
+\end{align*}
+
+\newpage
+
+* \textbf{\underline{Pour $T_{45} = 21.8$}}
+
+\begin{align*}
+\left._{10}L\right\vert_{{T_{45}=21.8}} &= 20\,000 \: v^{10} \: \overline{a}_{45:\overline{21.8 - 20|}} -\pi \: \overline{a}_{45:\overline{10|}}\\
+&= -20\,000 \: e^{-0.06(10)} \: \left(\frac{1-e^{-0.06 (1.8)}}{0.06}\right)  -3\,802.090\,742 \left(\frac{1-e^{-0.06 (10)}}{0.06}\right)\\
+&= 18\,727.7221 - 28\,590.98502\\
+&\bm{\textcolor{red}{= -9\,863.262\,924}}
+\end{align*}
+
+\vspace{3mm}
+
+## d) Calculer la réserve $_{10}\overline{V} = E[_{10}L|T_{45}>10]$
+
+
+\begin{align*}
+_{10}\overline{V} &= 20\,000 _{10|}\overline{a}_{55} -\pi \overline{a}_{55:\overline{10|}}\\
+&= 20\,000 \left(\overline{a}_{55} - \overline{a}_{55:\overline{10|}}\right) -\pi \overline{a}_{55:\overline{10|}}\\
+&= 20\,000 \left(\frac{1-\overline{A}_{55}}{\delta} - \overline{a}_{55:\overline{10|}}\right) -\pi \overline{a}_{55:\overline{10|}}\\
+&= 20\,000 \left(\frac{1 - 0.330\,918}{0.06} - 7.095\,808\right) -3\,802.090\,742 (7.095\,808)\\
+\Rightarrow \bm{\textcolor{red}{_{10}\overline{V}}}&\bm{\textcolor{red}{= 54\,132.26744}}
+\end{align*}
+
+\vspace{3mm}
+
+## e) Calculer que la perte prospective soit inférieur à $-10\,000$
+
+Dans la question, il est demandé de calculer la probabilité pour que la perte soit inférieure $(<)$ à $-10\,000$, mais dans la question, on nous donne aussi $Pr(_{10}L \le -10\,000|T_{45}>10)$. Puisqu'il y a une contradiction dans le choix de symbole dans la question, j'utilise $\le$ dans la solution. **Note:** Afin d'alléger la démarche suivante, les nombres ont été arrondis , mais la valeur exacte a été conservée pour les calculs.
+
+\begin{align*}
+& Pr(_{10}L \le -10\,000|T_{45}>10) = \\[5pt]
+&= \frac{Pr(-\pi \overline{a}_{\overline{T_{45}-10|}} \le -10\,000 \cap 10 \le T_{45} < 20) + Pr(20\,000 v^{10}\overline{a}_{\overline{T_{45}-20|}}-\pi \overline{a}_{\overline{T_{45}-10|}} \le -10\,000 \cap T_{45} \ge 20)}{Pr(T_{45}>10)}\\[5pt]
+&= \frac{Pr(\frac{1 - e^{-0.06(T_{45}-10)}}{0.06} \le 2.630 \cap 10 \le T_{45} < 20) + Pr(\frac{1 - e^{-0.06(T_{45}-20)}}{0.06} \le 1.694 \cap T_{45} \ge 20)}{Pr(T_{45}>10)}\\[5pt]
+&= \frac{Pr(T_{45} \ge 12.862 \cap 10 \le T_{45} < 20) + Pr(T_{45} \le 21.786 \cap T_{45} \ge 20)}{Pr(T_{45}>10)}\\
+&= \frac{12.862 \le T_{45} \le 21.786}{Pr(T_{45}>10)}\\[5pt]
+&= \frac{_{12.862}p_{45} - _{21.786}p_{45}}{_{10}p_{45}}\\[5pt]
+&= \frac{e^{-0.0005246(1.1)^{45}(1.1^{12.862}-1)} - e^{-0.0005246(1.1)^{45}(1.1^{21.786}-1)}}{e^{-0.0005246(1.1)^{45}(1.1^{10}-1)}}\\[5pt]
+&\Rightarrow \bm{\textcolor{red}{Pr(_{10}L \le -10\,000|T_{45}>10) = 0.155\,381\,338}}
+\end{align*}
+
+
+
+# Numéro 4
+
+## a) Trouver le profit pendant la $10^{e}$ année sur la mortalité (dans l'ordre intérêts-frais-mortalité)
+
+\begin{align*}
+_{10}^{A}V -_{10}^{E}V &= N_9(_9V + G - e_9)(i' - i) \qquad \longrightarrow \textcolor{teal}{\text{profit sur l'intérêt}}\\[5pt]
+&\quad + N_9(e_9 -e'_9)(1 + i') + (E_{10} - E'_{10})N_9 q_{x+9} \qquad \longrightarrow \textcolor{teal}{\text{profit sur les frais}}\\[5pt]
+& \quad + (b_{10} + E'_{10} - _{k+1}V)(N_k q_{x+9} - N_9 q'_{x+9}) \qquad \longrightarrow \textcolor{teal}{\text{profit sur la mortalité}}\\[5pt]
+&= 85\,000 ( 3\,066.48 + 3\,900 - 195)(0.05 - 0.02)\\[5pt]
+& \quad + 85\,000 (195 - 0.06(3\,900))(1+0.05) + (0-0)(85\,000)(0.0085)\\[5pt]
+& \quad + (150\,000 + 0 - 3\,486.20)(85\,000(0.0085) - 85\,000(1-0.0085))\\[5pt]
+&= 17\,267\,274 \qquad \longrightarrow \textcolor{teal}{\text{profit sur l'intérêt}}\\[5pt]
+&\quad - 3\,480\,750 \qquad \longrightarrow \textcolor{teal}{\text{profit sur les frais}}\\[5pt]
+&\quad -401\,814\,096.5 \qquad \longrightarrow \textcolor{teal}{\text{profit sur la mortalité}}\\[5pt]
+&\Rightarrow \bm{\textcolor{red}{\text{Profit sur la mortalité} = -401\,814\,096.5}}
+\end{align*}
+
+\vspace{3mm}
+
+## b) Trouver le profit total pendant la $10^{e}$ année (dans l'ordre intérêts-frais-mortalité)
+
+Pour cette question, il suffit juste de compléter l'addition de la dernière question et on obtient la réponse.
+
+\begin{align*}
+_{10}^{A}V -_{10}^{E}V &= 17\,267\,274 - 3\,480\,750 - 401\,814\,096.5\\[5pt]
+\Rightarrow \bm{\textcolor{red}{_{10}^{A}V -_{10}^{E}V}} & \:\bm{\textcolor{red}{= -388\,027\,572.5}}
+\end{align*}
+
+\vspace{3mm}
+
+# Numéro 5
+
+La stratégie de ce numéro est tout simplement de calculer de manière récursive la réserve en partant du principe d'équivalence. On part de $_0V = 0$ et on remonte jusqu'à $_5V = 2000$ afin de trouver la prime.
+
+\begin{align*}
+(_kV + P)(1 + i) &= b q_{x+k} +_{k+1}V p_{x+k}\\[5pt]
+\Rightarrow (_kV + P)(1.05) &= (1000 + _{k+1}V)(0.02) +_{k+1}V (0.98)\\[5pt]
+\Rightarrow _{k+1}V = 1.05_kV + 1.05P -20
+\end{align*}
+
+* Pour $k=0$
+
+\begin{align*}
+_1V &= 1.05_0V + 1.05P -20\\
+_1V &= 1.05(0) + 1.05P -20\\
+_1V &= 1.05P - 20
+\end{align*}
+
+* Pour $k=1$
+
+\begin{align*}
+_2V &= 1.05_1V + 1.05P -20\\
+_2V &= 1.05(1.05P - 20) + 1.05P -20\\
+_2V &= 2.1525P - 41
+\end{align*}
+
+* Pour $k=2$
+
+\begin{align*}
+_3V &= 1.05_2V + 1.05P -20\\
+_3V &= 1.05(2.1525P - 41) + 1.05P -20\\
+_3V &= 3.310\,125P - 63.05
+\end{align*}
+
+* Pour $k=3$
+
+\begin{align*}
+_4V &= 1.05_3V + 1.05P -20\\
+_4V &= 1.05(3.310\,125P - 63.05) + 1.05P -20\\
+_4V &= 4.525\,63125P - 86.2025
+\end{align*}
+
+* Pour $k=4$
+
+\begin{align*}
+_5V &= 1.05_4V + 1.05P -20\\
+_5V &= 1.05(4.525\,63125P - 86.2025) + 1.05P -20\\
+_5V &= 5.801\,91281P - 110.512\,625
+\end{align*}
+
+On peut remplacer $_5V$ par $2000$.
+\begin{align*}
+2000 &= 5.801\,91281P - 110.512\,625\\
+\Rightarrow \bm{\textcolor{red}{P}} & \:\bm{\textcolor{red}{= 363.761\,520}}
+\end{align*}
+
+\vspace{3mm}
+
+# Numéro 6
+
+## a) Trouver $l_{21},l_{22},l_{23},l_{24},l_{25}$
+
+Puisque $\mu_Y \sim Makeham$, on a $_tp_x = exp\{-At -\frac{B}{lnc}c^x(c^t-1)\}$, on peut trouver les probabilités pour $x = \{20,21,22,23,24\}$.
+
+\begin{align*}
+\blacktriangleright p_{20} &= exp\{-A(1) -\frac{B}{lnc}c^{20}(c^{(1)}-1)\} = 0.999\,750\,361\\
+\blacktriangleright p_{21} &= exp\{-A(1) -\frac{B}{lnc}c^{21}(c^{(1)}-1)\} = 0.999\,746\,683\\
+\blacktriangleright p_{22} &= exp\{-A(1) -\frac{B}{lnc}c^{22}(c^{(1)}-1)\} = 0.999\,742\,549\\
+\blacktriangleright p_{23} &= exp\{-A(1) -\frac{B}{lnc}c^{23}(c^{(1)}-1)\} = 0.999\,737\,902\\
+\blacktriangleright p_{24} &= exp\{-A(1) -\frac{B}{lnc}c^{24}(c^{(1)}-1)\} = 0.999\,732\,679\\
+\end{align*}
+
+Avec l'information que $l_{20} =100\,000$ la formule $l_{k+1} = l_k \cdot p_k$ on peut trouver ce qui est demandé.
+
+\begin{align*}
+\blacktriangleright l_{21} &= l_{20} \cdot p_{20} = 99\,975.0361\\
+\blacktriangleright l_{22} &= l_{21} \cdot p_{21} = 99\,949.71072\\
+\blacktriangleright l_{23} &= l_{22} \cdot p_{22} = 99\,923.97857\\
+\blacktriangleright l_{24} &= l_{23} \cdot p_{23} = 99\,897.7887\\
+\blacktriangleright l_{25} &= l_{24} \cdot p_{24} = 99\,871.08392\\
+\end{align*}
+
+
+## b) Trouver $l_{[20]}$ et $l_{[20]+1}$
+
+Pour la sélection, on doit trouver _tp_{[x]}. On sait que
+
+\begin{align*}
+_tp_{[x]} &= exp\left\{-\int_0^t \mu_{[x]+s}ds\right\}\\
+&= exp\left\{-\int_0^t (0.9)^{2-s}(A + Bc^{x+s}) ds\right\}\\
+&= exp\left\{-(0.9)^2 \left[A\int_0^t (0.9)^{-s}ds + Bc^x \int_0^t  \left(\frac{c}{0.9}\right)^{s} ds \right] \right\}\\
+&= exp\left\{-(0.9)^2 \left[A \left(\left.\frac{(1/0.9)^s}{ln(1/0.9)}\right\vert_{s=0}^t \right) + Bc^x\left(\frac{1}{ln(c/0.9)}\left.\left(\frac{c}{0.9}\right)^s\right)\right\vert_{s=0}^t \right]\right\}\\
+&= exp\left\{-(0.9)^2 \left[A \frac{A(0.9^t-1)}{(0.9)^t ln(0.9)} + \frac{Bc^x\left(\left(\frac{c}{0.9}\right)^t-1\right)}{ln\left(\frac{c}{0.9}\right)} \right]\right\}\\
+\end{align*}
+
+Avec cette formule, on remplace et on trouve
+
+
+\begin{align*}
+&\blacktriangleright _2p_{[20]} = 0.999\,546\,314, \qquad \Rightarrow \bm{\textcolor{red}{l_{[20]} = \frac{l_{22}}{_2p_{[20]}}= 99\,995.07706}}\\[10pt]
+&\blacktriangleright p_{[20]} = 0.999\,786\,726, \qquad \Rightarrow \bm{\textcolor{red}{l_{[20]+1} = l_{[20]} \cdot p_{[20]}= 99\,973.75071}}
+\end{align*}
+
+\vspace{5mm}
+
+## c) Calculer $ä_{[20]:\overline{5|}}$ et $A_{45:\overline{20|}}^1$ pour $i = \{2\%, 5\%\}$
+
+\vspace{5mm}
+
+**\underline{Pour $ä_{[20]:\overline{5|}}$}**
+
+\vspace{3mm}
+
+* **avec $i = 5\%$**
+
+En utilisant la définition d'une rente temporaire 5 ans et en utilisant les valeurs de _tp_{[x]} et de _tp_x, il est simple de calculer la rente.
+
+\begin{align*}
+ä_{[20]:\overline{5|}} &= 1 + vp_{[20]} + v^2 _2p_{[20]} + v^3 _2p_{[20]}p_{22} + v^4 _2p_{[20]}p_{22}p_{23}\\
+&\bm{\textcolor{red}{= 4.543\,921\,24}}
+\end{align*}
+
+* **avec $i = 2\%$**
+
+Le calcul reste le même, c'est juste que $v = 1.02^{-1}$.
+
+\begin{align*}
+ä_{[20]:\overline{5|}} &= 1 + vp_{[20]} + v^2 _2p_{[20]} + v^3 _2p_{[20]}p_{22} + v^4 _2p_{[20]}p_{22}p_{23}\\
+&\bm{\textcolor{red}{= 4.805\,514\,689}}
+\end{align*}
+
+
+**\underline{Pour $A_{[20]:\overline{5|}}^1$}**
+
+\vspace{3mm}
+
+* **avec $i = 5\%$**
+
+Encore une fois, il devient simple de calculer l'assurance temporaire à l'aide de sa définition. Nous aurons besoin dans ce cas-ci la probabilité de décès à la $2^e$ année, soit $q_{[20]+1} = 1-\frac{_2p_{[20]}}{p_{[20]}} = 0.000\,240\,463$.
+
+**Rappel: $_tq_x = 1 - _tp_x$**
+
+\begin{align*}
+A_{[20]:\overline{5|}}^1 &= v\,q_{[20]} + v^2\, p_{[20]}\,q_{[20]+1} +v^3\, _2p_{[20]}\,q_{22}+ v^4\, _2p_{[20]}\,p_{22}\, q_{23} + v^5\, _2p_{[20]}\,p_{22}\,p_{23}\, q_{24}\\
+&\bm{\textcolor{red}{= 0.001\,0682}} 
+\end{align*}
+
+
+* **avec $i = 2\%$**
+
+Encore une fois, le calcul reste le même, sauf que l'on utilise $v=1.02^{-1}$
+
+\begin{align*}
+A_{[20]:\overline{5|}}^1 &= v\,q_{[20]} + v^2\, p_{[20]}\,q_{[20]+1} +v^3\, _2p_{[20]}\,q_{22}+ v^4\, _2p_{[20]}\,p_{22}\, q_{23} + v^5\, _2p_{[20]}\,p_{22}\,p_{23}\, q_{24}\\
+&\bm{\textcolor{red}{= 0.001\,166 \,513}} 
+\end{align*}
+
+
+
+## d) Trouver $_5V$ pour une assurance vie entière à 20 ans.
+
+Avec la méthode prospective, on peut trouver la réserve à $t=5$. En appliquant la formule $_kV = b_t A_{x+k} - P\,ä_{x+k}$ on réussi à trouver la valeur de la réserve. Il faut trouver $A_{x+k}$ et $ä_{x+k}$ et on aura gagné. Puisque la table sélecte est ultime après 2 ans, on aura $A_{[20]+5} = A_{25}$ et $ä_{[20]+5} = ä_{25}$. Pour trouver ces valeurs, j'ai créé des fonctions qui permettent de calculer les valeurs de $_tp_x$ et les valeurs d'une assurance et d'une rente (temporaire ou entière).
+
+Pour $_tp_x$ cela revenait à appliquer la formule de Makeham $(_tp_x = exp\{-At -\frac{B}{lnc}c^x(c^t-1)\})$. Voici le code utilisé.
+
+
+```{r echo = TRUE}
+
+# Fonction pour calculer _tp_x
+
+tpx <- function(x,t){
+    A <- 0.00022
+    B <- 2.7*10^(-6)
+    c <- 1.124
+    exp(-A*t - (B/log(c))*(c^x)*((c^t)-1))
+}
+
+```
+
+
+Pour l'assurance et la rente je suis parti de la définition et j'applique une itération selon le nombre d'années désirées. Pour une assurance ou un rente entière, j'applique la fonction pour 1000 années (qui devrait être suffisant pour calculer avec précision la valeur à vie de l'assurance ou de la rente). La fonction réplique cette formule.
+
+\begin{align*}
+A_{x:\overline{t|}}^1 &= v\,q_{x} + v^2\, p_x\,q_{x+1} +v^3\, _2p_x \,q_{x+2}+ \cdots + v^t\, _{t-1}p_{x}\, q_{x+t}\\
+ä_{x:\overline{t|}} &= 1 + vp_{x} + v^2 _2p_{x} + \cdots + v^{t-1} _{t-1}p_{x}
+\end{align*}
+
+La programmation des fonctions sont les suivantes.
+
+```{r echo = TRUE}
+
+# Fonction pour calculer une assurance temporaire (ou entière)
+
+aTempo <- function(x, t, i){
+    j <- 0
+    nb_iter <- t-1
+    Assurance <- 0
+    for(j in 0:nb_iter){
+        Assurance <- Assurance + (1+i)^(-(j+1))*tpx(x,j)*(1-tpx(x+j,1))
+        j <- j+1
+    }
+    Assurance
+}
+
+# Fonction pour calculer une rente temporaire (ou entière)
+
+rTemp <- function(x, t, i){
+    v <- (1+i)^(-1)
+    j <- 0
+    nb_iter <- t-1
+    rente <- 0
+    for(j in 0:nb_iter){
+        rente <- rente + v^j * tpx(x,j)
+        j <- j+1
+    }
+    rente
+}
+
+```
+
+
+```{r echo=FALSE, results='asis'}
+
+
+A5<- aTempo(25, 1000, 0.05)   ### Assurance-vie entière avec i= 0.05   
+A2 <- aTempo(25, 1000, 0.02)   ### Assurance-vie entière avec i= 0.02
+a5 <- rTemp(25, 1000, 0.05)   ### Rente entière avec i =0.05   
+a2 <- rTemp(25, 1000, 0.02)   ### Rente entière avec i =0.02    
+
+### Table 1
+param_ab <- data.frame("i" = c("5%", "2%"),
+                       "A_{25}"= c(A5,A2),
+                       "ä_{25}"= c(a5,a2))
+
+library(knitr)
+library(xtable)
+
+kable(param_ab, caption = "Valeur des assurances et rentes en fonction de i", escape = FALSE, align = "c",
+      col.names = c("$i$", "$A_{25}$", "$ä_{25}$"))
+
+```
+
+Après validation des formules en validant avec la table (Exemple: $A_{25}$ me donne bien le même résultat dans la table), j'ai appliqué ces valeurs dans la formule mentionnée plus haut. 
+
+\begin{align*}
+_kV &= b_t A_{x+k} - P\,ä_{x+k}\\
+5_V & = 10\,000 A_{25} - 1\,000 ä_{25}\\
+&= 10\,000 A_{25}(0.061\,475) - 1\,000 (17.709\,03)\\
+&\bm{\textcolor{red}{= - 19\,094.30}}
+\end{align*}
+
+* **\underline{NOTE:}** La réponse finale peut varier en fonction de la méthode choisie (prospective ou rétrospective). Normalement, si les valeurs fournies étaient calculées en fonction de la table de mortalité, les deux méthodes seraient équivalentes, mais puisque les valeurs ont été choisies arbitrairement la réponse peut différer. J'ai validé avec Radu si c'était normal et il m'a répondu que  oui et que je pouvais prendre la méthode de mon choix.
+
+

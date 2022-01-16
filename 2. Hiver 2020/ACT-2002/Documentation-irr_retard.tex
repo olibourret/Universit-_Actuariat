@@ -1,0 +1,232 @@
+\PassOptionsToPackage{unicode=true}{hyperref} % options for packages loaded elsewhere
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provides euro and other symbols
+\else % if luatex or xelatex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage[]{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\usepackage{hyperref}
+\hypersetup{
+            pdftitle={Documentation - Fonction irr en R},
+            pdfauthor={William Perron, Simon Veilleux, Félix Laflamme, Olivier Bourret},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+% set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+
+
+\title{Documentation - Fonction irr en R}
+\author{\emph{William Perron}, \emph{Simon Veilleux}, \emph{Félix Laflamme},
+\emph{Olivier Bourret}}
+\date{\emph{28/02/2020}}
+
+\begin{document}
+\maketitle
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{irr <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(x)}
+\NormalTok{\{}
+    \ControlFlowTok{if}\NormalTok{(}\KeywordTok{all}\NormalTok{(x }\OperatorTok{>=}\StringTok{ }\DecValTok{0}\NormalTok{) }\OperatorTok{|}\StringTok{ }\KeywordTok{all}\NormalTok{(x }\OperatorTok{<=}\DecValTok{0}\NormalTok{))}
+    \KeywordTok{stop}\NormalTok{(}\StringTok{'Tous les flux financiers sont du même signe'}\NormalTok{)}
+    
+    \ControlFlowTok{if}\NormalTok{(}\KeywordTok{sum}\NormalTok{(}\KeywordTok{abs}\NormalTok{(}\KeywordTok{Im}\NormalTok{(}\KeywordTok{polyroot}\NormalTok{(x))) }\OperatorTok{<}\StringTok{ }\NormalTok{.Machine}\OperatorTok{$}\NormalTok{double.eps}\OperatorTok{^}\FloatTok{0.5}\NormalTok{) }\OperatorTok{>}\StringTok{ }\DecValTok{1}\NormalTok{)}
+        \KeywordTok{warning}\NormalTok{(}\StringTok{"Plus d'un changement de signe dans les flux nets, le taux de rendement peut ne pas être unique"}\NormalTok{)}
+   
+\NormalTok{    i <-}\StringTok{ }\NormalTok{(}\KeywordTok{Re}\NormalTok{(}\KeywordTok{polyroot}\NormalTok{(x))[}\KeywordTok{abs}\NormalTok{(}\KeywordTok{Im}\NormalTok{(}\KeywordTok{polyroot}\NormalTok{(x))) }\OperatorTok{<}\StringTok{ }\NormalTok{.Machine}\OperatorTok{$}\NormalTok{double.eps}\OperatorTok{^}\FloatTok{0.5}\NormalTok{])}\OperatorTok{^}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\NormalTok{) }\OperatorTok{-}\StringTok{ }\DecValTok{1}
+    
+\NormalTok{   i[i }\OperatorTok{>}\StringTok{ }\DecValTok{-1}\NormalTok{]}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning in irr(flux): Plus d'un changement de signe dans les flux nets, le taux
+## de rendement peut ne pas être unique
+\end{verbatim}
+
+Signature
+
+\begin{verbatim}
+irr(flux)
+\end{verbatim}
+
+Description La fonction \(irr\) calcule le taux (ou un des taux
+possibles) d'intérêt satisfaisant une équation de valeur de flux
+financiers à des temps différents.
+
+Arguments \(flux\) : vecteur de tous les flux financiers des temps \(0\)
+à \(n\).
+
+Valeur nombre réel supérieur à \(-1\)
+
+Format des flux financiers
+
+Considérons l'exemple précédent des flux financiers tel que
+
+\begin{verbatim}
+-7+4v^3=3v+2v^2+3v^5+v^6, où v=(1+i)^(-1)
+\end{verbatim}
+
+En évaluant la fonction \(irr\) avec lesdits flux financiers, le
+résultat affiché est -0.0909397.
+
+\hypertarget{correction}{%
+\subsubsection{Correction}\label{correction}}
+
+\hypertarget{commentaires-avertissement-pour-le-changement-de-signes-mal-duxe9fini-espaces-pas-constants-documentation-difficile-uxe0-lire-document-produit-est-mal-organisuxe9}{%
+\subsection{Commentaires: Avertissement pour le changement de signes mal
+défini, espaces pas constants, documentation difficile à lire, document
+produit est mal
+organisé}\label{commentaires-avertissement-pour-le-changement-de-signes-mal-duxe9fini-espaces-pas-constants-documentation-difficile-uxe0-lire-document-produit-est-mal-organisuxe9}}
+
+\hypertarget{r-810}{%
+\section{R : 8/10}\label{r-810}}
+
+\hypertarget{a-55}{%
+\section{A : 5/5}\label{a-55}}
+
+\hypertarget{s-45}{%
+\section{S : 4/5}\label{s-45}}
+
+\hypertarget{d-45}{%
+\section{D : 4/5}\label{d-45}}
+
+\hypertarget{c-35}{%
+\section{C : 3/5}\label{c-35}}
+
+\hypertarget{solution}{%
+\subsection{Solution :}\label{solution}}
+
+\hypertarget{je-ne-fournis-que-la-solution-pour-la-fonction-irr.}{%
+\section{Je ne fournis que la solution pour la fonction
+irr.}\label{je-ne-fournis-que-la-solution-pour-la-fonction-irr.}}
+
+\hypertarget{la-solution-ci-dessous-est-donnuxe9e-uxe0-titre-indicatif.-il-peut-exister-dautres}{%
+\section{La solution ci-dessous est donnée à titre indicatif. Il peut
+exister
+d'autres}\label{la-solution-ci-dessous-est-donnuxe9e-uxe0-titre-indicatif.-il-peut-exister-dautres}}
+
+\hypertarget{solutions-tout-aussi-valables.}{%
+\section{solutions tout aussi
+valables.}\label{solutions-tout-aussi-valables.}}
+
+\hypertarget{section-1}{%
+\section{}\label{section-1}}
+
+\hypertarget{pour-le-test-sur-les-changements-de-signe-on-supprime-les-0-du-vecteur}{%
+\section{Pour le test sur les changements de signe, on supprime les 0 du
+vecteur}\label{pour-le-test-sur-les-changements-de-signe-on-supprime-les-0-du-vecteur}}
+
+\hypertarget{des-flux-pour-contourner-les-cas-ouxf9-la-suxe9rie-passerait-par-0-avant-de-changer}{%
+\section{des flux pour contourner les cas où la série passerait par 0
+avant de
+changer}\label{des-flux-pour-contourner-les-cas-ouxf9-la-suxe9rie-passerait-par-0-avant-de-changer}}
+
+\hypertarget{de-signe-par-exemple-5-0-3.-un-tel-cas-est-difficile-uxe0-distinguer-dun}{%
+\section{de signe (par exemple : −5, 0, 3). Un tel cas est difficile à
+distinguer
+d'un}\label{de-signe-par-exemple-5-0-3.-un-tel-cas-est-difficile-uxe0-distinguer-dun}}
+
+\hypertarget{passage-par-0-sans-changement-de-signe-par-exemple-5-0-2.}{%
+\section{passage par 0 sans changement de signe (par exemple : −5, 0,
+−2).}\label{passage-par-0-sans-changement-de-signe-par-exemple-5-0-2.}}
+
+irr \textless{}- function(x) \{ if (all(x \textgreater{}= 0)
+\textbar{}\textbar{} all(x \textless{}= 0)) stop(``tous les flux
+financiers sont du même signe'') if (sum(diff(sign(x{[}x != 0{]})) != 0)
+\textgreater{} 1) warning(``plus d'un changement de signe dans les flux
+nets\n le taux de rendement peut ne pas être unique'') r \textless{}-
+polyroot(x) i \textless{}- 1/Re(r){[}abs(Im(r)) \textless{}
+.Machine\$double.eps\^{}0.5{]} - 1 i{[}i \textgreater{} -1{]} \}
+
+\end{document}
